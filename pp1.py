@@ -5,10 +5,10 @@ import joblib
 import tensorflow as tf
 import numpy as np
 
-# --- 1. CONFIGURATION ---
+# --- 1. إعدادات الهوية البصرية الرسمية ---
 st.set_page_config(page_title="Strategic Project Evaluator", layout="wide", initial_sidebar_state="collapsed")
 
-# --- 2. ENGINE (HIDDEN LOGIC) ---
+# --- 2. محرك التحليل (مخفي تماماً عن المستخدم) ---
 @st.cache_resource
 def load_engine():
     try:
@@ -32,17 +32,15 @@ def infer_internal_metrics(category):
     }
     return mapping.get(category, ["عقد الشراكات"])
 
-# --- 3. PROFESSIONAL STYLING (NAVY & GREY) ---
+# --- 3. تصميم الواجهة (احترافي: نيلي ورمادي وفراغات رصينة) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Noto Sans Arabic', sans-serif;
         background-color: #F8FAFC;
     }
-    
-    .main { background-color: #F8FAFC; }
     
     /* Input Styling */
     .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
@@ -53,140 +51,120 @@ st.markdown("""
         padding: 12px !important;
     }
     
-    /* Button Styling - Corporate Blue */
+    /* Button Styling - Navy Blue */
     div.stButton > button {
-        background-color: #0F172A; /* Deep Navy */
+        background-color: #0F172A; /* Navy Midnight */
         color: #F8FAFC;
         border-radius: 4px;
         width: 100%;
         height: 52px;
         font-weight: 700;
-        letter-spacing: 0.5px;
         border: none;
-        transition: all 0.2s ease;
-        text-transform: uppercase;
+        transition: all 0.3s ease;
     }
     div.stButton > button:hover {
         background-color: #1E293B;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
     }
     
-    /* Titles */
-    h1 { 
-        color: #0F172A; 
-        font-weight: 800; 
-        letter-spacing: -1px;
-        margin-bottom: 0.5rem;
-    }
-    label {
-        color: #475569 !important;
-        font-weight: 600 !important;
-        margin-bottom: 8px !important;
-    }
+    h1 { color: #0F172A; font-weight: 800; text-align: center; margin-bottom: 2rem; }
+    label { color: #475569 !important; font-weight: 600 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. HEADER ---
-st.markdown("<div style='text-align: center; padding: 2rem 0;'><h1 dir='rtl'>محرّك تقييم الجدوى الاستراتيجية</h1></div>", unsafe_allow_html=True)
+# --- 4. العنوان الرئيسي ---
+st.markdown("<h1 dir='rtl'>نظام تقييم الجدوى والمواءمة الاستراتيجية</h1>", unsafe_allow_html=True)
 
-# --- 5. DATA ENTRY FORM ---
+# --- 5. مدخلات المشروع (منظمة وواضحة) ---
 with st.container():
-    with st.form("professional_entry", clear_on_submit=False):
-        # Row 1
-        r1c1, r1c2, r1c3 = st.columns([2, 1, 1])
-        with r1c1:
+    with st.form("professional_form", clear_on_submit=False):
+        col_main, col_side = st.columns([2, 1])
+        
+        with col_main:
             p_name = st.text_input("اسم المشروع")
-        with r1c2:
-            p_cat = st.selectbox("المجال الاستراتيجي", ["تعليمي", "صحي", "اجتماعي", "بيئي", "اقتصادي", "تقني"])
-        with r1c3:
-            p_budget = st.number_input("الميزانية (SAR)", min_value=1000, step=5000)
+            p_desc = st.text_area("وصف المبادرة", height=150, placeholder="اكتب نبذة مختصرة عن المشروع...")
             
-        # Row 2
-        r2c1, r2c2 = st.columns(2)
-        with r2c1:
+        with col_side:
+            p_cat = st.selectbox("المجال الاستراتيجي", ["تعليمي", "صحي", "اجتماعي", "بيئي", "اقتصادي", "تقني"])
+            p_budget = st.number_input("الميزانية التقديرية (SAR)", min_value=1000, step=1000)
             p_duration = st.number_input("النطاق الزمني (يوم)", min_value=1)
-        with r2c2:
             p_ben = st.number_input("المستفيدون المستهدفون", min_value=1)
             
-        p_desc = st.text_area("وصف المبادرة ونطاق العمل", height=100)
-        
         st.markdown("<br>", unsafe_allow_html=True)
-        analyze_btn = st.form_submit_button("إصدار تقرير التحليل")
+        analyze_btn = st.form_submit_button("إصدار تقرير التحليل النهائي")
 
-# --- 6. ANALYTICS REPORT ---
+# --- 6. عرض النتائج (Dashboard Style) ---
 if analyze_btn:
     if not p_name or not p_desc:
-        st.error("يرجى استكمال البيانات المطلوبة لتمكين التحليل.")
+        st.error("يرجى إكمال البيانات الأساسية لتفعيل محرك التقييم.")
     elif scaler and xgb_model and ann_model:
-        # Internal Calculation
+        # العمليات الداخلية (مخفية)
         metrics = infer_internal_metrics(p_cat)
         m_count = len(metrics)
-        social_factor = min(p_ben / (p_budget/100), 1.0)
-        env_factor = 0.85 if p_cat == "بيئي" else 0.35
+        social_f = min(p_ben / (p_budget/100), 1.0)
+        env_f = 0.85 if p_cat == "بيئي" else 0.35
         balance = min(m_count / 4 + 0.5, 1.0)
         
-        # Inference
-        inputs = scaler.transform(np.array([[m_count, social_factor, balance, env_factor]]))
+        # التنبؤ
+        inputs = scaler.transform(np.array([[m_count, social_f, balance, env_f]]))
         res_ann = ann_model.predict(inputs).flatten()[0]
         res_xgb = xgb_model.predict_proba(inputs)[:, 1][0]
-        final_index = (res_ann * 0.6) + (res_xgb * 0.4)
+        score = (res_ann * 0.6) + (res_xgb * 0.4)
         
-        # Derived Data
-        s_roi = round(final_index * (p_ben / (p_budget/1000)), 2)
-        eco_val = f"{int(p_budget * final_index * 1.35):,}"
+        # النتائج المشتقة
+        s_roi = round(score * (p_ben / (p_budget/1000)), 2)
+        eco_val = f"{int(p_budget * score * 1.3):,}"
         
-        # CORPORATE UI REPORT
-        report_html = f"""
+        # تصميم التقرير الرسمي
+        report_ui = f"""
         <div dir="rtl" style="background: #FFFFFF; border: 1px solid #E2E8F0; padding: 40px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 30px;">
-                <h2 style="color: #0F172A; margin: 0;">تقرير تقييم الأثر: {p_name}</h2>
-                <span style="color: #64748B; font-weight: bold;">كود التحليل: #{np.random.randint(1000,9999)}</span>
+            <div style="border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 30px;">
+                <h2 style="color: #0F172A; margin: 0;">تقرير التقييم الاستراتيجي: {p_name}</h2>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px;">
-                <!-- Main Score Card -->
-                <div style="background: #F8FAFC; padding: 30px; border-radius: 4px; text-align: center;">
-                    <span style="color: #64748B; font-size: 0.9rem; text-transform: uppercase; font-weight: 700;">مؤشر احتمالية النجاح الاستراتيجي</span>
-                    <div style="font-size: 4.5rem; font-weight: 800; color: #0F172A; margin: 10px 0;">{final_index*100:.1f}%</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+                <!-- مؤشر النجاح -->
+                <div style="background: #F8FAFC; padding: 30px; border-radius: 4px; text-align: center; border: 1px solid #E2E8F0;">
+                    <span style="color: #64748B; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">احتمالية النجاح الاستراتيجية</span>
+                    <div style="font-size: 4rem; font-weight: 800; color: #0F172A; margin: 15px 0;">{score*100:.1f}%</div>
                     <div style="height: 8px; background: #E2E8F0; border-radius: 10px; overflow: hidden; width: 80%; margin: 0 auto;">
-                        <div style="width: {final_index*100}%; height: 100%; background: #0F172A;"></div>
+                        <div style="width: {score*100}%; height: 100%; background: #0F172A;"></div>
                     </div>
                 </div>
 
-                <!-- Secondary Metrics -->
-                <div style="display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 15px;">
-                    <div style="border: 1px solid #E2E8F0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #475569;">العائد الاجتماعي التقديري</span>
-                        <span style="font-weight: 800; color: #0F172A; font-size: 1.2rem;">{s_roi}x</span>
+                <!-- مصفوفة الأثر -->
+                <div style="display: grid; gap: 15px;">
+                    <div style="border: 1px solid #E2E8F0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between;">
+                        <span style="color: #475569;">العائد الاجتماعي المتوقع</span>
+                        <span style="font-weight: 800; color: #0F172A;">{s_roi}x</span>
                     </div>
-                    <div style="border: 1px solid #E2E8F0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="border: 1px solid #E2E8F0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between;">
                         <span style="color: #475569;">القيمة الاقتصادية المضافة</span>
-                        <span style="font-weight: 800; color: #0F172A; font-size: 1.2rem;">{eco_val} ريال</span>
+                        <span style="font-weight: 800; color: #0F172A;">{eco_val} ريال</span>
                     </div>
-                    <div style="border: 1px solid #E2E8F0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="border: 1px solid #E2E8F0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between;">
                         <span style="color: #475569;">تصنيف الاستدامة</span>
-                        <span style="font-weight: 800; color: #0F172A;">{"A+" if final_index > 0.75 else "B"}</span>
+                        <span style="font-weight: 800; color: #0F172A;">{"متفوق (A)" if score > 0.7 else "مقبول (B)"}</span>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 30px; padding: 20px; border-right: 4px solid #0F172A; background: #F1F5F9;">
-                <h4 style="margin: 0 0 10px 0; color: #0F172A;">المواءمة مع المستهدفات الاستراتيجية:</h4>
+            <div style="margin-top: 30px; padding: 20px; background: #F1F5F9; border-right: 5px solid #0F172A;">
+                <h4 style="margin: 0 0 10px 0; color: #0F172A;">المواءمة مع المستهدفات:</h4>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    {' '.join([f'<span style="background: #FFFFFF; border: 1px solid #CBD5E1; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; color: #334155;">{m}</span>' for m in metrics])}
+                    {' '.join([f'<span style="background: white; border: 1px solid #CBD5E1; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem;">{m}</span>' for m in metrics])}
                 </div>
             </div>
 
-            <div style="margin-top: 25px; color: #1E293B; line-height: 1.6; border: 1px solid #E2E8F0; padding: 20px;">
-                <strong>الخلاصة الاستشارية:</strong><br>
-                {"بناءً على النمذجة الرياضية، يتمتع المشروع بفرص واعدة للتحقق الميداني. نوصي بتخصيص الموارد المطلوبة والبدء في مرحلة التنفيذ." if final_index > 0.6 else "تشير المعطيات الحالية إلى وجود فجوة في كفاءة التشغيل مقابل الأثر. نوصي بإعادة تقييم هيكلة التكاليف."}
+            <div style="margin-top: 25px; padding: 20px; border: 1px solid #E2E8F0; line-height: 1.6;">
+                <strong>الخلاصة التقديرية:</strong><br>
+                {"بناءً على التحليل المتقدم للمؤشرات، يمتلك المشروع مقومات نجاح عالية وقدرة على تحقيق أثر مستدام." if score > 0.6 else "يوصى بإعادة مراجعة الموارد التشغيلية لضمان كفاءة أعلى في تحقيق المخرجات."}
             </div>
         </div>
         """
-        components.html(report_html, height=750, scrolling=True)
+        components.html(report_ui, height=750, scrolling=True)
     else:
-        st.error("نظام التقييم غير جاهز حالياً. يرجى التأكد من تكامل الملفات.")
+        st.error("المحرك الذكي غير متصل حالياً.")
 
-# --- 7. FOOTER ---
-st.markdown("<div style='text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 3rem;'>© 2024 نظام التقييم المؤسسي المستقل</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 4rem;'>© جميع الحقوق محفوظة - نظام تقييم الأثر</div>", unsafe_allow_html=True)
 
