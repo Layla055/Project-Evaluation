@@ -4,12 +4,11 @@ import pandas as pd
 import joblib
 import tensorflow as tf
 import numpy as np
-import json
 
-# إعداد الصفحة
-st.set_page_config(page_title="المنصة الذكية لتحليل المشاريع", layout="wide")
+# --- 1. إعدادات الصفحة الرسمية ---
+st.set_page_config(page_title="منصة تحليل المشاريع التنموية", layout="wide")
 
-# وظيفة تحميل النماذج الذكية
+# --- 2. تحميل النماذج (الذكاء الاصطناعي الهجين) ---
 @st.cache_resource
 def load_models():
     try:
@@ -17,128 +16,109 @@ def load_models():
         xgb_model = joblib.load('hybrid_xgb.pkl')
         ann_model = tf.keras.models.load_model('hybrid_ann.h5')
         return scaler, xgb_model, ann_model
-    except:
-        return None, None, None
+    except: return None, None, None
 
 scaler, xgb_model, ann_model = load_models()
 
-# تصميم الـ HTML المدمج مع CSS (الأزرق والرمادي)
-html_template = """
-<!DOCTYPE html>
-<html dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body {{ 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f9;
-            margin: 0; padding: 20px; text-align: center; color: #333;
-        }}
-        .container {{
-            background: white; padding: 30px; border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 900px; margin: auto; border-top: 8px solid #0d47a1;
-        }}
-        h1 {{ color: #0d47a1; margin-bottom: 10px; }}
-        .analysis-box {{
-            background: linear-gradient(135deg, #0d47a1, #42a5f5);
-            color: white; padding: 30px; border-radius: 15px; margin: 20px 0;
-        }}
-        .metric {{ font-size: 3.5em; font-weight: bold; }}
-        .card {{
-            background: #ffffff; padding: 20px; margin: 15px 0;
-            border-radius: 10px; border-right: 5px solid #0d47a1;
-            text-align: right; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }}
-        .result-grid {{
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-        }}
-        .footer-text {{ color: #777; font-size: 0.9em; margin-top: 30px; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <img src="https://img.icons8.com/fluency/96/artificial-intelligence.png" width="80">
-        <h1>نتائج التحليل الهجين المتقدم</h1>
-        <p>بناءً على نموذج الذكاء الاصطناعي الهجين (ANN + XGBoost)</p>
+# --- 3. محرك الربط التلقائي بالأهداف (SDGs) بناءً على المجال والوصف ---
+def get_sdgs(category, description):
+    mapping = {
+        "تعليمي": ["4. التعليم الجيد", "5. المساواة بين الجنسين", "17. عقد الشراكات"],
+        "صحي": ["3. الصحة الجيدة والرفاه", "6. المياه النظيفة"],
+        "اجتماعي": ["1. القضاء على الفقر", "10. الحد من أوجه عدم المساواة"],
+        "بيئي": ["13. العمل المناخي", "15. الحياة في البر", "7. طاقة نظيفة"],
+        "اقتصادي": ["8. العمل اللائق ونمو الاقتصاد", "9. الصناعة والابتكار"],
+        "تقني": ["9. الصناعة والابتكار والهياكل الأساسية", "4. التعليم الجيد"]
+    }
+    return mapping.get(category, ["17. عقد الشراكات"])
 
-        <div class="analysis-box">
-            <div class="metric">{success_score}%</div>
-            <p>احتمالية النجاح المقدرة بدقة الذكاء الاصطناعي</p>
-        </div>
+# --- 4. واجهة المدخلات (التصميم بالأزرق الغامق والرمادي) ---
+st.markdown("<h1 style='text-align: center; color: #0d47a1;'>المنصة الذكية لتحليل المشاريع التنموية 📊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666;'>نظام متقدم للتقييم والتنبؤ باستخدام النموذج الهجين (ANN + XGBoost)</p>", unsafe_allow_html=True)
 
-        <div class="result-grid">
-            <div class="card">
-                <h3>📊 كفاءة الموارد</h3>
-                <p>تم تحليل الميزانية ({budget} ريال) مقابل عدد المستفيدين ({beneficiaries}) لضمان أعلى عائد اجتماعي.</p>
-            </div>
-            <div class="card">
-                <h3>⚖️ توازن المشروع</h3>
-                <p>درجة التوازن المقدرة: {balance_score} استناداً إلى معايير التنمية المستدامة.</p>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>💡 توصية النظام الذكي</h3>
-            <p style="font-size: 1.2em; color: #0d47a1; font-weight: bold;">{recommendation}</p>
-        </div>
-
-        <p class="footer-text">تم توليد هذا التقرير آلياً بواسطة المنصة الذكية - مؤتمر إدارة المشاريع</p>
-    </div>
-</body>
-</html>
-"""
-
-# واجهة المستخدم في Streamlit (إدخال البيانات)
-st.title("⚙️ لوحة تحكم التقييم الذكي")
-st.markdown("أدخل بيانات المشروع أدناه ليقوم النموذج الهجين بتحليلها فوراً.")
-
-with st.form("project_form"):
-    col1, col2 = st.columns(2)
-    with col1:
-        name = st.text_input("اسم المشروع التنموي")
-        category = st.selectbox("مجال المشروع", ["تعليمي", "صحي", "اجتماعي", "بيئي", "اقتصادي", "تقني"])
-        budget = st.number_input("الميزانية التقديرية (ريال)", min_value=1000, value=50000)
-    with col2:
-        beneficiaries = st.number_input("عدد المستفيدين المتوقع", min_value=1, value=500)
-        duration = st.number_input("المدة الزمنية (أيام)", min_value=1, value=365)
-        sdg_count = st.slider("عدد أهداف التنمية المستدامة المرتبطة", 1, 17, 5)
-
-    submitted = st.form_submit_button("تشغيل التحليل العميق 🚀")
-
-if submitted:
-    if scaler and xgb_model and ann_model:
-        # حساب الميزات بناءً على مدخلات المستخدم لمحاكاة البيانات التي تدرب عليها الموديل
-        social_ratio = min(beneficiaries / (budget/100), 1.0)
-        balance_score = min(sdg_count / 17 + 0.3, 1.0)
-        env_ratio = 0.6 if category == "بيئي" else 0.4
+with st.container():
+    st.markdown("""<style> div.stButton > button:first-child { background-color: #0d47a1; color: white; width: 100%; border-radius: 10px; height: 50px; font-weight: bold; } </style>""", unsafe_allow_html=True)
+    
+    with st.form("main_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            project_name = st.text_input("📝 اسم المشروع")
+            category = st.selectbox("📂 مجال المشروع", ["تعليمي", "صحي", "اجتماعي", "بيئي", "اقتصادي", "تقني"])
+            budget = st.number_input("💰 الميزانية التقديرية (ريال)", min_value=1000, value=50000)
+        with col2:
+            duration = st.number_input("⏳ مدة المشروع (أيام)", min_value=1, value=365)
+            beneficiaries = st.number_input("👥 عدد المستفيدين المتوقع", min_value=1, value=200)
+            
+        description = st.text_area("💡 فكرة المشروع (اشرح التفاصيل هنا لربط الأهداف تلقائياً)")
         
-        # تجهيز البيانات للموديل
+        submitted = st.form_submit_button("بدء التحليل الشامل للمشروع 🚀")
+
+# --- 5. تنفيذ التحليل وعرض النتائج الشاملة ---
+if submitted:
+    if not project_name or not description:
+        st.error("الرجاء إكمال اسم المشروع وفكرته قبل التحليل.")
+    elif scaler and xgb_model and ann_model:
+        # أ. استنتاج الأهداف وتجهيز المعايير
+        detected_sdgs = get_sdgs(category, description)
+        sdg_count = len(detected_sdgs)
+        social_ratio = min(beneficiaries / (budget/100), 1.0)
+        balance_score = min(sdg_count / 5 + 0.4, 1.0)
+        env_ratio = 0.8 if category == "بيئي" else 0.4
+        
+        # ب. التنبؤ الهجين
         input_data = np.array([[sdg_count, social_ratio, balance_score, env_ratio]])
         input_scaled = scaler.transform(input_data)
-        
-        # التنبؤ الهجين
         pred_ann = ann_model.predict(input_scaled).flatten()[0]
         pred_xgb = xgb_model.predict_proba(input_scaled)[:, 1][0]
         final_score = (pred_ann * 0.6) + (pred_xgb * 0.4)
         
-        # تحديد التوصية
-        if final_score > 0.7:
-            rec = "✅ المشروع يمتلك مقومات نجاح عالية جداً، نوصي بالتنفيذ الفوري."
-        elif final_score > 0.4:
-            rec = "⚠️ المشروع واعد ولكن يتطلب تحسين في توزيع الموارد لضمان الاستدامة."
-        else:
-            rec = "❌ مخاطر المشروع مرتفعة، ينصح بإعادة النظر في خطة التنفيذ والميزانية."
-
-        # عرض الـ HTML المخصص مع النتائج
-        full_html = html_template.format(
-            success_score=round(final_score * 100, 2),
-            budget=budget,
-            beneficiaries=beneficiaries,
-            balance_score=round(balance_score, 2),
-            recommendation=rec
-        )
+        # ج. حساب العوائد (Social & Economic ROI) بناءً على معادلات تقديرية
+        social_roi = round(final_score * (beneficiaries/budget) * 1000, 2)
+        economic_impact = f"{round(budget * final_score * 1.2, 0):,}"
         
-        components.html(full_html, height=800, scrolling=True)
+        # د. عرض النتائج بتصميم HTML فخم
+        results_html = f"""
+        <div dir="rtl" style="background: white; padding: 30px; border-radius: 15px; border-top: 10px solid #0d47a1; box-shadow: 0 4px 20px rgba(0,0,0,0.1); font-family: sans-serif;">
+            <h2 style="color: #0d47a1; text-align: center;">🚩 تقرير تحليل: {project_name}</h2>
+            
+            <div style="background: #0d47a1; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
+                <span style="font-size: 1.2em;">احتمالية نجاح المشروع المتوقعة</span><br>
+                <span style="font-size: 4em; font-weight: bold;">{final_score*100:.1f}%</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="background: #f4f7f9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ddd;">
+                    <strong style="color: #0d47a1;">📈 العائد الاجتماعي</strong><br>
+                    <span style="font-size: 1.5em; font-weight: bold;">{social_roi}x</span>
+                </div>
+                <div style="background: #f4f7f9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ddd;">
+                    <strong style="color: #0d47a1;">💰 الأثر الاقتصادي</strong><br>
+                    <span style="font-size: 1.2em; font-weight: bold;">{economic_impact} ريال</span>
+                </div>
+                <div style="background: #f4f7f9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ddd;">
+                    <strong style="color: #0d47a1;">🌿 الأثر البيئي</strong><br>
+                    <span style="font-size: 1.2em; font-weight: bold;">{"مرتفع" if env_ratio > 0.5 else "متوازن"}</span>
+                </div>
+            </div>
+
+            <div style="background: #ffffff; padding: 15px; border-radius: 10px; border-right: 6px solid #4caf50; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin: 0; color: #2e7d32;">🌍 أهداف التنمية المستدامة المرتبطة تلقائياً:</h4>
+                <p style="margin: 10px 0; font-weight: bold; color: #555;">{' | '.join(detected_sdgs)}</p>
+            </div>
+
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; border-right: 6px solid #0d47a1;">
+                <h4 style="margin: 0; color: #0d47a1;">💡 توصيات الذكاء الاصطناعي:</h4>
+                <ul style="margin-top: 10px; color: #444;">
+                    <li>يرجى التركيز على استدامة الموارد المالية خلال الـ {duration} يوم القادمة.</li>
+                    <li>كفاءة الوصول للمستفيدين ({beneficiaries}) تعزز من نقاط القوة في نموذجك.</li>
+                    <li>{"نوصي ببدء التنفيذ فوراً نظراً لارتفاع احتمالية النجاح." if final_score > 0.6 else "نوصي بمراجعة التكاليف التشغيلية لتحسين فرص النجاح."}</li>
+                </ul>
+            </div>
+        </div>
+        """
+        components.html(results_html, height=850, scrolling=True)
+        if final_score > 0.6: st.balloons()
     else:
-        st.error("خطأ: لم يتم العثور على ملفات الموديل الذكي. تأكدي من رفع scaler.pkl و hybrid_ann.h5 و hybrid_xgb.pkl")
+        st.error("⚠️ ملفات الموديل (scaler.pkl, hybrid_ann.h5, hybrid_xgb.pkl) غير موجودة في المستودع.")
+
+st.markdown("<br><p style='text-align: center; color: #999; font-size: 0.8em;'>تم التطوير لدعم اتخاذ القرار في المشاريع التنموية - نسخة احترافية 3.0</p>", unsafe_allow_html=True)
