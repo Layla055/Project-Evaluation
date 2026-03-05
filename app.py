@@ -3,54 +3,105 @@ import pandas as pd
 import joblib
 import tensorflow as tf
 import numpy as np
+from PIL import Image  # سنحتاج هذه المكتبة لعرض الصورة
 
-# إعداد الصفحة
-st.set_page_config(page_title="PMD Evaluation Platform", layout="centered")
+# --- 1. إعدادات الصفحة والهوية البصرية ---
+st.set_page_config(page_title="نظام تقييم المشاريع الذكي", layout="centered")
 
-# تحميل الموديلات
-@st.cache_resource
-def load_models():
-    # تأكدي من رفع الملفات في GitHub في نفس المجلد الرئيسي
-    scaler = joblib.load('scaler.pkl')
-    xgb_model = joblib.load('hybrid_xgb.pkl')
-    ann_model = tf.keras.models.load_model('hybrid_ann.h5')
-    return scaler, xgb_model, ann_model
+# تطبيق التنسيق والألوان (أبيض، أزرق داكن، رمادي)
+st.markdown("""
+    <style>
+    .main {
+        background-color: #FFFFFF;
+    }
+    h1 {
+        color: #0d47a1; /* أزرق داكن للعنوان */
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .stButton>button {
+        background-color: #1976d2; /* أزرق متوسط للأزرار */
+        color: white;
+        border-radius: 8px;
+        width: 100%;
+        height: 3em;
+        font-weight: bold;
+    }
+    p, label {
+        color: #333333; /* رمادي داكن للقراءة */
+        font-size: 1.1rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
+# --- 2. إضافة الشعار (استبدلي 'logo.png' باسم ملف شعارك) ---
 try:
-    scaler, xgb_model, ann_model = load_models()
-    st.success("✅ تم تحميل محرك الذكاء الاصطناعي بنجاح")
-except:
-    st.warning("⚠️ جاري إعداد محرك التقييم...")
+    image = Image.open('logo.png')
+    st.image(image, caption='المؤتمر الدولي لإدارة المشاريع التنموية', use_container_width=True) # عرض الشعار مع تعليق
+except FileNotFoundError:
+    st.warning("⚠️ لم يتم العثور على ملف الشعار 'logo.png'. تأكدي من رفعه إلى GitHub.")
 
-# واجهة المستخدم
-st.title("نظام تقييم المشاريع التنموية (Hybrid AI)")
-st.subheader("مؤتمر إدارة المشاريع التنموية PMD")
+# --- 3. وظيفة تحميل النماذج الذكية ---
+@st.cache_resource
+def load_smart_models():
+    try:
+        scaler = joblib.load('scaler.pkl')
+        xgb_model = joblib.load('hybrid_xgb.pkl')
+        ann_model = tf.keras.models.load_model('hybrid_ann.h5')
+        return scaler, xgb_model, ann_model
+    except Exception as e:
+        st.error(f"حدث خطأ أثناء تحميل النماذج: {e}")
+        return None, None, None
 
-# مدخلات البيانات التنموية (بناءً على Features الخاصة بكِ)
-col1, col2 = st.columns(2)
-with col1:
-    sdg_count = st.number_input("عدد أهداف التنمية المستدامة (SDG_count)", 0, 17)
-    social_ratio = st.slider("نسبة الأثر الاجتماعي (Social_ratio)", 0.0, 1.0)
-with col2:
-    balance_score = st.slider("درجة التوازن (Balance_score)", 0.0, 1.0)
-    env_ratio = st.slider("نسبة الأثر البيئي (Environmental_ratio)", 0.0, 1.0)
+scaler, xgb_model, ann_model = load_smart_models()
 
-if st.button("تحليل المشروع الآن"):
-    # تجهيز البيانات للتنبؤ
-    input_data = np.array([[sdg_count, social_ratio, balance_score, env_ratio]])
-    input_scaled = scaler.transform(input_data)
+# --- 4. واجهة المستخدم ---
+st.title("منصة تقييم أثر المشاريع التنموية 📊")
+st.write("استخدم هذا النظام الذكي المبني على النموذج الهجين (Hybrid AI) لتقييم فرص نجاح مشروعك التنموي بناءً على المعايير العالمية.")
+
+st.markdown("---")
+
+# الحاوية الخاصة بمدخلات البيانات
+with st.container():
+    st.subheader("📝 إدخال بيانات المشروع")
     
-    # التنبؤ الهجين (Hybrid: ANN + XGBoost)
-    pred_ann = ann_model.predict(input_scaled).flatten()[0]
-    pred_xgb = xgb_model.predict_proba(input_scaled)[:, 1][0]
+    col1, col2 = st.columns(2)
     
-    # دمج النتائج (بناءً على أفضل نسبة ظهرت في الكود الخاص بك 0.6 و 0.4)
-    final_score = (pred_ann * 0.6) + (pred_xgb * 0.4)
+    with col1:
+        sdg_count = st.number_input("عدد أهداف التنمية المستدامة المرتبطة", min_value=0, max_value=17, value=5)
+        social_ratio = st.slider("مؤشر الأثر الاجتماعي", 0.0, 1.0, 0.5)
+        
+    with col2:
+        balance_score = st.slider("درجة توازن الموارد", 0.0, 1.0, 0.5)
+        env_ratio = st.slider("مؤشر الأثر البيئي", 0.0, 1.0, 0.5)
+
+    st.markdown("###")
     
-    # عرض النتيجة
-    st.markdown("---")
-    if final_score > 0.5:
-        st.balloons()
-        st.success(f"### النتيجة: مشروع ناجح واعد \n **نسبة النجاح المتوقعة: {final_score*100:.2f}%**")
-    else:
-        st.error(f"### النتيجة: المشروع يتطلب إعادة تقييم \n **نسبة النجاح المتوقعة: {final_score*100:.2f}%**")
+    if st.button("بدء التقييم الذكي للمشروع"):
+        if scaler and xgb_model and ann_model:
+            # تجهيز البيانات
+            input_features = np.array([[sdg_count, social_ratio, balance_score, env_ratio]])
+            input_scaled = scaler.transform(input_features)
+            
+            # التنبؤ الهجين
+            pred_ann = ann_model.predict(input_scaled).flatten()[0]
+            pred_xgb = xgb_model.predict_proba(input_scaled)[:, 1][0]
+            
+            final_success_score = (pred_ann * 0.6) + (pred_xgb * 0.4)
+            final_percentage = final_success_score * 100
+            
+            # عرض النتائج
+            st.markdown("---")
+            if final_success_score >= 0.5:
+                st.balloons()
+                st.success(f"### النتيجة: مشروع واعد ذو جدوى عالية \n **نسبة النجاح المتوقعة: {final_percentage:.2f}%**")
+                st.info("نوصي بالمضي قدماً في تنفيذ المشروع.")
+            else:
+                st.error(f"### النتيجة: مخاطر عالية / يتطلب مراجعة \n **نسبة النجاح المتوقعة: {final_percentage:.2f}%**")
+                st.warning("يُنصح بإعادة دراسة خطة المخاطر.")
+        else:
+            st.error("تعذر تشغيل نظام التقييم. تأكدي من رفع كافة ملفات الموديل بنجاح.")
+
+# تذييل الصفحة
+st.markdown("---")
+st.caption("تم تطوير هذا النظام باستخدام تقنيات الذكاء الاصطناعي الهجين.")
