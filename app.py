@@ -6,6 +6,7 @@ import joblib
 import os
 import re
 from pathlib import Path
+from collections import Counter
 
 # محاولة تحميل TensorFlow بشكل آمن
 try:
@@ -73,70 +74,267 @@ def load_models_safe():
     
     return models
 
-# --- 4. قاموس الكلمات المفتاحية ---
+# --- 4. قاموس الكلمات المفتاحية الموسع مع أوزان وأهداف متعددة ---
 SDG_KEYWORDS = {
-    1: {'name': 'القضاء على الفقر', 
-        'keywords': ['فقر', 'فقراء', 'تمكين', 'دخل', 'مساعدات', 'ضمان', 'تكافل', 'poverty']},
-    2: {'name': 'القضاء على الجوع', 
-        'keywords': ['جوع', 'أمن غذائي', 'زراعة', 'محاصيل', 'غذاء', 'تغذية', 'hunger']},
-    3: {'name': 'الصحة الجيدة', 
-        'keywords': ['صحة', 'مستشفى', 'مركز صحي', 'رعاية', 'أمراض', 'علاج', 'health']},
-    4: {'name': 'التعليم الجيد', 
-        'keywords': ['تعليم', 'مدرسة', 'جامعة', 'طلاب', 'معلمين', 'تدريب', 'education']},
-    5: {'name': 'المساواة بين الجنسين', 
-        'keywords': ['مساواة', 'نساء', 'فتيات', 'تمكين المرأة', 'gender']},
-    6: {'name': 'المياه النظيفة', 
-        'keywords': ['مياه', 'صرف صحي', 'تنقية', 'شرب', 'ري', 'water']},
-    7: {'name': 'الطاقة النظيفة', 
-        'keywords': ['طاقة', 'كهرباء', 'طاقة شمسية', 'طاقة متجددة', 'energy']},
-    8: {'name': 'العمل اللائق', 
-        'keywords': ['عمل', 'توظيف', 'وظائف', 'عمالة', 'فرص عمل', 'employment']},
-    9: {'name': 'الصناعة والابتكار', 
-        'keywords': ['صناعة', 'ابتكار', 'بنية تحتية', 'طرق', 'مصانع', 'industry']},
-    10: {'name': 'الحد من عدم المساواة', 
-         'keywords': ['مساواة', 'فئات مهمشة', 'ذوي احتياجات', 'تمكين', 'inequality']},
-    11: {'name': 'مدن مستدامة', 
-         'keywords': ['مدن', 'تخطيط حضري', 'إسكان', 'مواصلات', 'نقل', 'cities']},
-    12: {'name': 'استهلاك مسؤول', 
-         'keywords': ['استهلاك', 'إنتاج', 'استدامة', 'إعادة تدوير', 'consumption']},
-    13: {'name': 'العمل المناخي', 
-         'keywords': ['مناخ', 'تغير مناخي', 'انبعاثات', 'كربون', 'climate']},
-    14: {'name': 'الحياة تحت الماء', 
-         'keywords': ['بحار', 'محيطات', 'أسماك', 'سواحل', 'oceans']},
-    15: {'name': 'الحياة في البر', 
-         'keywords': ['بيئة', 'غابات', 'تنوع', 'حيوانات', 'نباتات', 'environment']},
-    16: {'name': 'السلام والعدالة', 
-         'keywords': ['سلام', 'عدالة', 'مؤسسات', 'حوكمة', 'قضاء', 'peace']},
-    17: {'name': 'الشراكات', 
-         'keywords': ['شراكات', 'تعاون', 'تمويل', 'منح', 'partnerships']}
+    1: {
+        'name': 'القضاء على الفقر',
+        'keywords': [
+            'فقر', 'فقراء', 'تمكين اقتصادي', 'دخل', 'مساعدات', 'ضمان اجتماعي', 'تكافل', 
+            'poverty', 'poor', 'low income'
+        ]
+    },
+    2: {
+        'name': 'القضاء على الجوع',
+        'keywords': [
+            'جوع', 'أمن غذائي', 'زراعة', 'محاصيل', 'غذاء', 'تغذية', 
+            'hunger', 'food security', 'agriculture'
+        ]
+    },
+    3: {
+        'name': 'الصحة الجيدة',
+        'keywords': [
+            'صحة', 'مستشفى', 'مركز صحي', 'رعاية صحية', 'أمراض', 'لقاحات', 'أدوية', 'علاج',
+            'صحة عامة', 'صحة الأم والطفل', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف', 'عيادات',
+            'health', 'hospital', 'clinic', 'medical', 'healthcare'
+        ]
+    },
+    4: {
+        'name': 'التعليم الجيد',
+        'keywords': [
+            'تعليم', 'مدرسة', 'جامعة', 'طلاب', 'معلمين', 'مناهج', 'تدريب', 'محو أمية',
+            'التعليم الأساسي', 'التعليم الثانوي', 'التعليم العالي', 'رياض أطفال', 'حضانات',
+            'التعليم الفني', 'التعليم المهني', 'مراكز التدريب', 'تنمية المهارات',
+            'education', 'school', 'university', 'students', 'teachers', 'training'
+        ]
+    },
+    5: {
+        'name': 'المساواة بين الجنسين',
+        'keywords': [
+            'مساواة', 'نساء', 'فتيات', 'تمكين المرأة', 'عنف ضد المرأة', 'حقوق المرأة',
+            'المرأة الريفية', 'المرأة العاملة', 'القيادة النسائية', 'ريادة الأعمال النسائية',
+            'gender equality', 'women', 'girls', 'female empowerment'
+        ]
+    },
+    6: {
+        'name': 'المياه النظيفة',
+        'keywords': [
+            'مياه', 'صرف صحي', 'محطات تنقية', 'شرب', 'ري', 'سدود', 'آبار',
+            'مياه شرب نظيفة', 'تحلية المياه', 'شبكات المياه', 'معالجة المياه',
+            'water', 'clean water', 'sanitation', 'sewage', 'irrigation'
+        ]
+    },
+    7: {
+        'name': 'الطاقة النظيفة',
+        'keywords': [
+            'طاقة', 'كهرباء', 'طاقة شمسية', 'طاقة متجددة', 'شبكة كهرباء', 'محطات توليد',
+            'الطاقة الشمسية', 'الألواح الشمسية', 'توربينات الرياح', 'الطاقة النووية',
+            'energy', 'electricity', 'solar', 'renewable', 'clean energy'
+        ]
+    },
+    8: {
+        'name': 'العمل اللائق',
+        'keywords': [
+            'عمل', 'توظيف', 'وظائف', 'عمالة', 'فرص عمل', 'بطالة', 'مهارات مهنية',
+            'العمل اللائق', 'ظروف العمل', 'حقوق العمال', 'العمال', 'الموظفين',
+            'employment', 'jobs', 'work', 'labor', 'decent work'
+        ]
+    },
+    9: {
+        'name': 'الصناعة والابتكار',
+        'keywords': [
+            'صناعة', 'ابتكار', 'بنية تحتية', 'طرق', 'جسور', 'مصانع', 'تكنولوجيا',
+            'القطاع الصناعي', 'المدن الصناعية', 'التصنيع', 'البحث والتطوير',
+            'industry', 'innovation', 'infrastructure', 'technology'
+        ]
+    },
+    10: {
+        'name': 'الحد من عدم المساواة',
+        'keywords': [
+            'مساواة', 'شمولية', 'فئات مهمشة', 'ذوي احتياجات خاصة', 'تمكين',
+            'المناطق المهمشة', 'الأرياف', 'المناطق النائية', 'اللاجئين', 'النازحين', 'المهاجرين',
+            'ذوو الإعاقة', 'المعاقين', 'المكفوفين', 'الصم', 'ذوي الهمم',
+            'كبار السن', 'المسنين', 'المسنات', 'المتقاعدين', 'الأحداث', 'الأطفال',
+            'inequality', 'inclusion', 'marginalized', 'disabled', 'refugees', 'elderly'
+        ]
+    },
+    11: {
+        'name': 'مدن مستدامة',
+        'keywords': [
+            'مدن', 'تخطيط حضري', 'إسكان', 'مواصلات', 'نقل عام', 'بنية تحتية حضرية',
+            'المدن المستدامة', 'المجتمعات المستدامة', 'المدن الذكية', 'التخطيط العمراني',
+            'الإسكان الميسر', 'الإسكان الاجتماعي', 'الحدائق العامة', 'المساحات الخضراء',
+            'sustainable cities', 'urban planning', 'housing', 'public transport'
+        ]
+    },
+    12: {
+        'name': 'استهلاك مسؤول',
+        'keywords': [
+            'استهلاك', 'إنتاج', 'استدامة', 'كفاءة موارد', 'إعادة تدوير',
+            'الاستهلاك المستدام', 'الإنتاج المستدام', 'ترشيد الاستهلاك',
+            'إعادة التدوير', 'تدوير المخلفات', 'الاقتصاد الدائري',
+            'responsible consumption', 'recycling', 'circular economy'
+        ]
+    },
+    13: {
+        'name': 'العمل المناخي',
+        'keywords': [
+            'مناخ', 'تغير مناخي', 'انبعاثات', 'احتباس حراري', 'كربون',
+            'التغير المناخي', 'الاحتباس الحراري', 'غازات الدفيئة', 'انبعاثات الكربون',
+            'الحياد الكربوني', 'خفض الانبعاثات', 'التكيف مع التغير المناخي',
+            'climate', 'climate change', 'emissions', 'carbon', 'global warming'
+        ]
+    },
+    14: {
+        'name': 'الحياة تحت الماء',
+        'keywords': [
+            'بحار', 'محيطات', 'أسماك', 'سواحل', 'ثروة بحرية', 'صيد',
+            'الحياة البحرية', 'الكائنات البحرية', 'الشعاب المرجانية', 'الاستزراع السمكي',
+            'oceans', 'seas', 'marine life', 'fisheries', 'coral reefs'
+        ]
+    },
+    15: {
+        'name': 'الحياة في البر',
+        'keywords': [
+            'بيئة', 'غابات', 'تنوع أحيائي', 'محيات طبيعية', 'حيوانات', 'نباتات',
+            'المحميات الطبيعية', 'الحياة البرية', 'الحيوانات البرية', 'التنوع الحيوي',
+            'مكافحة التصحر', 'إعادة التشجير', 'الاستدامة البيئية',
+            'environment', 'forests', 'biodiversity', 'wildlife', 'conservation'
+        ]
+    },
+    16: {
+        'name': 'السلام والعدالة',
+        'keywords': [
+            'سلام', 'عدالة', 'مؤسسات', 'حوكمة', 'قضاء', 'سيادة القانون',
+            'الأمن والسلام', 'الاستقرار', 'مكافحة الفساد', 'الشفافية', 'المساءلة',
+            'حقوق الإنسان', 'الحريات العامة', 'الحقوق المدنية',
+            'peace', 'justice', 'institutions', 'governance', 'rule of law'
+        ]
+    },
+    17: {
+        'name': 'الشراكات',
+        'keywords': [
+            'شراكات', 'تعاون دولي', 'تمويل', 'منح', 'قروض', 'مساعدات دولية',
+            'التعاون المشترك', 'المنظمات الدولية', 'المانحين', 'الجهات المانحة',
+            'partnerships', 'international cooperation', 'funding', 'grants'
+        ]
+    }
 }
 
-# --- 5. تصنيف الأهداف ---
+# --- 5. قواعد ذكية للكلمات التي ترتبط بأهداف متعددة ---
+MULTI_SDG_RULES = [
+    {
+        'triggers': ['كبار السن', 'المسنين', 'المسنات', 'المتقاعدين'],
+        'target_sdgs': [3, 10],  # الصحة الجيدة + الحد من عدم المساواة
+        'primary': 10  # الهدف الأساسي (الحد من عدم المساواة)
+    },
+    {
+        'triggers': ['تعليم كبار السن', 'محو أمية كبار', 'تعليم المسنين'],
+        'target_sdgs': [4, 10],  # التعليم الجيد + الحد من عدم المساواة
+        'primary': 10
+    },
+    {
+        'triggers': ['أطفال الشوارع', 'أطفال بلا مأوى'],
+        'target_sdgs': [1, 4, 10],  # الفقر + التعليم + عدم المساواة
+        'primary': 10
+    },
+    {
+        'triggers': ['تمكين المرأة الريفية', 'تنمية المرأة الريفية'],
+        'target_sdgs': [5, 8, 10],  # مساواة + عمل لائق + عدم مساواة
+        'primary': 5
+    },
+    {
+        'triggers': ['زراعة عضوية', 'زراعة مستدامة'],
+        'target_sdgs': [2, 12, 15],  # جوع + استهلاك مسؤول + حياة في البر
+        'primary': 2
+    },
+    {
+        'triggers': ['طاقة شمسية للمنازل', 'طاقة متجددة للمجتمعات'],
+        'target_sdgs': [7, 11],  # طاقة نظيفة + مدن مستدامة
+        'primary': 7
+    },
+    {
+        'triggers': ['مشاريع صغيرة للنساء', 'تمويل أصغر للنساء'],
+        'target_sdgs': [5, 8, 10],  # مساواة + عمل لائق + عدم مساواة
+        'primary': 5
+    },
+    {
+        'triggers': ['صحة الأم والطفل', 'رعاية الحوامل'],
+        'target_sdgs': [3, 5],  # صحة + مساواة
+        'primary': 3
+    },
+    {
+        'triggers': ['تعليم الفتيات', 'تمكين الفتيات'],
+        'target_sdgs': [4, 5],  # تعليم + مساواة
+        'primary': 4
+    },
+    {
+        'triggers': ['مياه نظيفة للمجتمعات الريفية'],
+        'target_sdgs': [6, 10],  # مياه + عدم مساواة
+        'primary': 6
+    }
+]
+
+# --- 6. تصنيف الأهداف ---
 SDG_DIMENSIONS = {
     'social': [1, 2, 3, 4, 5, 10, 11, 16],
     'economic': [8, 9, 12, 17],
     'environmental': [6, 7, 13, 14, 15]
 }
 
-# --- 6. دوال التحليل ---
-def extract_sdgs_from_text(text):
-    """استخراج الأهداف من النص"""
+# --- 7. دوال التحليل الذكية ---
+def extract_sdgs_from_text_advanced(text):
+    """
+    استخراج أهداف التنمية المستدامة من النص بطريقة ذكية
+    تدعم استخلاص أهداف متعددة من نفس العبارة
+    """
     if not text:
-        return []
+        return [], {}
     
     text = text.lower()
-    detected_sdgs = []
+    text = re.sub(r'[^\w\s]', ' ', text)
     
-    for sdg_num, sdg_info in SDG_KEYWORDS.items():
-        for keyword in sdg_info['keywords']:
-            if keyword.lower() in text:
-                detected_sdgs.append(sdg_num)
+    detected_sdgs = []
+    matched_keywords = {i: [] for i in range(1, 18)}
+    primary_sdgs = []
+    
+    # 1. البحث عن القواعد الخاصة (Multi-SDG)
+    for rule in MULTI_SDG_RULES:
+        for trigger in rule['triggers']:
+            if trigger in text:
+                # إضافة جميع الأهداف المرتبطة
+                for sdg in rule['target_sdgs']:
+                    detected_sdgs.append(sdg)
+                    matched_keywords[sdg].append(trigger)
+                
+                # تسجيل الهدف الأساسي
+                if rule['primary'] not in primary_sdgs:
+                    primary_sdgs.append(rule['primary'])
                 break
     
-    return list(set(detected_sdgs))
+    # 2. البحث في الكلمات المفتاحية العادية
+    for sdg_num, sdg_info in SDG_KEYWORDS.items():
+        for keyword in sdg_info['keywords']:
+            if keyword in text:
+                detected_sdgs.append(sdg_num)
+                matched_keywords[sdg_num].append(keyword)
+                break
+    
+    # 3. إزالة التكرارات مع الحفاظ على الترتيب
+    unique_sdgs = []
+    for sdg in detected_sdgs:
+        if sdg not in unique_sdgs:
+            unique_sdgs.append(sdg)
+    
+    return unique_sdgs, matched_keywords, primary_sdgs
+
+def calculate_primary_score(sdg, primary_sdgs):
+    """حساب درجة أهمية الهدف (أساسي أو ثانوي)"""
+    if sdg in primary_sdgs:
+        return "⭐ أساسي"
+    return "ثانوي"
 
 def calculate_sdg_metrics(detected_sdgs):
-    """حساب المقاييس"""
+    """حساب المقاييس من الأهداف المستخرجة"""
     if not detected_sdgs:
         return {
             'sdg_count': 0,
@@ -177,7 +375,7 @@ def calculate_sdg_metrics(detected_sdgs):
 def predict_success_fallback(metrics):
     """نسخة احتياطية للتنبؤ"""
     base_score = 0.5
-    sdg_bonus = min(metrics['sdg_count'] * 0.05, 0.2)
+    sdg_bonus = min(metrics['sdg_count'] * 0.05, 0.25)  # زيادة المكافأة
     balance_bonus = metrics['balance_score'] * 0.002
     
     score = base_score + sdg_bonus + balance_bonus
@@ -201,10 +399,10 @@ def get_project_trend(metrics):
     else:
         return "بيئي"
 
-# --- 7. تحميل النماذج ---
+# --- 8. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 8. التصميم المبسط ---
+# --- 9. التصميم المبسط ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
@@ -217,7 +415,6 @@ st.markdown("""
         background-color: #F8FAFC;
     }
     
-    /* الحقول */
     .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
         border-radius: 8px !important;
         border: 1px solid #E2E8F0 !important;
@@ -225,7 +422,6 @@ st.markdown("""
         background: white !important;
     }
     
-    /* زر التحليل */
     .stButton > button {
         background: #0F172A !important;
         color: white !important;
@@ -248,7 +444,6 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    /* بطاقة نسبة النجاح فقط */
     .success-card {
         background: white;
         border-radius: 8px;
@@ -259,11 +454,10 @@ st.markdown("""
         margin: 0 auto 30px auto;
     }
     
-    /* شارات SDG */
     .sdg-badge {
         background: white;
         color: #0F172A;
-        padding: 10px 15px;
+        padding: 12px 15px;
         border-radius: 6px;
         border: 1px solid #E2E8F0;
         margin: 5px;
@@ -271,9 +465,14 @@ st.markdown("""
         font-size: 0.95rem;
         width: 100%;
         text-align: center;
+        transition: all 0.2s ease;
     }
     
-    /* عناوين الأقسام */
+    .sdg-badge.primary {
+        border-right: 4px solid #0F172A;
+        background: #F8FAFC;
+    }
+    
     .section-title {
         color: #0F172A;
         font-size: 1.2rem;
@@ -283,7 +482,6 @@ st.markdown("""
         border-bottom: 2px solid #E2E8F0;
     }
     
-    /* مربع الخلاصة */
     .summary-box {
         background: white;
         border: 1px solid #E2E8F0;
@@ -292,26 +490,29 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* تنسيق النتائج النصية */
-    .result-text {
-        color: #334155;
-        font-size: 1.1rem;
-        margin: 10px 0;
+    .primary-tag {
+        display: inline-block;
+        background: #0F172A;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-right: 5px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 9. العنوان ---
+# --- 10. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 10. نموذج الإدخال ---
+# --- 11. نموذج الإدخال ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
     with col1:
         p_name = st.text_input("اسم المشروع", placeholder="أدخل اسم المشروع...")
         p_desc = st.text_area("وصف المشروع", height=150, 
-                             placeholder="أدخل تفاصيل المشروع هنا...")
+                             placeholder="أدخل تفاصيل المشروع هنا... مثال: تعليم كبار السن في المناطق الريفية")
     
     with col2:
         p_cat = st.selectbox("المجال", 
@@ -321,16 +522,16 @@ with st.form("analysis_form"):
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 11. التحليل والنتائج ---
+# --- 12. التحليل والنتائج ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("يرجى إدخال جميع البيانات المطلوبة")
     else:
-        with st.spinner("جاري التحليل..."):
+        with st.spinner("جاري التحليل الذكي..."):
             
-            # استخراج الأهداف
+            # استخراج الأهداف بطريقة متقدمة
             full_text = f"{p_name} {p_desc}"
-            detected_sdgs = extract_sdgs_from_text(full_text)
+            detected_sdgs, matched_keywords, primary_sdgs = extract_sdgs_from_text_advanced(full_text)
             
             # حساب المقاييس
             metrics = calculate_sdg_metrics(detected_sdgs)
@@ -354,8 +555,7 @@ if submitted:
                 success_prob = predict_success_fallback(metrics)
                 success_pred = 1 if success_prob >= 0.6 else 0
             
-            # --- عرض نسبة النجاح فقط في بطاقة واحدة ---
-            
+            # عرض نسبة النجاح
             st.markdown(f"""
                 <div class="success-card">
                     <div style="color: #64748B; font-size: 1rem; margin-bottom: 10px;">نسبة نجاح المشروع</div>
@@ -366,25 +566,33 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- أهداف التنمية المستدامة المرتبطة بالمشروع ---
-            
+            # أهداف التنمية المستدامة المرتبطة بالمشروع
             st.markdown('<div class="section-title">أهداف التنمية المستدامة المرتبطة بالمشروع</div>', unsafe_allow_html=True)
             
             if detected_sdgs:
-                # عرض الأهداف في 3 أعمدة
+                # عرض عدد الأهداف المكتشفة
+                st.markdown(f"""
+                    <p style="color: #64748B; margin-bottom: 15px;">
+                        تم استخلاص <strong>{len(detected_sdgs)} أهداف</strong> من وصف المشروع
+                    </p>
+                """, unsafe_allow_html=True)
+                
+                # عرض الأهداف في 3 أعمدة مع تمييز الأساسي
                 sdg_cols = st.columns(3)
                 for i, sdg in enumerate(detected_sdgs):
+                    primary_class = "primary" if sdg in primary_sdgs else ""
+                    primary_text = " ⭐ أساسي" if sdg in primary_sdgs else ""
+                    
                     with sdg_cols[i % 3]:
                         st.markdown(f"""
-                            <div class="sdg-badge">
-                                الهدف {sdg}: {SDG_KEYWORDS[sdg]['name']}
+                            <div class="sdg-badge {primary_class}">
+                                الهدف {sdg}: {SDG_KEYWORDS[sdg]['name']}{primary_text}
                             </div>
                         """, unsafe_allow_html=True)
             else:
                 st.markdown('<p style="color: #64748B; text-align: center; padding: 20px;">لم يتم العثور على أهداف مرتبطة بالمشروع</p>', unsafe_allow_html=True)
             
-            # --- معلومات إضافية (بدون بطاقات) ---
-            
+            # معلومات إضافية
             st.markdown('<div class="section-title">تفاصيل التحليل</div>', unsafe_allow_html=True)
             
             col_info1, col_info2, col_info3 = st.columns(3)
@@ -413,8 +621,7 @@ if submitted:
                     </div>
                 """, unsafe_allow_html=True)
             
-            # --- توزيع الأهداف على الأبعاد ---
-            
+            # توزيع الأهداف على الأبعاد
             st.markdown("""
                 <div style="margin-top: 20px; background: white; padding: 20px; border-radius: 8px; border: 1px solid #E2E8F0;">
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
@@ -440,8 +647,7 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- الخلاصة ---
-            
+            # الخلاصة
             st.markdown(f"""
                 <div class="summary-box">
                     <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 15px; color: #0F172A;">الخلاصة</div>
@@ -455,7 +661,7 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 12. معلومات النماذج (شريط جانبي) ---
+# --- 13. معلومات النماذج (شريط جانبي) ---
 with st.sidebar:
     st.markdown("### معلومات النظام")
     
@@ -466,7 +672,16 @@ with st.sidebar:
         st.success(f"✓ الملفات المتاحة: {len(available_files)}")
     else:
         st.warning("⚠️ لا توجد نماذج مدربة")
+    
+    st.markdown("---")
+    st.markdown("### ✨ ميزات التحليل الذكي")
+    st.markdown("""
+    • استخلاص أهداف متعددة من النص
+    • تحديد الأهداف الأساسية والثانوية
+    • قواعد ذكية للكلمات المركبة
+    • تحليل دقيق للأبعاد الثلاثة
+    """)
 
-# --- 13. التذييل ---
+# --- 14. التذييل ---
 st.markdown("---")
 st.markdown("<div style='text-align: center; color: #94A3B8; padding: 20px;'>المنصة الذكية لتحليل المشاريع التنموية 2024</div>", unsafe_allow_html=True)
