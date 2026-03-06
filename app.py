@@ -338,121 +338,88 @@ MULTI_SDG_RULES = [
     {'triggers': ['تنمية مجتمعية', 'تنمية محلية'], 'target_sdgs': [1, 11], 'primary': 11}
 ]
 
-# --- 6. قاموس السياقات لكل هدف (النظام الذكي الجديد) ---
+# --- 6. قاموس السياقات لكل هدف ---
 CONTEXT_RULES = {
-    # الصحة (3) - يظهر فقط مع كلمات طبية واضحة
     3: {
         'required': ['مستشفى', 'مركز صحي', 'عيادة', 'طبي', 'صحي', 'علاج', 'مرض', 'دواء', 'لقاح', 'رعاية صحية', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف'],
         'forbidden': ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'رقمي', 'برمجة', 'قرية', 'ريف', 'تمكين', 'مشروع', 'برنامج', 'مبادرة'],
         'primary_keywords': ['مستشفى', 'مركز صحي', 'عيادات', 'رعاية صحية']
     },
-    
-    # التعليم (4) - يظهر فقط مع كلمات تعليمية واضحة
     4: {
         'required': ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'طلاب', 'معلمين', 'مناهج', 'رياض أطفال', 'حضانة', 'فصل دراسي'],
         'forbidden': ['مستشفى', 'علاج', 'مرض', 'دواء', 'صحة', 'مركز صحي'],
         'primary_keywords': ['تعليم', 'مدرسة', 'جامعة']
     },
-    
-    # الفقر (1)
     1: {
         'required': ['فقر', 'فقير', 'دخل محدود', 'مساعدات', 'تمكين اقتصادي', 'مشاريع صغيرة', 'التمويل الأصغر', 'الأسر المنتجة'],
         'forbidden': [],
         'primary_keywords': ['فقر', 'فقراء']
     },
-    
-    # الجوع (2)
     2: {
         'required': ['جوع', 'أمن غذائي', 'زراعة', 'غذاء', 'محاصيل', 'مزارعين', 'أراضي زراعية', 'إنتاج غذائي'],
         'forbidden': [],
         'primary_keywords': ['جوع', 'أمن غذائي']
     },
-    
-    # المساواة (5)
     5: {
         'required': ['نساء', 'فتيات', 'تمكين المرأة', 'مساواة', 'عنف ضد المرأة', 'حقوق المرأة', 'المساواة بين الجنسين'],
         'forbidden': [],
         'primary_keywords': ['نساء', 'فتيات', 'تمكين المرأة']
     },
-    
-    # المياه (6)
     6: {
         'required': ['مياه', 'صرف صحي', 'شرب', 'ري', 'سدود', 'آبار', 'تحلية', 'معالجة مياه'],
         'forbidden': [],
         'primary_keywords': ['مياه', 'صرف صحي']
     },
-    
-    # الطاقة (7)
     7: {
         'required': ['طاقة', 'كهرباء', 'طاقة شمسية', 'طاقة متجددة', 'طاقة الرياح', 'ألواح شمسية'],
         'forbidden': [],
         'primary_keywords': ['طاقة شمسية', 'كهرباء']
     },
-    
-    # العمل (8)
     8: {
         'required': ['عمل', 'توظيف', 'وظائف', 'فرص عمل', 'بطالة', 'عمالة', 'سوق العمل', 'مهارات مهنية'],
         'forbidden': [],
         'primary_keywords': ['عمل', 'توظيف', 'وظائف']
     },
-    
-    # الصناعة (9)
     9: {
         'required': ['صناعة', 'ابتكار', 'مصانع', 'بنية تحتية', 'طرق', 'جسور', 'تكنولوجيا', 'بحث وتطوير'],
         'forbidden': [],
         'primary_keywords': ['صناعة', 'ابتكار', 'مصانع']
     },
-    
-    # عدم المساواة (10) - هذا الهدف واسع ويغطي فئات كثيرة
     10: {
         'required': ['فئات مهمشة', 'ذوي احتياجات', 'كبار السن', 'لاجئين', 'نازحين', 'مناطق نائية', 'قرى', 'أرياف', 'المناطق الحدودية', 'سكان البادية', 'البدو', 'الأقليات'],
         'forbidden': [],
         'primary_keywords': ['فئات مهمشة', 'كبار السن', 'لاجئين', 'مناطق نائية']
     },
-    
-    # مدن مستدامة (11)
     11: {
         'required': ['مدن', 'مدينة', 'تخطيط حضري', 'إسكان', 'مواصلات', 'نقل عام', 'تطوير حضري'],
         'forbidden': [],
         'primary_keywords': ['مدن', 'إسكان', 'مواصلات']
     },
-    
-    # استهلاك مسؤول (12)
     12: {
         'required': ['استهلاك', 'إعادة تدوير', 'تدوير', 'استدامة', 'هدر', 'نفايات', 'مخلفات', 'اقتصاد دائري'],
         'forbidden': [],
         'primary_keywords': ['إعادة تدوير', 'تدوير', 'استدامة']
     },
-    
-    # المناخ (13)
     13: {
         'required': ['مناخ', 'تغير مناخي', 'انبعاثات', 'احتباس حراري', 'كربون', 'غازات دفيئة', 'الاحترار العالمي'],
         'forbidden': [],
         'primary_keywords': ['مناخ', 'تغير مناخي']
     },
-    
-    # الحياة تحت الماء (14)
     14: {
         'required': ['بحار', 'محيطات', 'أسماك', 'سواحل', 'بحر', 'سمك', 'ثروة بحرية', 'صيد بحري', 'شعاب مرجانية'],
         'forbidden': [],
         'primary_keywords': ['بحار', 'محيطات', 'أسماك']
     },
-    
-    # الحياة في البر (15)
     15: {
         'required': ['غابات', 'بيئة', 'تنوع أحيائي', 'حيوانات', 'نباتات', 'محميات', 'حياة برية', 'تصحر', 'تشجير'],
         'forbidden': [],
         'primary_keywords': ['غابات', 'تنوع أحيائي', 'محميات']
     },
-    
-    # السلام (16)
     16: {
         'required': ['سلام', 'عدالة', 'حوكمة', 'قضاء', 'سيادة القانون', 'مكافحة الفساد', 'الشفافية', 'المساءلة', 'حقوق الإنسان'],
         'forbidden': [],
         'primary_keywords': ['سلام', 'عدالة', 'حوكمة']
     },
-    
-    # الشراكات (17)
     17: {
         'required': ['شراكات', 'تعاون دولي', 'تمويل', 'منح', 'قروض', 'مساعدات دولية', 'المانحين', 'الجهات المانحة'],
         'forbidden': [],
@@ -469,24 +436,20 @@ SDG_DIMENSIONS = {
 
 # --- 8. دالة استخراج الأهداف الذكية ---
 def extract_sdgs_smart(text):
-    """خوارزمية ذكية لاستخراج الأهداف بدقة عالية لجميع المشاريع"""
-    
     if not text:
         return [], [], []
     
     text = text.lower()
     text = re.sub(r'[^\w\s]', ' ', text)
-    words = text.split()
     
     detected_sdgs = set()
     primary_sdgs = set()
     matched_keywords = []
     
-    # 1. أولاً: البحث عن القواعد الخاصة (الكلمات المركبة من MULTI_SDG_RULES)
+    # البحث عن القواعد الخاصة
     for rule in MULTI_SDG_RULES:
         for trigger in rule['triggers']:
             if trigger in text:
-                # إضافة الأهداف المستهدفة
                 for target in rule['target_sdgs']:
                     detected_sdgs.add(target)
                 matched_keywords.append(trigger)
@@ -494,83 +457,46 @@ def extract_sdgs_smart(text):
                     primary_sdgs.add(rule['primary'])
                 break
     
-    # 2. ثانياً: تحليل كل هدف بناءً على قواعد السياق
+    # تحليل كل هدف
     for sdg_num, context in CONTEXT_RULES.items():
-        # إذا كان الهدف موجوداً بالفعل من القواعد المركبة، نتحقق من صحته
         if sdg_num in detected_sdgs:
-            # تحقق من وجود كلمات ممنوعة
             has_forbidden = any(word in text for word in context['forbidden'])
-            # تحقق من وجود كلمات مطلوبة (للتأكد)
-            has_required = any(word in text for word in context['required'])
-            
-            # إذا وجدت كلمات ممنوعة، نزيل الهدف (إلا إذا كان الهدف 10 واسع)
             if has_forbidden and sdg_num != 10:
                 detected_sdgs.remove(sdg_num)
             continue
         
-        # للأهداف غير الموجودة، نبحث عنها بذكاء
-        # نبحث عن الكلمات الرئيسية أولاً (أهمية أعلى)
         found_primary = False
         for keyword in context['primary_keywords']:
             if keyword in text:
-                # تحقق من عدم وجود كلمات ممنوعة
                 has_forbidden = any(word in text for word in context['forbidden'])
-                if not has_forbidden or sdg_num == 10:  # الهدف 10 مستثنى
+                if not has_forbidden or sdg_num == 10:
                     detected_sdgs.add(sdg_num)
                     matched_keywords.append(keyword)
                     found_primary = True
-                    # إذا كان هذا هو الهدف الرئيسي، سجله
-                    if sdg_num in [4, 3, 10, 1]:  # الأهداف الأكثر شيوعاً
+                    if sdg_num in [4, 3, 10, 1]:
                         primary_sdgs.add(sdg_num)
                     break
         
         if found_primary:
             continue
         
-        # إذا لم نجد كلمات رئيسية، نبحث عن الكلمات المطلوبة
         required_matches = []
         for keyword in context['required']:
             if keyword in text:
                 required_matches.append(keyword)
         
-        # إذا وجدنا كلمتين مطلوبتين على الأقل
         if len(required_matches) >= 2:
-            # تحقق من عدم وجود كلمات ممنوعة
             has_forbidden = any(word in text for word in context['forbidden'])
             if not has_forbidden or sdg_num == 10:
                 detected_sdgs.add(sdg_num)
                 matched_keywords.extend(required_matches[:2])
     
-    # 3. معالجة خاصة: إذا كان المشروع تعليمي بحت، نتأكد من عدم وجود الصحة
-    educational_words = ['تعليم', 'مدرسة', 'جامعة', 'محو أمية', 'طلاب', 'معلمين']
-    health_words = ['مستشفى', 'مركز صحي', 'عيادة', 'علاج', 'مرض']
-    
-    has_educational = any(word in text for word in educational_words)
-    has_health = any(word in text for word in health_words)
-    
-    if has_educational and not has_health:
-        # إذا كان تعليمي ولا توجد كلمات صحية، نزيل الصحة إذا وجدت خطأ
-        if 3 in detected_sdgs:
-            detected_sdgs.remove(3)
-    
-    # 4. معالجة خاصة: إذا كان المشروع صحي بحت، نتأكد من عدم وجود التعليم
-    if has_health and not has_educational:
-        # إذا كان صحي ولا توجد كلمات تعليمية، نزيل التعليم إذا وجد خطأ
-        if 4 in detected_sdgs:
-            # تحقق: هل التعليم جاء من كلمة "تدريب" مثلاً؟ التدريب قد يكون في المجال الصحي
-            training_context = any(word in text for word in ['تدريب', 'توعية'])
-            if not training_context:
-                detected_sdgs.remove(4)
-    
     return list(detected_sdgs), list(primary_sdgs), matched_keywords
 
-# --- 9. دالة موحدة للاستخراج ---
 def extract_sdgs_from_text_advanced(text):
-    """واجهة موحدة لاستخراج الأهداف"""
     return extract_sdgs_smart(text)
 
 def calculate_sdg_metrics(detected_sdgs):
-    """حساب المقاييس من الأهداف"""
     if not detected_sdgs:
         return {
             'sdg_count': 0, 'social_ratio': 0, 'economic_ratio': 0, 
@@ -579,7 +505,6 @@ def calculate_sdg_metrics(detected_sdgs):
         }
     
     sdg_count = len(detected_sdgs)
-    
     social_count = sum(1 for sdg in detected_sdgs if sdg in SDG_DIMENSIONS['social'])
     economic_count = sum(1 for sdg in detected_sdgs if sdg in SDG_DIMENSIONS['economic'])
     environmental_count = sum(1 for sdg in detected_sdgs if sdg in SDG_DIMENSIONS['environmental'])
@@ -602,109 +527,78 @@ def calculate_sdg_metrics(detected_sdgs):
     }
 
 def predict_success_fallback(metrics):
-    """نسخة احتياطية للتنبؤ"""
     base_score = 0.5
     sdg_bonus = min(metrics['sdg_count'] * 0.05, 0.25)
     balance_bonus = metrics['balance_score'] * 0.002
     return min(base_score + sdg_bonus + balance_bonus, 0.95)
 
 def get_project_trend(metrics):
-    """تحديد توجه المشروع"""
     ratios = {'اجتماعي': metrics['social_ratio'], 'اقتصادي': metrics['economic_ratio'], 'بيئي': metrics['environmental_ratio']}
     max_dim = max(ratios, key=ratios.get)
-    
     if metrics['balance_score'] > 80:
         return "متوازن"
     return max_dim
 
-# --- 10. تحسين نسبة النجاح بإضافة الميزانية والمستفيدين ---
 def enhance_success_with_budget(original_prob, p_budget, p_ben):
-    """تحسين نسبة النجاح بناءً على كفاءة الميزانية والعائد الاجتماعي"""
-    
     if p_budget <= 0 or p_ben <= 0:
         return original_prob, 0, 0, 0
     
-    # حساب التكلفة لكل مستفيد
     cost_per_person = p_budget / p_ben
-    
-    # حساب العائد الاجتماعي
     sroi = (p_ben * original_prob) / (p_budget / 1000)
-    
-    # معامل تحسين الميزانية
     budget_factor = 0
     
-    # مكافأة الكفاءة (التكلفة المنخفضة لكل مستفيد)
     if cost_per_person < 5000:
-        budget_factor += 0.10  # +10% كفاءة ممتازة
+        budget_factor += 0.10
     elif cost_per_person < 15000:
-        budget_factor += 0.05   # +5% كفاءة جيدة
+        budget_factor += 0.05
     elif cost_per_person > 100000:
-        budget_factor -= 0.10   # -10% تكلفة عالية جداً
+        budget_factor -= 0.10
     elif cost_per_person > 50000:
-        budget_factor -= 0.05   # -5% تكلفة مرتفعة
+        budget_factor -= 0.05
     
-    # مكافأة العائد الاجتماعي
     if sroi > 15:
-        budget_factor += 0.08   # +8% عائد استثنائي
+        budget_factor += 0.08
     elif sroi > 8:
-        budget_factor += 0.03   # +3% عائد جيد
+        budget_factor += 0.03
     elif sroi < 0.5:
-        budget_factor -= 0.08   # -8% عائد ضعيف
+        budget_factor -= 0.08
     elif sroi < 1:
-        budget_factor -= 0.03   # -3% عائد منخفض
+        budget_factor -= 0.03
     
-    # مكافأة المشاريع الكبيرة (أكثر من 10,000 مستفيد)
     if p_ben > 10000:
-        budget_factor += 0.05   # +5% تأثير مجتمعي واسع
+        budget_factor += 0.05
     
-    # تطبيق التحسين
     enhanced_prob = original_prob + budget_factor
-    
-    # التأكد من أن النسبة بين 0 و 1
     enhanced_prob = max(0, min(enhanced_prob, 1.0))
     
     return enhanced_prob, budget_factor, cost_per_person, sroi
 
-# --- 11. نظام التوصيات المنطقية ---
 def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs):
-    """توليد توصيات منطقية مرتبطة بخصائص المشروع"""
-    
     recommendations = []
     weaknesses = []
     strengths = []
     
-    # ============================================
-    # 1. نقاط القوة (بدون أيقونات)
-    # ============================================
-    
-    # قوة عدد الأهداف
+    # نقاط القوة
     if metrics['sdg_count'] >= 4:
         strengths.append(f"المشروع يغطي {metrics['sdg_count']} أهداف تنموية متنوعة")
     elif metrics['sdg_count'] >= 3:
         strengths.append(f"المشروع يغطي {metrics['sdg_count']} أهداف تنموية")
     
-    # قوة كفاءة الميزانية
     if cost_per_person < 5000:
         strengths.append(f"كفاءة تشغيلية ممتازة ({cost_per_person:,.0f} ريال لكل مستفيد)")
     elif cost_per_person < 15000:
         strengths.append(f"كفاءة تشغيلية جيدة ({cost_per_person:,.0f} ريال لكل مستفيد)")
     
-    # قوة العائد الاجتماعي
     if sroi > 15:
         strengths.append(f"عائد اجتماعي استثنائي ({sroi:.1f}x)")
     elif sroi > 8:
         strengths.append(f"عائد اجتماعي مرتفع ({sroi:.1f}x)")
     
-    # قوة الأهداف الأساسية
     if len(primary_sdgs) > 0:
         primary_names = [SDG_KEYWORDS[sdg]['name'] for sdg in primary_sdgs]
         strengths.append(f"تركيز واضح على: {', '.join(primary_names)}")
     
-    # ============================================
-    # 2. نقاط الضعف (بدون أيقونات)
-    # ============================================
-    
-    # ضعف عدد الأهداف
+    # نقاط الضعف
     if metrics['sdg_count'] == 0:
         weaknesses.append("المشروع غير مرتبط بأهداف التنمية المستدامة")
     elif metrics['sdg_count'] == 1:
@@ -712,35 +606,25 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     elif metrics['sdg_count'] == 2:
         weaknesses.append("عدد الأهداف التنموية محدود (هدفان)")
     
-    # ضعف كفاءة الميزانية
     if cost_per_person > 100000:
         weaknesses.append(f"تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
     elif cost_per_person > 50000:
         weaknesses.append(f"تكلفة مرتفعة لكل مستفيد ({cost_per_person:,.0f} ريال)")
     
-    # ضعف العائد الاجتماعي
     if sroi < 0.5:
         weaknesses.append(f"عائد اجتماعي منخفض جداً ({sroi:.1f}x)")
     elif sroi < 1:
         weaknesses.append(f"عائد اجتماعي منخفض ({sroi:.1f}x)")
     
-    # ضعف عدد المستفيدين مقارنة بالميزانية
     if p_ben < 100 and p_budget > 500000:
         weaknesses.append("عدد المستفيدين قليل مقارنة بحجم الميزانية")
     
-    # ============================================
-    # 3. التوصيات (فقط مع أيقونة 💡)
-    # ============================================
-    
-    # توصيات حسب عدد الأهداف
+    # التوصيات
     if metrics['sdg_count'] == 0:
         recommendations.append("💡 تحديد الأهداف: المشروع بحاجة للربط بأهداف التنمية المستدامة. حدد 2-3 أهداف رئيسية للمشروع")
     elif metrics['sdg_count'] == 1:
-        # معرفة الهدف الحالي
         current_sdg = detected_sdgs[0]
         current_name = SDG_KEYWORDS[current_sdg]['name']
-        
-        # اقتراح هدف إضافي مناسب
         if current_sdg in SDG_DIMENSIONS['social']:
             recommendations.append(f"💡 تنويع الأهداف: المشروع يركز على '{current_name}'. أضف هدفاً اقتصادياً أو بيئياً لتعزيز التكامل")
         elif current_sdg in SDG_DIMENSIONS['economic']:
@@ -748,7 +632,6 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
         elif current_sdg in SDG_DIMENSIONS['environmental']:
             recommendations.append(f"💡 تنويع الأهداف: المشروع يركز على '{current_name}'. أضف هدفاً اجتماعياً لتعزيز الأثر المجتمعي")
     
-    # توصيات حسب الميزانية والتكلفة
     if cost_per_person > 100000:
         recommendations.append("💡 إعادة هيكلة الميزانية: التكلفة لكل مستفيد مرتفعة جداً. ابحث عن طرق لخفض التكاليف أو زيادة عدد المستفيدين")
     elif cost_per_person > 50000:
@@ -757,38 +640,14 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     if p_ben < 100 and p_budget > 500000:
         recommendations.append("💡 توسيع النطاق: الميزانية كبيرة مقارنة بعدد المستفيدين. ابحث عن فرص لتوسيع المشروع ليشمل مناطق أو فئات إضافية")
     
-    # توصيات حسب العائد الاجتماعي
     if sroi < 1:
         recommendations.append("💡 تحسين الأثر: العائد على الاستثمار منخفض. ركز على الفئات الأكثر احتياجاً واستهدف المجتمعات المهمشة لزيادة الأثر")
     
-    # توصيات حسب القطاع
-    if p_cat == "تعليمي":
-        if metrics['sdg_count'] < 2:
-            recommendations.append("💡 التكامل التعليمي: المشاريع التعليمية الناجحة تدمج بين التعليم وأهداف أخرى مثل 'الحد من عدم المساواة' أو 'العمل اللائق'")
+    if p_cat == "تعليمي" and metrics['sdg_count'] < 2:
+        recommendations.append("💡 التكامل التعليمي: المشاريع التعليمية الناجحة تدمج بين التعليم وأهداف أخرى مثل 'الحد من عدم المساواة' أو 'العمل اللائق'")
+    elif p_cat == "صحي" and metrics['sdg_count'] < 2:
+        recommendations.append("💡 التكامل الصحي: المشاريع الصحية الأكثر نجاحاً تدمج بين الرعاية الصحية وأهداف اجتماعية مثل 'الحد من عدم المساواة'")
     
-    elif p_cat == "صحي":
-        if metrics['sdg_count'] < 2:
-            recommendations.append("💡 التكامل الصحي: المشاريع الصحية الأكثر نجاحاً تدمج بين الرعاية الصحية وأهداف اجتماعية مثل 'الحد من عدم المساواة'")
-        if metrics['dimensions']['social'] == 0:
-            recommendations.append("💡 البعد الاجتماعي: أضف أهدافاً اجتماعية للمشروع الصحي مثل استهداف الفئات المهمشة")
-    
-    elif p_cat == "بيئي":
-        if metrics['sdg_count'] < 2:
-            recommendations.append("💡 التكامل البيئي: المشاريع البيئية الناجحة تدمج بين حماية البيئة وأهداف اقتصادية أو اجتماعية")
-        if metrics['dimensions']['social'] == 0:
-            recommendations.append("💡 البعد الاجتماعي: أضف أهدافاً اجتماعية للمشروع البيئي مثل توفير فرص عمل خضراء")
-    
-    elif p_cat == "اقتصادي":
-        if metrics['dimensions']['social'] == 0:
-            recommendations.append("💡 البعد الاجتماعي: المشاريع الاقتصادية الأكثر استدامة تدمج أهدافاً اجتماعية مثل العمل اللائق والحد من البطالة")
-        if metrics['dimensions']['environmental'] == 0:
-            recommendations.append("💡 البعد البيئي: أضف أهدافاً بيئية للمشروع الاقتصادي مثل كفاءة الطاقة أو الاستهلاك المسؤول")
-    
-    elif p_cat == "اجتماعي":
-        if metrics['dimensions']['economic'] == 0:
-            recommendations.append("💡 البعد الاقتصادي: المشاريع الاجتماعية الناجحة تدمج أهدافاً اقتصادية مثل تمكين الأسر المنتجة وخلق فرص عمل")
-    
-    # توصيات استثمارية حسب نسبة النجاح
     if success_prob < 0.4:
         recommendations.append("💡 موقف استثماري: نسبة المخاطرة عالية. يوصى بإعادة دراسة المشروع أو البحث عن مصادر تمويل غير تقليدية")
     elif success_prob < 0.6:
@@ -796,26 +655,11 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     elif success_prob > 0.8:
         recommendations.append("💡 موقف استثماري: فرصة استثمارية واعدة. يوصى بالتمويل والتوسع في المشروع")
     
-    # توصيات للمشاريع الكبيرة
     if p_budget > 1000000 and success_prob < 0.6:
         recommendations.append("💡 تقييم المخاطر: الميزانية الكبيرة تتطلب دراسة جدوى معمقة. يوصى بتدقيق إضافي قبل الاعتماد")
     
-    # توصيات للأهداف الأساسية
-    if len(primary_sdgs) > 0:
-        for sdg in primary_sdgs:
-            if sdg == 10:  # الحد من عدم المساواة
-                if metrics['dimensions']['social'] > 1:
-                    recommendations.append("💡 تعزيز الشمولية: المشروع يستهدف الفئات المهمشة. يوصى بتوسيع نطاق الشراكات مع مؤسسات المجتمع المدني")
-            elif sdg == 4:  # التعليم
-                recommendations.append("💡 تطوير التعليم: أضف مكونات تدريب مهني لربط التعليم بسوق العمل")
-            elif sdg == 3:  # الصحة
-                if p_ben < 500:
-                    recommendations.append("💡 توسيع التغطية الصحية: المشروع الصحي يمكن أن يصل لعدد أكبر من المستفيدين عبر الشراكات مع المراكز الصحية")
-    
-    # إزالة التكرارات
     recommendations = list(dict.fromkeys(recommendations))
     
-    # تحديد مستوى الثقة
     confidence_level = "منخفضة"
     if success_prob > 0.7 and p_ben > 100:
         confidence_level = "عالية جداً"
@@ -824,10 +668,10 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     
     return strengths, weaknesses, recommendations[:6], confidence_level
 
-# --- 12. تحميل النماذج ---
+# --- 9. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 13. التصميم مع لمسات احترافية وتأثيرات حركية ---
+# --- 10. التصميم مع لمسات احترافية ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -844,8 +688,6 @@ st.markdown("""
     .stApp {
         background-color: #F9FAFB;
     }
-    
-    /* ===== تأثيرات حركية احترافية ===== */
     
     /* تأثير نبض لبطاقة النجاح */
     @keyframes gentlePulse {
@@ -872,7 +714,29 @@ st.markdown("""
         box-shadow: 0 25px 35px rgba(15,23,42,0.2);
     }
     
-    /* تأثير حركة للسهم الاستثماري */
+    /* الرقم كبير 5rem */
+    .success-card .value {
+        font-size: 5rem;
+        font-weight: 700;
+        color: #0F172A;
+        line-height: 1.2;
+    }
+    
+    .success-card .label {
+        color: #6B7280;
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    
+    .success-card .status {
+        margin-top: 15px;
+        font-weight: 600;
+        padding: 6px 20px;
+        border-radius: 30px;
+        display: inline-block;
+    }
+    
+    /* تأثير حركة للسهم */
     @keyframes arrowMove {
         0% { transform: translateX(0); opacity: 0.7; }
         50% { transform: translateX(8px); opacity: 1; }
@@ -886,7 +750,7 @@ st.markdown("""
         margin-left: 5px;
     }
     
-    /* تأثير توهج لمستوى الثقة العالي */
+    /* تأثير توهج لمستوى الثقة */
     @keyframes glowPulse {
         0% { box-shadow: 0 0 5px rgba(16,185,129,0.3); }
         50% { box-shadow: 0 0 20px rgba(16,185,129,0.6); }
@@ -903,7 +767,6 @@ st.markdown("""
         animation: glowPulse 2s infinite ease-in-out;
     }
     
-    /* تأثير توهج لمستوى الثقة المتوسط */
     @keyframes glowPulseMedium {
         0% { box-shadow: 0 0 5px rgba(245,158,11,0.3); }
         50% { box-shadow: 0 0 20px rgba(245,158,11,0.6); }
@@ -920,7 +783,6 @@ st.markdown("""
         animation: glowPulseMedium 2s infinite ease-in-out;
     }
     
-    /* مستوى الثقة المنخفض (بدون توهج) */
     .confidence-low {
         background: #EF4444;
         color: white;
@@ -930,7 +792,7 @@ st.markdown("""
         display: inline-block;
     }
     
-    /* تأثير ظهور متدرج للعناصر */
+    /* تأثير ظهور متدرج */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -942,11 +804,10 @@ st.markdown("""
         }
     }
     
-    .sdg-badge, .info-card, .dimensions-box, .recommendations-box, .summary-box, .strengths-box, .weaknesses-box {
+    .sdg-badge, .info-card, .dimensions-box, .recommendations-box, .summary-box {
         animation: fadeInUp 0.6s ease-out forwards;
     }
     
-    /* تأخيرات متدرجة للعناصر */
     .sdg-badge:nth-child(1) { animation-delay: 0.1s; }
     .sdg-badge:nth-child(2) { animation-delay: 0.15s; }
     .sdg-badge:nth-child(3) { animation-delay: 0.2s; }
@@ -954,26 +815,7 @@ st.markdown("""
     .sdg-badge:nth-child(5) { animation-delay: 0.3s; }
     .sdg-badge:nth-child(6) { animation-delay: 0.35s; }
     
-    .info-card:nth-child(1) { animation-delay: 0.2s; }
-    .info-card:nth-child(2) { animation-delay: 0.3s; }
-    .info-card:nth-child(3) { animation-delay: 0.4s; }
-    
-    /* تأثير حركة خفيف لشريط التقدم */
-    @keyframes progressGlow {
-        0% { opacity: 0.8; }
-        50% { opacity: 1; box-shadow: 0 0 8px rgba(15,23,42,0.3); }
-        100% { opacity: 0.8; }
-    }
-    
-    .progress-fill {
-        height: 100%;
-        background: #0F172A;
-        border-radius: 20px;
-        transition: width 0.8s ease-in-out;
-        animation: progressGlow 3s infinite ease-in-out;
-    }
-    
-    /* تأثير hover لبطاقات SDG */
+    /* تأثير hover */
     .sdg-badge {
         background: white;
         color: #1F2937;
@@ -982,7 +824,6 @@ st.markdown("""
         border: 1px solid #E5E7EB;
         text-align: center;
         transition: all 0.3s ease;
-        cursor: default;
     }
     
     .sdg-badge:hover {
@@ -996,7 +837,6 @@ st.markdown("""
         border-right: 4px solid #0F172A;
     }
     
-    /* تأثير hover لبطاقات المعلومات */
     .info-card {
         background: white;
         border: 1px solid #E5E7EB;
@@ -1011,23 +851,14 @@ st.markdown("""
         border-color: #0F172A;
     }
     
-    /* تأثير نبض خفيف للعنوان */
-    @keyframes titleGlow {
-        0% { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        50% { text-shadow: 0 4px 12px rgba(15,23,42,0.3); }
-        100% { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    }
-    
     h1 {
         color: #0F172A;
         text-align: center;
         font-weight: 700;
         font-size: 2.2rem;
         margin: 20px 0 30px 0;
-        animation: titleGlow 3s infinite ease-in-out;
     }
     
-    /* الحقول */
     .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
         border-radius: 10px !important;
         border: 1px solid #E5E7EB !important;
@@ -1038,11 +869,9 @@ st.markdown("""
     
     .stTextInput input:focus, .stTextArea textarea:focus {
         border-color: #0F172A !important;
-        box-shadow: 0 0 0 3px rgba(15,23,42,0.1), 0 4px 12px rgba(0,0,0,0.05) !important;
-        transform: translateY(-2px) !important;
+        box-shadow: 0 0 0 3px rgba(15,23,42,0.1) !important;
     }
     
-    /* زر التحليل */
     .stButton > button {
         background: #0F172A !important;
         color: white !important;
@@ -1052,51 +881,14 @@ st.markdown("""
         width: 100% !important;
         transition: all 0.3s ease !important;
         margin-top: 10px !important;
-        position: relative;
-        overflow: hidden;
     }
     
     .stButton > button:hover {
         background: #1E293B !important;
-        transform: translateY(-3px) scale(1.02) !important;
+        transform: translateY(-3px) !important;
         box-shadow: 0 15px 25px rgba(15,23,42,0.3) !important;
     }
     
-    .stButton > button:active {
-        transform: translateY(0) scale(0.98) !important;
-    }
-    
-    /* تأثير تموج عند النقر */
-    .stButton > button::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 5px;
-        height: 5px;
-        background: rgba(255,255,255,0.5);
-        opacity: 0;
-        border-radius: 100%;
-        transform: scale(1, 1) translate(-50%);
-        transform-origin: 50% 50%;
-    }
-    
-    @keyframes ripple {
-        0% {
-            transform: scale(0, 0);
-            opacity: 0.5;
-        }
-        100% {
-            transform: scale(20, 20);
-            opacity: 0;
-        }
-    }
-    
-    .stButton > button:focus:not(:active)::after {
-        animation: ripple 0.6s ease-out;
-    }
-    
-    /* باقي التنسيقات */
     .section-title {
         color: #0F172A;
         font-size: 1.3rem;
@@ -1104,15 +896,6 @@ st.markdown("""
         margin: 40px 0 20px 0;
         padding-bottom: 10px;
         border-bottom: 2px solid #E5E7EB;
-    }
-    
-    .section-title .count {
-        background: #F3F4F6;
-        color: #4B5563;
-        font-size: 0.9rem;
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-right: 12px;
     }
     
     .info-grid {
@@ -1137,17 +920,6 @@ st.markdown("""
         text-align: center;
     }
     
-    .dimension-item .title {
-        color: #6B7280;
-        margin-bottom: 8px;
-    }
-    
-    .dimension-item .number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #0F172A;
-    }
-    
     .progress-bar {
         width: 100%;
         height: 8px;
@@ -1155,6 +927,13 @@ st.markdown("""
         border-radius: 20px;
         margin: 10px 0;
         overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: #0F172A;
+        border-radius: 20px;
+        transition: width 0.8s ease-in-out;
     }
     
     .strengths-box {
@@ -1185,26 +964,18 @@ st.markdown("""
         color: #065F46;
         padding: 8px 0;
         border-bottom: 1px solid #A7F3D0;
-        font-size: 1rem;
     }
     
     .weakness-item {
         color: #991B1B;
         padding: 8px 0;
         border-bottom: 1px solid #FECACA;
-        font-size: 1rem;
     }
     
     .recommendation-item {
         color: #1E3A8A;
         padding: 12px 0;
         border-bottom: 1px solid #BFDBFE;
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-    
-    .recommendation-item:last-child {
-        border-bottom: none;
     }
     
     .summary-box {
@@ -1238,10 +1009,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 14. العنوان مع تأثير حركي ---
+# --- 11. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 15. نموذج الإدخال ---
+# --- 12. نموذج الإدخال (بدون أيقونة) ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -1255,23 +1026,19 @@ with st.form("analysis_form"):
         p_budget = st.number_input("الميزانية (SAR)", min_value=0, value=0, step=1000)
         p_ben = st.number_input("عدد المستفيدين", min_value=0, value=0, step=100)
     
-    submitted = st.form_submit_button("🔮 تحليل المشروع", use_container_width=True)
+    submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 16. التحليل والنتائج مع التوصيات المنطقية ---
+# --- 13. التحليل والنتائج ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
     else:
         with st.spinner("🔍 جاري التحليل الذكي..."):
             
-            # استخراج الأهداف
             full_text = f"{p_name} {p_desc}"
             detected_sdgs, primary_sdgs, matched_keywords = extract_sdgs_from_text_advanced(full_text)
-            
-            # حساب المقاييس
             metrics = calculate_sdg_metrics(detected_sdgs)
             
-            # التنبؤ باستخدام النموذج
             if models['status'] == 'full_models' and all([models['scaler'], models['xgb'], models['ann']]):
                 try:
                     features = np.array([[
@@ -1280,40 +1047,31 @@ if submitted:
                         metrics['balance_score'],
                         metrics['environmental_ratio']
                     ]])
-                    
                     features_scaled = models['scaler'].transform(features)
                     ann_prob = models['ann'].predict(features_scaled, verbose=0)[0][0]
                     xgb_prob = models['xgb'].predict_proba(features)[0][1]
-                    
                     weight_ann = models['config'].get('weight_ann', 0.5)
                     weight_xgb = models['config'].get('weight_xgb', 0.5)
-                    threshold = models['config'].get('threshold', 0.4)
-                    
                     original_prob = (weight_ann * ann_prob + weight_xgb * xgb_prob)
-                    
-                except Exception as e:
+                except:
                     original_prob = predict_success_fallback(metrics)
             else:
                 original_prob = predict_success_fallback(metrics)
             
-            # تحسين نسبة النجاح بإضافة الميزانية والمستفيدين
             enhanced_prob, budget_factor, cost_per_person, sroi = enhance_success_with_budget(
                 original_prob, p_budget, p_ben
             )
             
-            # التصنيف النهائي
             threshold = 0.4
             success_pred = 1 if enhanced_prob >= threshold else 0
+            status_color = "#10B981" if success_pred == 1 else "#EF4444"
+            status_text = "ناجح" if success_pred == 1 else "غير ناجح"
             
-            # --- توليد التوصيات المنطقية ---
             strengths, weaknesses, recommendations, confidence_level = generate_logical_recommendations(
                 metrics, p_cat, p_budget, p_ben, enhanced_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs
             )
             
-            # عرض نسبة النجاح مع تأثير نبض
-            status_color = "#10B981" if success_pred == 1 else "#EF4444"
-            status_text = "ناجح" if success_pred == 1 else "غير ناجح"
-            
+            # عرض نسبة النجاح برقم كبير 5rem
             st.markdown(f"""
                 <div class="success-card">
                     <div class="label">نسبة نجاح المشروع</div>
@@ -1324,11 +1082,9 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # عرض تأثير الميزانية مع سهم متحرك
             if budget_factor != 0:
                 impact_color = "#10B981" if budget_factor > 0 else "#EF4444"
                 impact_symbol = "▲" if budget_factor > 0 else "▼"
-                
                 st.markdown(f"""
                     <div class="budget-impact-box">
                         <div>
@@ -1352,7 +1108,6 @@ if submitted:
                     </div>
                 """, unsafe_allow_html=True)
             
-            # مستوى الثقة للمستثمر مع تأثير توهج
             confidence_class = "confidence-high" if confidence_level == "عالية جداً" else "confidence-medium" if confidence_level == "متوسطة" else "confidence-low"
             st.markdown(f"""
                 <div style="text-align: center; margin-bottom: 20px;">
@@ -1360,125 +1115,50 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # عرض نقاط القوة
             if strengths:
-                st.markdown("""
-                    <div class="strengths-box">
-                        <h4 style="color: #065F46; margin-bottom: 15px;">نقاط القوة</h4>
-                """, unsafe_allow_html=True)
-                
-                for strength in strengths:
-                    st.markdown(f'<div class="strength-item">{strength}</div>', unsafe_allow_html=True)
-                
+                st.markdown("""<div class="strengths-box"><h4 style="color: #065F46;">نقاط القوة</h4>""", unsafe_allow_html=True)
+                for s in strengths:
+                    st.markdown(f'<div class="strength-item">{s}</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # عرض نقاط الضعف
             if weaknesses:
-                st.markdown("""
-                    <div class="weaknesses-box">
-                        <h4 style="color: #991B1B; margin-bottom: 15px;">نقاط تحتاج تحسين</h4>
-                """, unsafe_allow_html=True)
-                
-                for weakness in weaknesses:
-                    st.markdown(f'<div class="weakness-item">{weakness}</div>', unsafe_allow_html=True)
-                
+                st.markdown("""<div class="weaknesses-box"><h4 style="color: #991B1B;">نقاط تحتاج تحسين</h4>""", unsafe_allow_html=True)
+                for w in weaknesses:
+                    st.markdown(f'<div class="weakness-item">{w}</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # عرض التوصيات
             if recommendations:
-                st.markdown("""
-                    <div class="recommendations-box">
-                        <h4 style="color: #1E3A8A; margin-bottom: 20px;">توصيات للتحسين</h4>
-                """, unsafe_allow_html=True)
-                
-                for i, rec in enumerate(recommendations, 1):
-                    st.markdown(f'<div class="recommendation-item">{rec}</div>', unsafe_allow_html=True)
-                
+                st.markdown("""<div class="recommendations-box"><h4 style="color: #1E3A8A;">توصيات للتحسين</h4>""", unsafe_allow_html=True)
+                for r in recommendations:
+                    st.markdown(f'<div class="recommendation-item">{r}</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # أهداف التنمية المستدامة
             if detected_sdgs:
-                st.markdown(f"""
-                    <div class="section-title">
-                        أهداف التنمية المستدامة المرتبطة بالمشروع
-                        <span class="count">{len(detected_sdgs)} أهداف</span>
-                    </div>
-                """, unsafe_allow_html=True)
-                
+                st.markdown(f"""<div class="section-title">أهداف التنمية المستدامة المرتبطة بالمشروع<span class="count">{len(detected_sdgs)} أهداف</span></div>""", unsafe_allow_html=True)
                 st.markdown('<div class="sdg-grid">', unsafe_allow_html=True)
-                
                 for sdg in detected_sdgs:
                     primary_class = "primary" if sdg in primary_sdgs else ""
-                    
-                    st.markdown(f"""
-                        <div class="sdg-badge {primary_class}">
-                            الهدف {sdg}: {SDG_KEYWORDS[sdg]['name']}
-                        </div>
-                    """, unsafe_allow_html=True)
-                
+                    st.markdown(f"""<div class="sdg-badge {primary_class}">الهدف {sdg}: {SDG_KEYWORDS[sdg]['name']}</div>""", unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.info("لم يتم العثور على أهداف مرتبطة بالمشروع")
             
-            # معلومات إضافية
             st.markdown('<div class="info-grid">', unsafe_allow_html=True)
-            
             col1, col2, col3 = st.columns(3)
-            
             with col1:
-                st.markdown(f"""
-                    <div class="info-card">
-                        <div class="label">توجه المشروع</div>
-                        <div class="value">{get_project_trend(metrics)}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
+                st.markdown(f"""<div class="info-card"><div class="label">توجه المشروع</div><div class="value">{get_project_trend(metrics)}</div></div>""", unsafe_allow_html=True)
             with col2:
-                st.markdown(f"""
-                    <div class="info-card">
-                        <div class="label">عدد الأهداف</div>
-                        <div class="value">{metrics['sdg_count']}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
+                st.markdown(f"""<div class="info-card"><div class="label">عدد الأهداف</div><div class="value">{metrics['sdg_count']}</div></div>""", unsafe_allow_html=True)
             with col3:
-                st.markdown(f"""
-                    <div class="info-card">
-                        <div class="label">درجة التوازن</div>
-                        <div class="value">{metrics['balance_score']:.1f}%</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
+                st.markdown(f"""<div class="info-card"><div class="label">درجة التوازن</div><div class="value">{metrics['balance_score']:.1f}%</div></div>""", unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # توزيع الأهداف
-            st.markdown("""
-                <div class="dimensions-box">
-                    <div style="font-weight: 600; color: #0F172A; margin-bottom: 20px;">توزيع الأهداف على الأبعاد</div>
-                    <div class="dimensions-grid">
-            """, unsafe_allow_html=True)
+            st.markdown("""<div class="dimensions-box"><div style="font-weight: 600;">توزيع الأهداف على الأبعاد</div><div class="dimensions-grid">""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="dimension-item"><div class="title">اجتماعي</div><div class="number">{metrics['dimensions']['social']}</div><div class="progress-bar"><div class="progress-fill" style="width: {metrics['social_ratio']}%;"></div></div></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="dimension-item"><div class="title">اقتصادي</div><div class="number">{metrics['dimensions']['economic']}</div><div class="progress-bar"><div class="progress-fill" style="width: {metrics['economic_ratio']}%;"></div></div></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="dimension-item"><div class="title">بيئي</div><div class="number">{metrics['dimensions']['environmental']}</div><div class="progress-bar"><div class="progress-fill" style="width: {metrics['environmental_ratio']}%;"></div></div></div>""", unsafe_allow_html=True)
+            st.markdown('</div></div>', unsafe_allow_html=True)
             
-            st.markdown(f"""
-                        <div class="dimension-item">
-                            <div class="title">اجتماعي</div>
-                            <div class="number">{metrics['dimensions']['social']}</div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: {metrics['social_ratio']}%;"></div></div>
-                        </div>
-                        <div class="dimension-item">
-                            <div class="title">اقتصادي</div>
-                            <div class="number">{metrics['dimensions']['economic']}</div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: {metrics['economic_ratio']}%;"></div></div>
-                        </div>
-                        <div class="dimension-item">
-                            <div class="title">بيئي</div>
-                            <div class="number">{metrics['dimensions']['environmental']}</div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: {metrics['environmental_ratio']}%;"></div></div>
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # الخلاصة مع توصية للمستثمر
             investment_advice = ""
             if confidence_level == "عالية جداً" and enhanced_prob > 0.7:
                 investment_advice = "فرصة استثمارية واعدة - يوصى بالتمويل"
@@ -1502,5 +1182,5 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 17. التذييل ---
+# --- 14. التذييل ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2026</div>', unsafe_allow_html=True)
