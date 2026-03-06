@@ -195,92 +195,87 @@ def get_project_trend(metrics):
         return "متوازن"
     return max_dim
 
-# --- 8. نظام التوصيات الذكي الجديد ---
+# --- 8. نظام التوصيات الذكي (محدث - يركز على الميزانية والثقة) ---
 def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob):
-    """توليد توصيات ذكية لتحسين المشروع"""
+    """توليد توصيات ذكية تركز على الميزانية وجدوى الاستثمار"""
     
     recommendations = []
     weaknesses = []
     strengths = []
     
-    # تحليل عدد الأهداف
-    if metrics['sdg_count'] == 0:
-        weaknesses.append("لم يتم تحديد أي أهداف تنموية")
-        recommendations.append("🎯 **أضف أهدافاً تنموية واضحة**: حدد 2-3 أهداف من أهداف التنمية المستدامة لمشروعك")
-    elif metrics['sdg_count'] == 1:
-        weaknesses.append("هدف تنموي واحد فقط")
-        recommendations.append("🎯 **وسع نطاق الأهداف**: أضف هدفاً تنموياً إضافياً مرتبطاً بالمشروع (مثل: الشراكات أو الاستدامة)")
-    elif metrics['sdg_count'] == 2:
-        weaknesses.append("عدد الأهداف محدود")
-        recommendations.append("🎯 **أضف هدفاً ثالثاً**: المشاريع ذات 3 أهداف أو أكثر نجاحها أعلى بنسبة 25%")
-    else:
-        strengths.append(f"تنوع جيد في الأهداف ({metrics['sdg_count']} أهداف)")
-    
-    # تحليل التوازن
-    if metrics['balance_score'] < 30:
-        weaknesses.append("اختلال شديد في التوازن بين الأبعاد")
-        recommendations.append("⚖️ **حقق توازناً أفضل**: ركز على البعد المهمل في مشروعك")
-        
-        # تحديد البعد المهمل
-        dims = {
-            'الاجتماعي': metrics['social_ratio'],
-            'الاقتصادي': metrics['economic_ratio'],
-            'البيئي': metrics['environmental_ratio']
-        }
-        min_dim = min(dims, key=dims.get)
-        recommendations.append(f"   - أضف عناصر {min_dim} لمشروعك لتحسين التوازن")
-        
-    elif metrics['balance_score'] < 50:
-        weaknesses.append("توازن ضعيف بين الأبعاد")
-        recommendations.append("⚖️ **حسن التوازن**: وزع أهدافك بشكل أكثر توازناً بين الأبعاد الثلاثة")
-    elif metrics['balance_score'] < 70:
-        strengths.append("توازن مقبول بين الأبعاد")
-        recommendations.append("⚖️ **يمكن تحسين التوازن**: حاول تحقيق تكامل أكبر بين الأبعاد")
-    else:
-        strengths.append(f"توازن ممتاز ({metrics['balance_score']:.1f}%)")
-    
-    # تحليل المجال
-    if p_cat == "تعليمي":
-        if metrics['dimensions']['social'] < 2:
-            recommendations.append("📚 **عزز البعد الاجتماعي**: المشاريع التعليمية الأكثر نجاحاً ترتبط بأهداف اجتماعية متعددة")
-    elif p_cat == "صحي":
-        if metrics['dimensions']['social'] < 2:
-            recommendations.append("🏥 **وسع نطاق التأثير**: أضف أهدافاً اجتماعية مرتبطة بالصحة (مثل: الحد من عدم المساواة)")
-    elif p_cat == "بيئي":
-        if metrics['dimensions']['environmental'] < 2:
-            recommendations.append("🌍 **عزز البعد البيئي**: أضف أهدافاً بيئية إضافية (مثل: العمل المناخي، الحياة في البر)")
-    
-    # تحليل الميزانية والمستفيدين
+    # 1. تحليل الميزانية وكفاءة الإنفاق (الأهم)
     if p_budget > 0 and p_ben > 0:
         cost_per_person = p_budget / p_ben
+        sroi = round((p_ben * success_prob) / (p_budget / 1000), 2)
         
-        if cost_per_person > 50000:
-            weaknesses.append("تكلفة عالية لكل مستفيد")
-            recommendations.append("💰 **خفض التكلفة لكل مستفيد**: ابحث عن طرق لتقليل التكاليف أو زيادة عدد المستفيدين")
-        elif cost_per_person < 1000:
-            strengths.append("كفاءة عالية في التكلفة")
+        # تحليل الميزانية - هل هي مناسبة؟
+        if p_budget < 50000:
+            if p_ben < 100:
+                strengths.append("✅ ميزانية مناسبة لمشروع صغير")
+            else:
+                strengths.append("✅ كفاءة عالية - ميزانية منخفضة ومستفيدين كثر")
+        elif p_budget > 1000000:  # أكثر من مليون
+            if success_prob > 0.7:
+                strengths.append("✅ مشروع استراتيجي كبير يستحق الاستثمار")
+            else:
+                weaknesses.append("⚠️ مخاطرة عالية - ميزانية كبيرة وفرص نجاح متوسطة")
+                recommendations.append("💰 **تقييم المخاطر**: الميزانية كبيرة (أكثر من مليون). يُنصح بعمل دراسة جدوى معمقة وتدقيق إضافي قبل الاعتماد")
         
-        # العائد الاجتماعي
-        sroi = (p_ben * success_prob) / (p_budget / 1000)
-        if sroi < 1:
-            weaknesses.append("عائد اجتماعي منخفض")
-            recommendations.append("📈 **حسن العائد الاجتماعي**: ركز على الفئات الأكثر احتياجاً لزيادة الأثر")
-        elif sroi > 5:
-            strengths.append(f"عائد اجتماعي ممتاز ({sroi:.1f}x)")
+        # تحليل التكلفة لكل مستفيد
+        if cost_per_person > 100000:
+            weaknesses.append("⚠️ تكلفة مرتفعة جداً لكل مستفيد")
+            recommendations.append("💰 **إعادة هيكلة التكاليف**: التكلفة الحالية مرتفعة جداً. هل يمكن تنفيذ المشروع بكفاءة أعلى؟")
+        elif cost_per_person > 50000:
+            weaknesses.append("⚠️ تكلفة مرتفعة لكل مستفيد")
+            recommendations.append("💰 **ترشيد الإنفاق**: خفض التكاليف بنسبة 20% مع الحفاظ على الجودة")
+        elif cost_per_person < 10000:
+            strengths.append("✅ كفاءة تشغيلية ممتازة")
+        
+        # تحليل العائد الاجتماعي - مؤشر ثقة للمستثمر
+        if sroi > 10:
+            strengths.append(f"✅ عائد اجتماعي ممتاز ({sroi}x)")
+            recommendations.append("📊 **فرصة استثمارية واعدة**: العائد الاجتماعي مرتفع جداً، يُنصح بتوسيع نطاق المشروع")
+        elif sroi < 1:
+            weaknesses.append(f"⚠️ عائد اجتماعي منخفض ({sroi}x)")
+            recommendations.append("📉 **تحسين الأثر**: العائد على الاستثمار منخفض. ركز على الفئات الأكثر احتياجاً لزيادة الأثر")
     
-    # توصيات خاصة حسب نسبة النجاح
-    if success_prob < 0.4:
-        recommendations.append("🔄 **إعادة هيكلة شاملة**: المشروع بحاجة لمراجعة كاملة للأهداف والآليات")
-        recommendations.append("   - استشر خبراء في المجال")
-        recommendations.append("   - ادرس مشاريع مشابهة ناجحة")
-    elif success_prob < 0.6:
-        recommendations.append("📝 **تحسين التصميم**: هناك فرص كبيرة لتحسين المشروع")
-    elif success_prob < 0.8:
-        recommendations.append("✨ **تحسينات طفيفة**: المشروع جيد ويمكن تحسينه بتعديلات بسيطة")
-    else:
-        recommendations.append("🏆 **نموذج يحتذى**: المشروع ممتاز ويمكن أن يكون نموذجاً لمشاريع أخرى")
+    # 2. تحليل الثقة للمستثمر (صاحب القرار)
+    confidence_level = "منخفضة"
+    if success_prob > 0.7 and metrics['balance_score'] > 60 and p_ben > 100:
+        confidence_level = "عالية جداً"
+        strengths.append("✅ ثقة عالية في نجاح المشروع")
+    elif success_prob > 0.5:
+        confidence_level = "متوسطة"
     
-    return strengths, weaknesses, recommendations[:6]  # نرجع أول 6 توصيات فقط
+    # 3. تحليل عدد الأهداف (بدون إجبار على الزيادة)
+    if metrics['sdg_count'] == 0:
+        weaknesses.append("⚠️ المشروع غير مرتبط بأهداف تنموية واضحة")
+        recommendations.append("🎯 **تحديد الأهداف**: المشروع بحاجة لربط بأهداف التنمية المستدامة ليحظى بثقة المستثمرين")
+    elif metrics['sdg_count'] > 4:
+        strengths.append("✅ المشروع يغطي عدة أهداف")
+    
+    # 4. توصيات خاصة بثقة المستثمر
+    if confidence_level == "منخفضة" and success_prob < 0.5:
+        recommendations.append("⚠️ **موقف استثماري**: نسبة المخاطرة عالية. يوصى بإعادة دراسة المشروع أو البحث عن مصادر تمويل غير تقليدية")
+    
+    # 5. تحليل القطاع
+    sector_success_rates = {
+        'تعليمي': 0.76,
+        'صحي': 0.72,
+        'اجتماعي': 0.74,
+        'اقتصادي': 0.68,
+        'بيئي': 0.65
+    }
+    
+    if p_cat in sector_success_rates:
+        sector_rate = sector_success_rates[p_cat]
+        if success_prob > sector_rate + 0.1:
+            strengths.append(f"✅ أداء متوقع أفضل من متوسط المشاريع {p_cat}ة")
+        elif success_prob < sector_rate - 0.1:
+            weaknesses.append(f"⚠️ أداء متوقع أقل من متوسط المشاريع {p_cat}ة")
+            recommendations.append(f"📚 **الاستفادة من التجارب**: ادرس المشاريع {p_cat}ة الناجحة واستفد من منهجياتها")
+    
+    return strengths, weaknesses, recommendations, confidence_level
 
 # --- 9. تحميل النماذج ---
 models = load_models_safe()
@@ -479,7 +474,33 @@ st.markdown("""
         border-radius: 20px;
     }
     
-    /* تنسيق نقاط القوة والضعف */
+    .confidence-high {
+        background: #10B981;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
+    .confidence-medium {
+        background: #F59E0B;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
+    .confidence-low {
+        background: #EF4444;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
     .strengths-box {
         background: #ECFDF5;
         border: 1px solid #A7F3D0;
@@ -606,8 +627,8 @@ if submitted:
                 success_prob = predict_success_fallback(metrics)
                 success_pred = 1 if success_prob >= 0.6 else 0
             
-            # --- توليد التوصيات الذكية ---
-            strengths, weaknesses, recommendations = generate_recommendations(
+            # --- توليد التوصيات الذكية (المحدثة) ---
+            strengths, weaknesses, recommendations, confidence_level = generate_recommendations(
                 metrics, p_cat, p_budget, p_ben, success_prob
             )
             
@@ -622,6 +643,14 @@ if submitted:
                     <div class="status" style="background: {status_color}15; color: {status_color};">
                         {status_text}
                     </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # مستوى الثقة للمستثمر
+            confidence_class = "confidence-high" if confidence_level == "عالية جداً" else "confidence-medium" if confidence_level == "متوسطة" else "confidence-low"
+            st.markdown(f"""
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <span class="{confidence_class}">مستوى الثقة للمستثمر: {confidence_level}</span>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -773,14 +802,26 @@ if submitted:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # الخلاصة
+            # الخلاصة مع توصية للمستثمر
+            investment_advice = ""
+            if confidence_level == "عالية جداً" and success_prob > 0.7:
+                investment_advice = "✅ فرصة استثمارية واعدة - يوصى بالتمويل"
+            elif confidence_level == "متوسطة" and success_prob > 0.5:
+                investment_advice = "⚠️ استثمار متوسط المخاطرة - يوصى بتمويل مشروط بمتابعة"
+            else:
+                investment_advice = "❌ مخاطرة عالية - يوصى بإعادة الدراسة قبل التمويل"
+            
             st.markdown(f"""
                 <div class="summary-box">
-                    <div class="summary-title">📋 خلاصة التحليل</div>
+                    <div class="summary-title">📋 خلاصة التحليل وقرار المستثمر</div>
                     <div class="summary-text">
                         <p>مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، 
-                        يستهدف <strong>{metrics['sdg_count']}</strong> من أهداف التنمية المستدامة.</p>
-                        <p>نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong>.</p>
+                        بميزانية <strong>{p_budget:,.0f} ريال</strong> لـ <strong>{p_ben:,} مستفيد</strong>.</p>
+                        <p>نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong>، 
+                        ومستوى الثقة للمستثمر <strong>{confidence_level}</strong>.</p>
+                        <div style="margin-top: 15px; padding: 15px; background: #F3F4F6; border-radius: 8px;">
+                            <strong>توصية استثمارية:</strong> {investment_advice}
+                        </div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
