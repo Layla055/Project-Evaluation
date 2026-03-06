@@ -619,7 +619,7 @@ def enhance_success_with_budget(original_prob, p_budget, p_ben):
     
     return enhanced_prob, budget_factor, cost_per_person, sroi
 
-# --- 9. نظام التوصيات الذكي (بدون نجمتين) ---
+# --- 9. نظام التوصيات الذكي (مع التوصيات الجميلة) ---
 def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budget_factor, cost_per_person, sroi):
     """توليد توصيات ذكية تركز على الميزانية وجدوى الاستثمار"""
     
@@ -632,20 +632,20 @@ def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budg
         
         # تحليل التكلفة لكل مستفيد
         if cost_per_person > 100000:
-            weaknesses.append("⚠️ تكلفة مرتفعة جداً لكل مستفيد ({:,.0f} ريال)".format(cost_per_person))
+            weaknesses.append(f"⚠️ تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
             recommendations.append("إعادة هيكلة التكاليف: التكلفة الحالية مرتفعة جداً. هل يمكن تنفيذ المشروع بكفاءة أعلى؟")
         elif cost_per_person > 50000:
-            weaknesses.append("⚠️ تكلفة مرتفعة لكل مستفيد ({:,.0f} ريال)".format(cost_per_person))
+            weaknesses.append(f"⚠️ تكلفة مرتفعة لكل مستفيد ({cost_per_person:,.0f} ريال)")
             recommendations.append("ترشيد الإنفاق: خفض التكاليف بنسبة 20% مع الحفاظ على الجودة")
         elif cost_per_person < 5000:
-            strengths.append("✅ كفاءة تشغيلية ممتازة ({:,.0f} ريال لكل مستفيد)".format(cost_per_person))
+            strengths.append(f"✅ كفاءة تشغيلية ممتازة ({cost_per_person:,.0f} ريال لكل مستفيد)")
         
         # تحليل العائد الاجتماعي
         if sroi > 10:
-            strengths.append("✅ عائد اجتماعي ممتاز ({:.1f}x)".format(sroi))
+            strengths.append(f"✅ عائد اجتماعي ممتاز ({sroi:.1f}x)")
             recommendations.append("فرصة استثمارية واعدة: العائد الاجتماعي مرتفع جداً، يُنصح بتوسيع نطاق المشروع")
         elif sroi < 1:
-            weaknesses.append("⚠️ عائد اجتماعي منخفض ({:.1f}x)".format(sroi))
+            weaknesses.append(f"⚠️ عائد اجتماعي منخفض ({sroi:.1f}x)")
             recommendations.append("تحسين الأثر: العائد على الاستثمار منخفض. ركز على الفئات الأكثر احتياجاً لزيادة الأثر")
     
     # 2. تحليل عدد الأهداف
@@ -656,7 +656,7 @@ def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budg
         weaknesses.append("⚠️ هدف تنموي واحد فقط")
         recommendations.append("تنويع الأهداف: حاول ربط المشروع بهدف إضافي لتعزيز الأثر")
     elif metrics['sdg_count'] >= 4:
-        strengths.append("✅ المشروع يغطي {} أهداف تنموية".format(metrics['sdg_count']))
+        strengths.append(f"✅ المشروع يغطي {metrics['sdg_count']} أهداف تنموية")
     
     # 3. تحليل التوازن
     if metrics['balance_score'] < 30:
@@ -666,15 +666,51 @@ def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budg
         weaknesses.append("⚠️ توازن ضعيف بين الأبعاد")
         recommendations.append("تحسين التوازن: وزع أهدافك بشكل أكثر توازناً")
     elif metrics['balance_score'] > 70:
-        strengths.append("✅ توازن ممتاز بين الأبعاد ({:.1f}%)".format(metrics['balance_score']))
+        strengths.append(f"✅ توازن ممتاز بين الأبعاد ({metrics['balance_score']:.1f}%)")
     
-    # 4. توصيات خاصة حسب القطاع
-    if p_cat == "تعليمي" and metrics['sdg_count'] < 2:
-        recommendations.append("الاستفادة من التجارب: ادرس المشاريع التعليمية الناجحة واستفد من منهجياتها")
-    elif p_cat == "صحي" and metrics['balance_score'] < 40:
-        recommendations.append("التكامل الصحي: المشاريع الصحية الأكثر نجاحاً تدمج جوانب اجتماعية مع الرعاية الصحية")
+    # 4. توصيات خاصة حسب القطاع (التوصيات الجميلة)
+    if p_cat == "تعليمي":
+        if metrics['sdg_count'] < 2:
+            recommendations.append("الاستفادة من التجارب: ادرس المشاريع التعليمية الناجحة واستفد من منهجياتها")
+        if metrics['balance_score'] < 40:
+            recommendations.append("التكامل التعليمي: المشاريع التعليمية الأكثر نجاحاً تدمج جوانب اجتماعية مع التعليم")
     
-    # 5. مستوى الثقة للمستثمر
+    elif p_cat == "صحي":
+        if metrics['balance_score'] < 40:
+            recommendations.append("التكامل الصحي: المشاريع الصحية الأكثر نجاحاً تدمج جوانب اجتماعية مع الرعاية الصحية")
+        if metrics['dimensions']['social'] < 1:
+            recommendations.append("البعد الاجتماعي: أضف أهدافاً اجتماعية للمشروع الصحي لتعزيز الأثر")
+    
+    elif p_cat == "بيئي":
+        if metrics['dimensions']['environmental'] < 2:
+            recommendations.append("التكامل البيئي: المشاريع البيئية الناجحة تدمج بين حماية البيئة والتنمية المستدامة")
+        if metrics['sdg_count'] < 3:
+            recommendations.append("تنويع الأهداف البيئية: أضف أهدافاً مثل العمل المناخي أو الحياة في البر")
+    
+    elif p_cat == "اقتصادي":
+        if metrics['dimensions']['economic'] < 2:
+            recommendations.append("التنويع الاقتصادي: المشاريع الاقتصادية الناجحة تدمج بين العمل اللائق والابتكار")
+        if sroi < 2:
+            recommendations.append("تعزيز العائد الاقتصادي: ركز على خلق فرص عمل مستدامة")
+    
+    elif p_cat == "اجتماعي":
+        if metrics['dimensions']['social'] < 3:
+            recommendations.append("التكامل الاجتماعي: أضف أهدافاً مثل الحد من عدم المساواة وتمكين الفئات المهمشة")
+    
+    # 5. توصية استثمارية (مهمة جداً)
+    if success_prob < 0.4:
+        recommendations.append("موقف استثماري: نسبة المخاطرة عالية. يوصى بإعادة دراسة المشروع أو البحث عن مصادر تمويل غير تقليدية")
+    elif success_prob < 0.6:
+        recommendations.append("موقف استثماري: مخاطرة متوسطة. يوصى بتمويل مرحلي مع متابعة دقيقة")
+    
+    # 6. توصيات إضافية حسب الميزانية
+    if p_budget > 1000000 and success_prob < 0.6:
+        recommendations.append("تقييم المخاطر: الميزانية الكبيرة تتطلب دراسة جدوى معمقة وتدقيق إضافي")
+    
+    if p_ben < 100 and p_budget > 500000:
+        recommendations.append("كفاءة الاستهداف: عدد المستفيدين قليل مقارنة بالميزانية. هل يمكن توسيع نطاق المشروع؟")
+    
+    # 7. مستوى الثقة للمستثمر
     confidence_level = "منخفضة"
     if success_prob > 0.7 and metrics['balance_score'] > 60 and p_ben > 100:
         confidence_level = "عالية جداً"
@@ -683,7 +719,6 @@ def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budg
         confidence_level = "متوسطة"
     
     return strengths, weaknesses, recommendations, confidence_level
-
 # --- 10. تحميل النماذج ---
 models = load_models_safe()
 
