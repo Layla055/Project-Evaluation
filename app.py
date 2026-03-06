@@ -714,9 +714,9 @@ st.markdown("""
         box-shadow: 0 25px 35px rgba(15,23,42,0.2);
     }
     
-    /* الرقم كبير 5rem */
+    /* الرقم متوسط الحجم */
     .success-card .value {
-        font-size: 5rem;
+        font-size: 3.5rem;
         font-weight: 700;
         color: #0F172A;
         line-height: 1.2;
@@ -889,13 +889,15 @@ st.markdown("""
         box-shadow: 0 15px 25px rgba(15,23,42,0.3) !important;
     }
     
-    .section-title {
+    /* عنوان الأهداف في المنتصف */
+    .section-title-center {
         color: #0F172A;
         font-size: 1.3rem;
         font-weight: 600;
         margin: 40px 0 20px 0;
-        padding-bottom: 10px;
+        text-align: center;
         border-bottom: 2px solid #E5E7EB;
+        padding-bottom: 10px;
     }
     
     .info-grid {
@@ -1071,7 +1073,7 @@ if submitted:
                 metrics, p_cat, p_budget, p_ben, enhanced_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs
             )
             
-            # عرض نسبة النجاح برقم كبير 5rem
+            # عرض نسبة النجاح بحجم 3.5rem
             st.markdown(f"""
                 <div class="success-card">
                     <div class="label">نسبة نجاح المشروع</div>
@@ -1134,7 +1136,7 @@ if submitted:
                 st.markdown('</div>', unsafe_allow_html=True)
             
             if detected_sdgs:
-                st.markdown(f"""<div class="section-title">أهداف التنمية المستدامة المرتبطة بالمشروع<span class="count">{len(detected_sdgs)} أهداف</span></div>""", unsafe_allow_html=True)
+                st.markdown(f"""<div class="section-title-center">أهداف التنمية المستدامة المرتبطة بالمشروع</div>""", unsafe_allow_html=True)
                 st.markdown('<div class="sdg-grid">', unsafe_allow_html=True)
                 for sdg in detected_sdgs:
                     primary_class = "primary" if sdg in primary_sdgs else ""
