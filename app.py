@@ -15,11 +15,11 @@ try:
 except:
     TENSORFLOW_AVAILABLE = False
 
-# --- 1. إعدادات الصفحة (بدون شريط جانبي) ---
+# --- 1. إعدادات الصفحة ---
 st.set_page_config(
     page_title="المنصة الذكية لتحليل المشاريع التنموية", 
     layout="wide", 
-    initial_sidebar_state="collapsed"  # مهم: الشريط الجانبي مغلق افتراضياً
+    initial_sidebar_state="collapsed"
 )
 
 # --- 2. دوال مساعدة للتحقق من الملفات ---
@@ -51,26 +51,20 @@ def load_models_safe():
     }
     
     try:
-        # التحقق من الملفات
         models['files'] = check_model_files()
         
-        # تحميل Scaler
         if models['files']['scaler.pkl']:
             models['scaler'] = joblib.load('scaler.pkl')
         
-        # تحميل XGBoost
         if models['files']['hybrid_xgb.pkl']:
             models['xgb'] = joblib.load('hybrid_xgb.pkl')
         
-        # تحميل ANN
         if models['files']['hybrid_ann.h5'] and TENSORFLOW_AVAILABLE:
             models['ann'] = load_model('hybrid_ann.h5')
         
-        # تحميل الإعدادات
         if models['files']['config.pkl']:
             models['config'] = joblib.load('config.pkl')
         
-        # تحديث الحالة
         model_count = sum([1 for m in [models['scaler'], models['xgb'], models['ann']] if m is not None])
         if model_count == 3:
             models['status'] = 'full_models'
@@ -135,7 +129,6 @@ def extract_sdgs_from_text_advanced(text):
     matched_keywords = []
     primary_sdgs = []
     
-    # البحث عن القواعد الخاصة
     for rule in MULTI_SDG_RULES:
         for trigger in rule['triggers']:
             if trigger in text:
@@ -145,7 +138,6 @@ def extract_sdgs_from_text_advanced(text):
                     primary_sdgs.append(rule['primary'])
                 break
     
-    # البحث في الكلمات المفتاحية العادية
     for sdg_num, sdg_info in SDG_KEYWORDS.items():
         for keyword in sdg_info['keywords']:
             if keyword in text and sdg_num not in detected_sdgs:
@@ -203,10 +195,97 @@ def get_project_trend(metrics):
         return "متوازن"
     return max_dim
 
-# --- 8. تحميل النماذج ---
+# --- 8. نظام التوصيات الذكي الجديد ---
+def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob):
+    """توليد توصيات ذكية لتحسين المشروع"""
+    
+    recommendations = []
+    weaknesses = []
+    strengths = []
+    
+    # تحليل عدد الأهداف
+    if metrics['sdg_count'] == 0:
+        weaknesses.append("لم يتم تحديد أي أهداف تنموية")
+        recommendations.append("🎯 **أضف أهدافاً تنموية واضحة**: حدد 2-3 أهداف من أهداف التنمية المستدامة لمشروعك")
+    elif metrics['sdg_count'] == 1:
+        weaknesses.append("هدف تنموي واحد فقط")
+        recommendations.append("🎯 **وسع نطاق الأهداف**: أضف هدفاً تنموياً إضافياً مرتبطاً بالمشروع (مثل: الشراكات أو الاستدامة)")
+    elif metrics['sdg_count'] == 2:
+        weaknesses.append("عدد الأهداف محدود")
+        recommendations.append("🎯 **أضف هدفاً ثالثاً**: المشاريع ذات 3 أهداف أو أكثر نجاحها أعلى بنسبة 25%")
+    else:
+        strengths.append(f"تنوع جيد في الأهداف ({metrics['sdg_count']} أهداف)")
+    
+    # تحليل التوازن
+    if metrics['balance_score'] < 30:
+        weaknesses.append("اختلال شديد في التوازن بين الأبعاد")
+        recommendations.append("⚖️ **حقق توازناً أفضل**: ركز على البعد المهمل في مشروعك")
+        
+        # تحديد البعد المهمل
+        dims = {
+            'الاجتماعي': metrics['social_ratio'],
+            'الاقتصادي': metrics['economic_ratio'],
+            'البيئي': metrics['environmental_ratio']
+        }
+        min_dim = min(dims, key=dims.get)
+        recommendations.append(f"   - أضف عناصر {min_dim} لمشروعك لتحسين التوازن")
+        
+    elif metrics['balance_score'] < 50:
+        weaknesses.append("توازن ضعيف بين الأبعاد")
+        recommendations.append("⚖️ **حسن التوازن**: وزع أهدافك بشكل أكثر توازناً بين الأبعاد الثلاثة")
+    elif metrics['balance_score'] < 70:
+        strengths.append("توازن مقبول بين الأبعاد")
+        recommendations.append("⚖️ **يمكن تحسين التوازن**: حاول تحقيق تكامل أكبر بين الأبعاد")
+    else:
+        strengths.append(f"توازن ممتاز ({metrics['balance_score']:.1f}%)")
+    
+    # تحليل المجال
+    if p_cat == "تعليمي":
+        if metrics['dimensions']['social'] < 2:
+            recommendations.append("📚 **عزز البعد الاجتماعي**: المشاريع التعليمية الأكثر نجاحاً ترتبط بأهداف اجتماعية متعددة")
+    elif p_cat == "صحي":
+        if metrics['dimensions']['social'] < 2:
+            recommendations.append("🏥 **وسع نطاق التأثير**: أضف أهدافاً اجتماعية مرتبطة بالصحة (مثل: الحد من عدم المساواة)")
+    elif p_cat == "بيئي":
+        if metrics['dimensions']['environmental'] < 2:
+            recommendations.append("🌍 **عزز البعد البيئي**: أضف أهدافاً بيئية إضافية (مثل: العمل المناخي، الحياة في البر)")
+    
+    # تحليل الميزانية والمستفيدين
+    if p_budget > 0 and p_ben > 0:
+        cost_per_person = p_budget / p_ben
+        
+        if cost_per_person > 50000:
+            weaknesses.append("تكلفة عالية لكل مستفيد")
+            recommendations.append("💰 **خفض التكلفة لكل مستفيد**: ابحث عن طرق لتقليل التكاليف أو زيادة عدد المستفيدين")
+        elif cost_per_person < 1000:
+            strengths.append("كفاءة عالية في التكلفة")
+        
+        # العائد الاجتماعي
+        sroi = (p_ben * success_prob) / (p_budget / 1000)
+        if sroi < 1:
+            weaknesses.append("عائد اجتماعي منخفض")
+            recommendations.append("📈 **حسن العائد الاجتماعي**: ركز على الفئات الأكثر احتياجاً لزيادة الأثر")
+        elif sroi > 5:
+            strengths.append(f"عائد اجتماعي ممتاز ({sroi:.1f}x)")
+    
+    # توصيات خاصة حسب نسبة النجاح
+    if success_prob < 0.4:
+        recommendations.append("🔄 **إعادة هيكلة شاملة**: المشروع بحاجة لمراجعة كاملة للأهداف والآليات")
+        recommendations.append("   - استشر خبراء في المجال")
+        recommendations.append("   - ادرس مشاريع مشابهة ناجحة")
+    elif success_prob < 0.6:
+        recommendations.append("📝 **تحسين التصميم**: هناك فرص كبيرة لتحسين المشروع")
+    elif success_prob < 0.8:
+        recommendations.append("✨ **تحسينات طفيفة**: المشروع جيد ويمكن تحسينه بتعديلات بسيطة")
+    else:
+        recommendations.append("🏆 **نموذج يحتذى**: المشروع ممتاز ويمكن أن يكون نموذجاً لمشاريع أخرى")
+    
+    return strengths, weaknesses, recommendations[:6]  # نرجع أول 6 توصيات فقط
+
+# --- 9. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 9. التصميم (بدون أي أثر للشريط الجانبي) ---
+# --- 10. التصميم ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -216,7 +295,6 @@ st.markdown("""
         box-sizing: border-box;
     }
     
-    /* إخفاء الشريط الجانبي تماماً */
     [data-testid="collapsedControl"] {
         display: none !important;
     }
@@ -225,30 +303,19 @@ st.markdown("""
         background-color: #F9FAFB;
     }
     
-    /* الحقول */
     .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
         border-radius: 10px !important;
         border: 1px solid #E5E7EB !important;
         padding: 12px 16px !important;
         background: white !important;
-        font-size: 1rem !important;
-        transition: all 0.2s ease !important;
     }
     
-    .stTextInput input:focus, .stTextArea textarea:focus {
-        border-color: #0F172A !important;
-        box-shadow: 0 0 0 2px rgba(15,23,42,0.1) !important;
-    }
-    
-    /* زر التحليل */
     .stButton > button {
         background: #0F172A !important;
         color: white !important;
         border-radius: 10px !important;
         height: 52px !important;
         font-weight: 600 !important;
-        font-size: 1.1rem !important;
-        border: none !important;
         width: 100% !important;
         transition: all 0.2s ease !important;
         margin-top: 10px !important;
@@ -260,17 +327,14 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
     }
     
-    /* العنوان الرئيسي */
     h1 {
         color: #0F172A;
         text-align: center;
         font-weight: 700;
         font-size: 2.2rem;
         margin: 20px 0 30px 0;
-        letter-spacing: -0.5px;
     }
     
-    /* بطاقة نسبة النجاح */
     .success-card {
         background: white;
         border-radius: 16px;
@@ -286,7 +350,6 @@ st.markdown("""
         color: #6B7280;
         font-size: 1rem;
         margin-bottom: 10px;
-        font-weight: 500;
     }
     
     .success-card .value {
@@ -299,13 +362,11 @@ st.markdown("""
     .success-card .status {
         margin-top: 15px;
         font-weight: 600;
-        font-size: 1.1rem;
         padding: 6px 20px;
         border-radius: 30px;
         display: inline-block;
     }
     
-    /* شارات SDG */
     .sdg-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -319,16 +380,13 @@ st.markdown("""
         padding: 14px 16px;
         border-radius: 10px;
         border: 1px solid #E5E7EB;
-        font-size: 0.95rem;
         text-align: center;
         transition: all 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     
     .sdg-badge:hover {
         border-color: #0F172A;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     
     .sdg-badge.primary {
@@ -336,7 +394,6 @@ st.markdown("""
         border-right: 4px solid #0F172A;
     }
     
-    /* عناوين الأقسام */
     .section-title {
         color: #0F172A;
         font-size: 1.3rem;
@@ -353,10 +410,8 @@ st.markdown("""
         padding: 4px 12px;
         border-radius: 20px;
         margin-right: 12px;
-        font-weight: 500;
     }
     
-    /* بطاقات المعلومات */
     .info-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -369,14 +424,12 @@ st.markdown("""
         border: 1px solid #E5E7EB;
         border-radius: 12px;
         padding: 18px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
     }
     
     .info-card .label {
         color: #6B7280;
         font-size: 0.9rem;
         margin-bottom: 8px;
-        font-weight: 500;
     }
     
     .info-card .value {
@@ -385,7 +438,6 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* مربع الأبعاد */
     .dimensions-box {
         background: white;
         border: 1px solid #E5E7EB;
@@ -403,9 +455,7 @@ st.markdown("""
     
     .dimension-item .title {
         color: #6B7280;
-        font-size: 0.95rem;
         margin-bottom: 8px;
-        font-weight: 500;
     }
     
     .dimension-item .number {
@@ -414,7 +464,6 @@ st.markdown("""
         color: #0F172A;
     }
     
-    /* شريط التقدم */
     .progress-bar {
         width: 100%;
         height: 8px;
@@ -428,60 +477,78 @@ st.markdown("""
         height: 100%;
         background: #0F172A;
         border-radius: 20px;
-        transition: width 0.3s ease;
     }
     
-    /* مربع الخلاصة */
+    /* تنسيق نقاط القوة والضعف */
+    .strengths-box {
+        background: #ECFDF5;
+        border: 1px solid #A7F3D0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .weaknesses-box {
+        background: #FEF2F2;
+        border: 1px solid #FECACA;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .recommendations-box {
+        background: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+    }
+    
+    .strength-item {
+        color: #065F46;
+        padding: 8px 0;
+        border-bottom: 1px solid #A7F3D0;
+    }
+    
+    .weakness-item {
+        color: #991B1B;
+        padding: 8px 0;
+        border-bottom: 1px solid #FECACA;
+    }
+    
+    .recommendation-item {
+        color: #1E3A8A;
+        padding: 12px 0;
+        border-bottom: 1px solid #BFDBFE;
+        font-size: 1.05rem;
+    }
+    
+    .recommendation-item:last-child {
+        border-bottom: none;
+    }
+    
     .summary-box {
         background: white;
         border: 1px solid #E5E7EB;
         border-radius: 16px;
         padding: 30px;
         margin: 40px 0 20px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
     
-    .summary-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #0F172A;
-        margin-bottom: 15px;
-    }
-    
-    .summary-text {
-        color: #4B5563;
-        line-height: 1.8;
-        font-size: 1.05rem;
-    }
-    
-    .summary-divider {
-        height: 1px;
-        background: #E5E7EB;
-        margin: 20px 0;
-    }
-    
-    .recommendation {
-        font-weight: 600;
-        color: #0F172A;
-        font-size: 1.05rem;
-    }
-    
-    /* التذييل */
     .footer {
         text-align: center;
         color: #9CA3AF;
         padding: 30px 0 20px 0;
-        font-size: 0.9rem;
         border-top: 1px solid #E5E7EB;
         margin-top: 50px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 10. العنوان ---
+# --- 11. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 11. نموذج الإدخال (بدون شريط جانبي) ---
+# --- 12. نموذج الإدخال ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -497,7 +564,7 @@ with st.form("analysis_form"):
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 12. التحليل والنتائج ---
+# --- 13. التحليل والنتائج مع التوصيات ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
@@ -511,10 +578,9 @@ if submitted:
             # حساب المقاييس
             metrics = calculate_sdg_metrics(detected_sdgs)
             
-            # --- التنبؤ باستخدام النموذج الحقيقي ---
+            # التنبؤ باستخدام النموذج
             if models['status'] == 'full_models' and all([models['scaler'], models['xgb'], models['ann']]):
                 try:
-                    # تجهيز الميزات
                     features = np.array([[
                         metrics['sdg_count'],
                         metrics['social_ratio'],
@@ -522,32 +588,28 @@ if submitted:
                         metrics['environmental_ratio']
                     ]])
                     
-                    # تطبيق التطبيع
                     features_scaled = models['scaler'].transform(features)
-                    
-                    # تنبؤ ANN
                     ann_prob = models['ann'].predict(features_scaled, verbose=0)[0][0]
-                    
-                    # تنبؤ XGBoost
                     xgb_prob = models['xgb'].predict_proba(features)[0][1]
                     
-                    # استخدام الأوزان
                     weight_ann = models['config'].get('weight_ann', 0.5)
                     weight_xgb = models['config'].get('weight_xgb', 0.5)
                     threshold = models['config'].get('threshold', 0.4)
                     
-                    # التنبؤ الهجين
                     success_prob = (weight_ann * ann_prob + weight_xgb * xgb_prob)
                     success_pred = 1 if success_prob >= threshold else 0
                     
                 except Exception as e:
-                    # في حالة الخطأ، استخدم الاحتياطي
                     success_prob = predict_success_fallback(metrics)
                     success_pred = 1 if success_prob >= 0.6 else 0
             else:
-                # استخدام النموذج الاحتياطي
                 success_prob = predict_success_fallback(metrics)
                 success_pred = 1 if success_prob >= 0.6 else 0
+            
+            # --- توليد التوصيات الذكية ---
+            strengths, weaknesses, recommendations = generate_recommendations(
+                metrics, p_cat, p_budget, p_ben, success_prob
+            )
             
             # عرض نسبة النجاح
             status_color = "#10B981" if success_pred == 1 else "#EF4444"
@@ -563,7 +625,43 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # أهداف التنمية المستدامة المرتبطة بالمشروع
+            # --- عرض نقاط القوة ---
+            if strengths:
+                st.markdown("""
+                    <div class="strengths-box">
+                        <h4 style="color: #065F46; margin-bottom: 15px;">✅ نقاط القوة</h4>
+                """, unsafe_allow_html=True)
+                
+                for strength in strengths:
+                    st.markdown(f'<div class="strength-item">✓ {strength}</div>', unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # --- عرض نقاط الضعف ---
+            if weaknesses:
+                st.markdown("""
+                    <div class="weaknesses-box">
+                        <h4 style="color: #991B1B; margin-bottom: 15px;">⚠️ نقاط تحتاج تحسين</h4>
+                """, unsafe_allow_html=True)
+                
+                for weakness in weaknesses:
+                    st.markdown(f'<div class="weakness-item">• {weakness}</div>', unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # --- عرض التوصيات ---
+            if recommendations:
+                st.markdown("""
+                    <div class="recommendations-box">
+                        <h4 style="color: #1E3A8A; margin-bottom: 20px;">💡 توصيات للتحسين</h4>
+                """, unsafe_allow_html=True)
+                
+                for i, rec in enumerate(recommendations, 1):
+                    st.markdown(f'<div class="recommendation-item">{rec}</div>', unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # أهداف التنمية المستدامة
             if detected_sdgs:
                 st.markdown(f"""
                     <div class="section-title">
@@ -572,7 +670,6 @@ if submitted:
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # عرض الأهداف في شبكة
                 st.markdown('<div class="sdg-grid">', unsafe_allow_html=True)
                 
                 for sdg in detected_sdgs:
@@ -586,8 +683,6 @@ if submitted:
                     """, unsafe_allow_html=True)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
-            else:
-                st.info("لم يتم العثور على أهداف مرتبطة بالمشروع")
             
             # معلومات إضافية
             st.markdown('<div class="info-grid">', unsafe_allow_html=True)
@@ -620,7 +715,7 @@ if submitted:
             
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # توزيع الأهداف على الأبعاد
+            # توزيع الأهداف
             st.markdown("""
                 <div class="dimensions-box">
                     <div style="font-weight: 600; color: #0F172A; margin-bottom: 20px;">توزيع الأهداف على الأبعاد</div>
@@ -663,16 +758,16 @@ if submitted:
                         <div class="info-card">
                             <div class="label">التكلفة لكل مستفيد</div>
                             <div class="value">{cost_per_person:,.0f}</div>
-                            <span style="color: #9CA3AF; font-size: 0.85rem;">ريال</span>
+                            <span style="color: #9CA3AF;">ريال</span>
                         </div>
                     """, unsafe_allow_html=True)
                 
                 with col_m2:
                     st.markdown(f"""
                         <div class="info-card">
-                            <div class="label">العائد الاجتماعي المتوقع</div>
+                            <div class="label">العائد الاجتماعي</div>
                             <div class="value">{sroi}</div>
-                            <span style="color: #9CA3AF; font-size: 0.85rem;">×</span>
+                            <span style="color: #9CA3AF;">×</span>
                         </div>
                     """, unsafe_allow_html=True)
                 
@@ -683,21 +778,12 @@ if submitted:
                 <div class="summary-box">
                     <div class="summary-title">📋 خلاصة التحليل</div>
                     <div class="summary-text">
-                        <p style="margin-bottom: 15px;">
-                            مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، 
-                            يستهدف <strong>{metrics['sdg_count']}</strong> من أهداف التنمية المستدامة.
-                        </p>
-                        <p style="margin-bottom: 15px;">
-                            نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong> 
-                            بناءً على تحليل {metrics['sdg_count']} أهداف ودرجة توازن {metrics['balance_score']:.1f}%.
-                        </p>
-                        <div class="summary-divider"></div>
-                        <p class="recommendation">
-                            {'✅ يوصى بالمضي قدماً في المشروع' if success_pred == 1 else '⚠️ يوصى بإعادة هيكلة المشروع لتحسين فرص النجاح'}
-                        </p>
+                        <p>مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، 
+                        يستهدف <strong>{metrics['sdg_count']}</strong> من أهداف التنمية المستدامة.</p>
+                        <p>نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong>.</p>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 13. التذييل ---
+# --- 14. التذييل ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2024</div>', unsafe_allow_html=True)
