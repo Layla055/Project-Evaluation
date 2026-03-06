@@ -13,7 +13,6 @@ try:
     TENSORFLOW_AVAILABLE = True
 except:
     TENSORFLOW_AVAILABLE = False
-    st.warning("⚠️ لم يتم تحميل مكتبة TensorFlow، سيتم استخدام النماذج المتاحة فقط")
 
 # --- 1. إعدادات الصفحة ---
 st.set_page_config(
@@ -50,38 +49,31 @@ def load_models_safe():
     }
     
     try:
-        # التحقق من وجود الملفات
         files_status = check_model_files()
         
-        # تحميل Scaler
         if files_status['scaler.pkl']:
             models['scaler'] = joblib.load('scaler.pkl')
         
-        # تحميل XGBoost
         if files_status['hybrid_xgb.pkl']:
             models['xgb'] = joblib.load('hybrid_xgb.pkl')
         
-        # تحميل ANN (إذا كان TensorFlow متاحاً)
         if files_status['hybrid_ann.h5'] and TENSORFLOW_AVAILABLE:
             models['ann'] = load_model('hybrid_ann.h5')
         
-        # تحميل الإعدادات
         if files_status['config.pkl']:
             models['config'] = joblib.load('config.pkl')
         
-        # تحديث الحالة
         if any([models['scaler'], models['xgb'], models['ann']]):
             models['status'] = 'partial_models'
         if models['scaler'] and models['xgb'] and models['ann']:
             models['status'] = 'full_models'
             
     except Exception as e:
-        st.error(f"⚠️ خطأ في تحميل النماذج: {str(e)}")
         models['status'] = 'error'
     
     return models
 
-# --- 4. قاموس الكلمات المفتاحية (مبسط) ---
+# --- 4. قاموس الكلمات المفتاحية ---
 SDG_KEYWORDS = {
     1: {'name': 'القضاء على الفقر', 
         'keywords': ['فقر', 'فقراء', 'تمكين', 'دخل', 'مساعدات', 'ضمان', 'تكافل', 'poverty']},
@@ -183,8 +175,7 @@ def calculate_sdg_metrics(detected_sdgs):
     }
 
 def predict_success_fallback(metrics):
-    """نسخة احتياطية للتنبؤ في حالة عدم وجود نماذج"""
-    # معادلة بسيطة للتنبؤ
+    """نسخة احتياطية للتنبؤ"""
     base_score = 0.5
     sdg_bonus = min(metrics['sdg_count'] * 0.05, 0.2)
     balance_bonus = metrics['balance_score'] * 0.002
@@ -202,18 +193,18 @@ def get_project_trend(metrics):
     max_dimension = max(ratios, key=ratios.get)
     
     if metrics['balance_score'] > 80:
-        return "🏆 متوازن"
+        return "متوازن"
     elif max_dimension == 'اجتماعي':
-        return "👥 اجتماعي"
+        return "اجتماعي"
     elif max_dimension == 'اقتصادي':
-        return "💰 اقتصادي"
+        return "اقتصادي"
     else:
-        return "🌍 بيئي"
+        return "بيئي"
 
 # --- 7. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 8. التصميم ---
+# --- 8. التصميم الموحد (أبيض فقط) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
@@ -226,59 +217,82 @@ st.markdown("""
         background-color: #F8FAFC;
     }
     
-    /* الحقول */
+    /* الحقول - كلها بيضاء */
     .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
-        border-radius: 12px !important;
+        border-radius: 8px !important;
         border: 1px solid #E2E8F0 !important;
-        padding: 12px 16px !important;
+        padding: 10px 14px !important;
         background: white !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+        box-shadow: none !important;
     }
     
-    /* زر التحليل */
+    /* زر التحليل - أسود فقط */
     .stButton > button {
         background: #0F172A !important;
         color: white !important;
-        border-radius: 12px !important;
-        height: 52px !important;
-        font-weight: 600 !important;
+        border-radius: 8px !important;
+        height: 48px !important;
+        font-weight: 500 !important;
         border: none !important;
         width: 100% !important;
-        transition: all 0.3s ease !important;
     }
     
     .stButton > button:hover {
         background: #1E293B !important;
-        box-shadow: 0 8px 16px rgba(15,23,42,0.2) !important;
     }
     
     h1 {
         color: #0F172A;
         text-align: center;
         font-weight: 700;
-        font-size: 2.2rem;
+        font-size: 2rem;
         margin-bottom: 30px;
     }
     
-    /* بطاقات النتائج */
+    /* بطاقات النتائج - كلها بيضاء متطابقة */
     .metric-card {
         background: white;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border-radius: 8px;
+        padding: 20px 15px;
         border: 1px solid #E2E8F0;
+        text-align: center;
+        height: 100%;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    /* شارات SDG - بيضاء بحدود */
+    .sdg-badge {
+        background: white;
+        color: #0F172A;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #E2E8F0;
+        margin: 4px;
+        display: inline-block;
+        font-size: 0.85rem;
         text-align: center;
     }
     
-    /* شارات SDG */
-    .sdg-badge {
-        background: #0F172A;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 30px;
-        margin: 5px;
-        display: inline-block;
-        font-size: 0.9rem;
+    /* عناوين الأقسام */
+    .section-title {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 25px 0 15px 0;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #E2E8F0;
+    }
+    
+    /* مربع الخلاصة - أبيض */
+    .summary-box {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -291,24 +305,24 @@ with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        p_name = st.text_input("📋 اسم المشروع", placeholder="أدخل اسم المشروع...")
-        p_desc = st.text_area("📝 وصف المشروع", height=150, 
+        p_name = st.text_input("اسم المشروع", placeholder="أدخل اسم المشروع...")
+        p_desc = st.text_area("وصف المشروع", height=150, 
                              placeholder="أدخل تفاصيل المشروع هنا...")
     
     with col2:
-        p_cat = st.selectbox("🏷️ المجال", 
+        p_cat = st.selectbox("المجال", 
                             ["", "تعليمي", "صحي", "بيئي", "اقتصادي", "اجتماعي"])
-        p_budget = st.number_input("💰 الميزانية (SAR)", min_value=0, value=0)
-        p_ben = st.number_input("👥 المستفيدين", min_value=0, value=0)
+        p_budget = st.number_input("الميزانية (SAR)", min_value=0, value=0)
+        p_ben = st.number_input("عدد المستفيدين", min_value=0, value=0)
     
-    submitted = st.form_submit_button("🔮 تحليل المشروع")
+    submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
 # --- 11. التحليل والنتائج ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
-        st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
+        st.error("يرجى إدخال جميع البيانات المطلوبة")
     else:
-        with st.spinner("🧠 جاري التحليل..."):
+        with st.spinner("جاري التحليل..."):
             
             # استخراج الأهداف
             full_text = f"{p_name} {p_desc}"
@@ -319,7 +333,6 @@ if submitted:
             
             # التنبؤ
             if models['status'] == 'full_models':
-                # استخدام النماذج الحقيقية
                 features = np.array([[
                     metrics['sdg_count'],
                     metrics['social_ratio'],
@@ -334,122 +347,126 @@ if submitted:
                 success_prob = (config['weight_ann'] * ann_prob + config['weight_xgb'] * xgb_prob)
                 success_pred = 1 if success_prob >= config['threshold'] else 0
             else:
-                # استخدام المعادلة الاحتياطية
                 success_prob = predict_success_fallback(metrics)
                 success_pred = 1 if success_prob >= 0.6 else 0
             
             # المؤشرات المالية
             sroi = round(success_prob * (p_ben / (p_budget/1000)) if p_budget > 0 else 0, 2)
             
-            # --- عرض النتائج ---
+            # --- عرض النتائج ببطاقات متساوية الحجم ---
             
-            # الصف الأول: المؤشرات الرئيسية
-            col_res1, col_res2, col_res3 = st.columns(3)
+            # الصف الأول: 3 بطاقات متساوية
+            cols = st.columns(3)
             
-            with col_res1:
+            with cols[0]:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div style="color: #64748B;">نسبة النجاح</div>
-                        <div style="font-size: 3rem; font-weight: 800; color: #0F172A;">{success_prob*100:.1f}%</div>
-                        <div style="background: {'#22C55E' if success_pred == 1 else '#EF4444'}; color: white; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-top: 10px;">
-                            {'✅ ناجح' if success_pred == 1 else '⚠️ يحتاج تطوير'}
+                        <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 8px;">نسبة النجاح</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #0F172A;">{success_prob*100:.1f}%</div>
+                        <div style="margin-top: 8px; color: {'#10B981' if success_pred == 1 else '#EF4444'}; font-weight: 500;">
+                            {'ناجح' if success_pred == 1 else 'غير ناجح'}
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
             
-            with col_res2:
+            with cols[1]:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div style="color: #64748B;">الأهداف المستخرجة</div>
-                        <div style="font-size: 3rem; font-weight: 800; color: #0F172A;">{metrics['sdg_count']}</div>
-                        <div style="margin-top: 10px; color: #64748B;">من أهداف التنمية</div>
+                        <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 8px;">الأهداف المستخرجة</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #0F172A;">{metrics['sdg_count']}</div>
+                        <div style="margin-top: 8px; color: #64748B; font-size: 0.9rem;">هدف من أهداف التنمية</div>
                     </div>
                 """, unsafe_allow_html=True)
             
-            with col_res3:
+            with cols[2]:
                 trend = get_project_trend(metrics)
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div style="color: #64748B;">توجه المشروع</div>
-                        <div style="font-size: 1.8rem; font-weight: 700; color: #0F172A; margin-top: 15px;">{trend}</div>
-                        <div style="margin-top: 10px; color: #64748B;">{metrics['balance_score']:.1f}% توازن</div>
+                        <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 8px;">توجه المشروع</div>
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #0F172A; margin: 10px 0;">{trend}</div>
+                        <div style="color: #64748B; font-size: 0.9rem;">{metrics['balance_score']:.1f}% توازن</div>
                     </div>
                 """, unsafe_allow_html=True)
             
-            # عرض أهداف SDG
+            # أهداف SDG
             if detected_sdgs:
-                st.markdown("### 🎯 أهداف التنمية المستدامة")
-                cols = st.columns(4)
-                for i, sdg in enumerate(detected_sdgs[:8]):  # عرض أول 8 أهداف فقط
-                    with cols[i % 4]:
+                st.markdown('<div class="section-title">أهداف التنمية المستدامة</div>', unsafe_allow_html=True)
+                
+                # عرض الأهداف في 4 أعمدة
+                sdg_cols = st.columns(4)
+                for i, sdg in enumerate(detected_sdgs):
+                    with sdg_cols[i % 4]:
                         st.markdown(f"""
-                            <div class="sdg-badge" style="width: 100%; text-align: center;">
-                                الهدف {sdg}
+                            <div class="sdg-badge" style="width: 100%;">
+                                الهدف {sdg}: {SDG_KEYWORDS[sdg]['name']}
                             </div>
                         """, unsafe_allow_html=True)
             
-            # تحليل الأبعاد
-            st.markdown("### 📊 تحليل الأبعاد")
+            # تحليل الأبعاد - 3 بطاقات متساوية
+            st.markdown('<div class="section-title">تحليل الأبعاد</div>', unsafe_allow_html=True)
             
-            dim1, dim2, dim3 = st.columns(3)
+            dim_cols = st.columns(3)
             
-            with dim1:
+            with dim_cols[0]:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div style="font-weight: 600;">اجتماعي</div>
-                        <div style="font-size: 2rem; font-weight: 700;">{metrics['dimensions']['social']}</div>
-                        <div style="color: #64748B;">{metrics['social_ratio']:.1f}%</div>
+                        <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 8px;">البعد الاجتماعي</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #0F172A;">{metrics['dimensions']['social']}</div>
+                        <div style="margin-top: 8px; color: #64748B;">{metrics['social_ratio']:.1f}%</div>
                     </div>
                 """, unsafe_allow_html=True)
             
-            with dim2:
+            with dim_cols[1]:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div style="font-weight: 600;">اقتصادي</div>
-                        <div style="font-size: 2rem; font-weight: 700;">{metrics['dimensions']['economic']}</div>
-                        <div style="color: #64748B;">{metrics['economic_ratio']:.1f}%</div>
+                        <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 8px;">البعد الاقتصادي</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #0F172A;">{metrics['dimensions']['economic']}</div>
+                        <div style="margin-top: 8px; color: #64748B;">{metrics['economic_ratio']:.1f}%</div>
                     </div>
                 """, unsafe_allow_html=True)
             
-            with dim3:
+            with dim_cols[2]:
                 st.markdown(f"""
                     <div class="metric-card">
-                        <div style="font-weight: 600;">بيئي</div>
-                        <div style="font-size: 2rem; font-weight: 700;">{metrics['dimensions']['environmental']}</div>
-                        <div style="color: #64748B;">{metrics['environmental_ratio']:.1f}%</div>
+                        <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 8px;">البعد البيئي</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #0F172A;">{metrics['dimensions']['environmental']}</div>
+                        <div style="margin-top: 8px; color: #64748B;">{metrics['environmental_ratio']:.1f}%</div>
                     </div>
                 """, unsafe_allow_html=True)
             
-            # الخلاصة
+            # الخلاصة - مربع أبيض
             st.markdown(f"""
-                <div style="background: #0F172A; color: white; padding: 25px; border-radius: 16px; margin-top: 30px;">
-                    <h4 style="color: white; margin-bottom: 15px;">📋 الخلاصة</h4>
-                    <p>مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong> يستهدف {metrics['sdg_count']} أهداف تنموية.</p>
-                    <p>نسبة النجاح المتوقعة: <strong>{success_prob*100:.1f}%</strong></p>
-                    <p style="margin-top: 15px;">{'✅ يوصى بالمضي قدماً في المشروع' if success_pred == 1 else '⚠️ يوصى بمراجعة المشروع وتحسينه'}</p>
+                <div class="summary-box">
+                    <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 15px; color: #0F172A;">الخلاصة</div>
+                    <p style="color: #334155; line-height: 1.6; margin-bottom: 10px;">
+                        مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong> يستهدف <strong>{metrics['sdg_count']}</strong> 
+                        من أهداف التنمية المستدامة. نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong>.
+                    </p>
+                    <p style="color: #334155; margin-top: 10px;">
+                        <strong>التوصية:</strong> {'المشروع واعد ويمكن المضي قدماً' if success_pred == 1 else 'يحتاج المشروع إلى إعادة هيكلة'}
+                    </p>
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 12. معلومات النماذج ---
+# --- 12. معلومات النماذج (شريط جانبي) ---
 with st.sidebar:
-    st.markdown("### ℹ️ معلومات النظام")
+    st.markdown("### معلومات النظام")
     
     files_status = check_model_files()
     available_files = [f for f, exists in files_status.items() if exists]
     
     if available_files:
-        st.success(f"✅ الملفات المتاحة: {len(available_files)}")
+        st.success(f"✓ الملفات المتاحة: {len(available_files)}")
         for file in available_files:
             st.markdown(f"- {file}")
     else:
         st.warning("⚠️ لا توجد نماذج مدربة")
-        st.markdown("يتم استخدام المعادلات التقديرية")
     
     if models['status'] == 'full_models':
-        st.success("✅ جميع النماذج تعمل")
+        st.success("✓ جميع النماذج تعمل")
     elif models['status'] == 'partial_models':
-        st.info("⚡ بعض النماذج فقط متاحة")
+        st.info("بعض النماذج فقط متاحة")
 
 # --- 13. التذييل ---
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #94A3B8;'>© 2024 المنصة الذكية لتحليل المشاريع التنموية</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #94A3B8; padding: 20px;'>المنصة الذكية لتحليل المشاريع التنموية 2024</div>", unsafe_allow_html=True)
