@@ -5,6 +5,7 @@ import pandas as pd
 import joblib
 import os
 import re
+import random
 from pathlib import Path
 from collections import Counter
 
@@ -490,7 +491,242 @@ SDG_DIMENSIONS = {
     'environmental': [6, 7, 13, 14, 15]
 }
 
-# --- 7. دوال التحليل ---
+# --- 7. قاموس التوصيات الموسع (جديد) ---
+RECOMMENDATIONS_DB = {
+    # توصيات عامة
+    'general': [
+        "تطوير خطة عمل تفصيلية بمراحل زمنية محددة",
+        "إشراك المجتمع المحلي في تصميم وتنفيذ المشروع",
+        "بناء شراكات مع القطاع الخاص لتعزيز الاستدامة",
+        "تخصيص جزء من الميزانية للتدريب وبناء القدرات",
+        "إنشاء نظام متابعة وتقييم دوري لأداء المشروع",
+        "توثيق الدروس المستفادة لنقل التجربة لمشاريع أخرى",
+        "تعزيز الشفافية في الإبلاغ عن نتائج المشروع",
+        "تطوير خطة استدامة مالية بعد انتهاء التمويل"
+    ],
+    
+    # توصيات حسب عدد الأهداف
+    'sdg_count': {
+        'low': [
+            "ربط المشروع بهدفين على الأقل من أهداف التنمية المستدامة",
+            "البحث عن روابط بين مجال المشروع وأهداف أخرى",
+            "إضافة هدف نوعي يعزز أثر المشروع دون زيادة التكلفة",
+            "الاستفادة من الأهداف المتداخلة مثل الحد من الفقر مع التعليم"
+        ],
+        'medium': [
+            "تعزيز التكامل بين الأهداف الحالية",
+            "إضافة هدف بيئي للمشروع لتحقيق الاستدامة",
+            "مراعاة التوازن بين الأهداف الاجتماعية والاقتصادية"
+        ],
+        'high': [
+            "الاستفادة من تعدد الأهداف في جذب التمويل",
+            "تسويق المشروع كمنتج متكامل الأبعاد",
+            "توثيق أثر المشروع متعدد الأبعاد لنشر التجربة"
+        ]
+    },
+    
+    # توصيات حسب الميزانية
+    'budget': {
+        'low': [
+            "البحث عن تمويل إضافي من الجهات المانحة",
+            "الاستفادة من المتطوعين لخفض التكاليف",
+            "توسيع نطاق المشروع تدريجياً حسب توفر التمويل"
+        ],
+        'medium': [
+            "تخصيص 15% من الميزانية للطوارئ",
+            "تنويع مصادر التمويل لضمان الاستدامة",
+            "الاستثمار في تدريب الكوادر المحلية"
+        ],
+        'high': [
+            "إجراء تدقيق مالي دوري لضمان كفاءة الإنفاق",
+            "توزيع الميزانية على مراحل زمنية واضحة",
+            "إنشاء صندوق استئماني لاستدامة المشروع"
+        ]
+    },
+    
+    # توصيات حسب التكلفة لكل مستفيد
+    'cost_per_person': {
+        'very_high': [
+            "خفض التكلفة باستخدام موارد محلية بدلاً من المستوردة",
+            "زيادة عدد المستفيدين بنفس التكلفة عبر الشراكات",
+            "إعادة تصميم أنشطة المشروع لتكون أقل تكلفة"
+        ],
+        'high': [
+            "تحسين كفاءة الإنفاق عبر تقليل الهدر",
+            "الاستفادة من اقتصاديات الحجم في المشتريات",
+            "توسيع قاعدة المستفيدين لتحسين المؤشر"
+        ],
+        'low': [
+            "توثيق تجربة الكفاءة العالية لنقلها لمشاريع أخرى",
+            "الاستفادة من وفرات التكلفة في توسيع الأنشطة"
+        ]
+    },
+    
+    # توصيات حسب العائد الاجتماعي
+    'sroi': {
+        'low': [
+            "تحسين الأثر: العائد على الاستثمار منخفض. ركز على الفئات الأكثر احتياجاً لزيادة الأثر",
+            "استهداف الفئات الأكثر احتياجاً لرفع العائد الاجتماعي",
+            "تحسين آلية اختيار المستفيدين لتكون أكثر دقة",
+            "إضافة أنشطة ذات أثر سريع للمستفيدين"
+        ],
+        'medium': [
+            "توثيق قصص النجاح لجذب مزيد من الدعم",
+            "تطوير مؤشرات أثر نوعية إضافة للكمية",
+            "الاستفادة من العائد الاجتماعي في التسويق"
+        ],
+        'high': [
+            "توسيع نطاق المشروع جغرافياً",
+            "بناء نموذج قابل للتكرار في مناطق أخرى",
+            "تطوير دليل إرشادي لتكرار التجربة"
+        ]
+    },
+    
+    # توصيات حسب القطاع
+    'sector': {
+        'تعليمي': [
+            "تطوير المناهج لتواكب احتياجات سوق العمل",
+            "تدريب المعلمين على أحدث الطرق التربوية",
+            "إدخال التكنولوجيا في العملية التعليمية",
+            "ربط التعليم بالتدريب المهني لفرص العمل",
+            "توفير بيئة مدرسية آمنة وجاذبة للطلاب",
+            "مكافحة التسرب المدرسي ببرامج دعم خاصة",
+            "تطوير أنشطة لا منهجية لتنمية المهارات",
+            "الاستفادة من التعليم عن بعد للتوسع",
+            "الاستفادة من التجارب: ادرس المشاريع التعليمية الناجحة واستفد من منهجياتها",
+            "التكامل التعليمي: المشاريع التعليمية الأكثر نجاحاً تدمج جوانب اجتماعية مع التعليم"
+        ],
+        'صحي': [
+            "توفير الرعاية الصحية الأولية للفئات الأكثر احتياجاً",
+            "برامج توعية صحية للوقاية من الأمراض",
+            "تدريب الكوادر الطبية المحلية",
+            "تطوير نظام معلومات صحي للمتابعة",
+            "توفير الأدوية الأساسية بأسعار مناسبة",
+            "برامج صحة مدرسية للكشف المبكر",
+            "دعم الصحة النفسية في المجتمع",
+            "التأمين الصحي للفئات غير المغطاة",
+            "التكامل الصحي: المشاريع الصحية الأكثر نجاحاً تدمج جوانب اجتماعية مع الرعاية الصحية",
+            "البعد الاجتماعي: أضف أهدافاً اجتماعية للمشروع الصحي لتعزيز الأثر"
+        ],
+        'بيئي': [
+            "برامج تشجير ومكافحة التصحر",
+            "نشر ثقافة إعادة التدوير في المجتمع",
+            "مشاريع طاقة متجددة للمجتمعات المحلية",
+            "حماية المناطق الطبيعية والتنوع الحيوي",
+            "برامج توعية بيئية في المدارس",
+            "دعم الزراعة العضوية المستدامة",
+            "مشاريع تحسين كفاءة استخدام المياه",
+            "الاستفادة من الاقتصاد الأخضر في خلق فرص عمل",
+            "التكامل البيئي: المشاريع البيئية الناجحة تدمج بين حماية البيئة والتنمية المستدامة",
+            "تنويع الأهداف البيئية: أضف أهدافاً مثل العمل المناخي أو الحياة في البر"
+        ],
+        'اقتصادي': [
+            "دعم ريادة الأعمال والمشاريع الصغيرة",
+            "برامج تدريب مهني للشباب",
+            "تطوير سلاسل القيمة للمنتجات المحلية",
+            "تشجيع الاستثمار في المناطق الأقل نمواً",
+            "تطوير البنية التحتية الداعمة للاقتصاد",
+            "برامج تمكين اقتصادي للمرأة",
+            "تحسين بيئة الأعمال وجذب الاستثمارات",
+            "تطوير الصادرات غير النفطية",
+            "التنويع الاقتصادي: المشاريع الاقتصادية الناجحة تدمج بين العمل اللائق والابتكار",
+            "تعزيز العائد الاقتصادي: ركز على خلق فرص عمل مستدامة"
+        ],
+        'اجتماعي': [
+            "برامج تمكين للفئات المهمشة",
+            "دعم وتمكين الأشخاص ذوي الإعاقة",
+            "برامج رعاية للمسنين وكبار السن",
+            "مشاريع إسكان للفئات محدودة الدخل",
+            "برامج دعم نفسي واجتماعي",
+            "تعزيز التماسك الاجتماعي والمشاركة المجتمعية",
+            "دورات تأهيل للأسر المنتجة",
+            "برامج حماية الطفل والأسرة",
+            "التكامل الاجتماعي: أضف أهدافاً مثل الحد من عدم المساواة وتمكين الفئات المهمشة"
+        ]
+    },
+    
+    # توصيات حسب درجة التوازن
+    'balance': {
+        'low': [
+            "إعادة توزيع الأهداف بين الأبعاد الثلاثة",
+            "إضافة أنشطة تعزز البعد المهمل",
+            "مراجعة تصميم المشروع لتحقيق تكامل أفضل"
+        ],
+        'medium': [
+            "تعزيز التكامل بين الأبعاد الحالية",
+            "تطوير مؤشرات تقيس الترابط بين الأبعاد"
+        ],
+        'high': [
+            "توثيق نموذج التوازن كأفضل ممارسة",
+            "الاستفادة من التوازن في بناء الشراكات"
+        ]
+    },
+    
+    # توصيات استثمارية
+    'investment': {
+        'low_risk': [
+            "فرصة استثمارية واعدة: العائد الاجتماعي مرتفع جداً، يُنصح بتوسيع نطاق المشروع",
+            "فرصة جيدة للاستثمار مع متابعة دورية",
+            "يمكن التوسع في المشروع بعد تقييم المرحلة الأولى",
+            "الاستفادة من نجاح المشروع في جذب تمويل إضافي"
+        ],
+        'medium_risk': [
+            "موقف استثماري: مخاطرة متوسطة. يوصى بتمويل مرحلي مع متابعة دقيقة",
+            "الاستثمار على مراحل مع تقييم كل مرحلة",
+            "تخفيف المخاطر عبر شراكات استراتيجية",
+            "تأمين المشروع ضد المخاطر المحتملة"
+        ],
+        'high_risk': [
+            "موقف استثماري: نسبة المخاطرة عالية. يوصى بإعادة دراسة المشروع أو البحث عن مصادر تمويل غير تقليدية",
+            "إعادة هيكلة المشروع قبل الاستثمار",
+            "البحث عن مستثمر متخصص في المشاريع عالية المخاطر",
+            "تأجيل الاستثمار حتى تحسن مؤشرات المشروع"
+        ]
+    },
+    
+    # توصيات زمنية
+    'timing': [
+        "بدء المشروع بمرحلة تجريبية قبل التوسع",
+        "توزيع الأنشطة على مراحل زمنية واقعية",
+        "تحديد مؤشرات أداء لكل مرحلة زمنية",
+        "الاستفادة من المواسم المناسبة لتنفيذ الأنشطة",
+        "تجنب فترات الذروة في تنفيذ المشاريع المشابهة",
+        "تخصيص وقت كافٍ للتخطيط قبل التنفيذ",
+        "مراعاة العطلات والإجازات في الجدول الزمني"
+    ],
+    
+    # توصيات استدامة
+    'sustainability': [
+        "بناء قدرات محلية لاستدامة المشروع",
+        "تطوير خطة لنقل المعرفة للكوادر الوطنية",
+        "إشراك القطاع الخاص في تمويل الاستدامة",
+        "إنشاء وقف أو صندوق لدعم استمرارية المشروع",
+        "تطوير موارد ذاتية لتقليل الاعتماد على التمويل الخارجي",
+        "توثيق الإجراءات لضمان استمراريتها بعد انتهاء المشروع",
+        "بناء شراكات مع مؤسسات محلية لتبني المشروع"
+    ],
+    
+    # توصيات تكنولوجية
+    'technology': [
+        "إدخال التكنولوجيا المناسبة لرفع الكفاءة",
+        "تطوير منصة رقمية لمتابعة المستفيدين",
+        "الاستفادة من الذكاء الاصطناعي في تحليل البيانات",
+        "توفير تدريب رقمي للمستفيدين",
+        "استخدام وسائل التواصل لنشر الوعي",
+        "تطوير تطبيق جوال لتسهيل الوصول للخدمات",
+        "الاستفادة من البيانات الضخمة في التخطيط"
+    ],
+    
+    # توصيات إضافية للمخاطر
+    'risk': [
+        "تقييم المخاطر: الميزانية الكبيرة تتطلب دراسة جدوى معمقة وتدقيق إضافي",
+        "كفاءة الاستهداف: عدد المستفيدين قليل مقارنة بالميزانية. هل يمكن توسيع نطاق المشروع؟",
+        "إعادة هيكلة التكاليف: التكلفة الحالية مرتفعة جداً. هل يمكن تنفيذ المشروع بكفاءة أعلى؟",
+        "ترشيد الإنفاق: خفض التكاليف بنسبة 20% مع الحفاظ على الجودة"
+    ]
+}
+
+# --- 8. دوال التحليل ---
 def extract_sdgs_from_text_advanced(text):
     """استخراج الأهداف من النص بطريقة ذكية"""
     if not text:
@@ -571,7 +807,7 @@ def get_project_trend(metrics):
         return "متوازن"
     return max_dim
 
-# --- 8. تحسين نسبة النجاح بإضافة الميزانية والمستفيدين ---
+# --- 9. تحسين نسبة النجاح بإضافة الميزانية والمستفيدين ---
 def enhance_success_with_budget(original_prob, p_budget, p_ben):
     """تحسين نسبة النجاح بناءً على كفاءة الميزانية والعائد الاجتماعي"""
     
@@ -619,98 +855,36 @@ def enhance_success_with_budget(original_prob, p_budget, p_ben):
     
     return enhanced_prob, budget_factor, cost_per_person, sroi
 
-# --- 9. نظام التوصيات الذكي (مع التوصيات الجميلة) ---
-def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budget_factor, cost_per_person, sroi):
-    """توليد توصيات ذكية تركز على الميزانية وجدوى الاستثمار"""
+# --- 10. نظام التوصيات الديناميكي الموسع ---
+def generate_dynamic_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, cost_per_person, sroi):
+    """توليد توصيات ديناميكية غير متكررة"""
     
     recommendations = []
     weaknesses = []
     strengths = []
     
-    # 1. تحليل الميزانية وكفاءة الإنفاق
-    if p_budget > 0 and p_ben > 0:
-        
-        # تحليل التكلفة لكل مستفيد
-        if cost_per_person > 100000:
-            weaknesses.append(f"⚠️ تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
-            recommendations.append("إعادة هيكلة التكاليف: التكلفة الحالية مرتفعة جداً. هل يمكن تنفيذ المشروع بكفاءة أعلى؟")
-        elif cost_per_person > 50000:
-            weaknesses.append(f"⚠️ تكلفة مرتفعة لكل مستفيد ({cost_per_person:,.0f} ريال)")
-            recommendations.append("ترشيد الإنفاق: خفض التكاليف بنسبة 20% مع الحفاظ على الجودة")
-        elif cost_per_person < 5000:
-            strengths.append(f"✅ كفاءة تشغيلية ممتازة ({cost_per_person:,.0f} ريال لكل مستفيد)")
-        
-        # تحليل العائد الاجتماعي
-        if sroi > 10:
-            strengths.append(f"✅ عائد اجتماعي ممتاز ({sroi:.1f}x)")
-            recommendations.append("فرصة استثمارية واعدة: العائد الاجتماعي مرتفع جداً، يُنصح بتوسيع نطاق المشروع")
-        elif sroi < 1:
-            weaknesses.append(f"⚠️ عائد اجتماعي منخفض ({sroi:.1f}x)")
-            recommendations.append("تحسين الأثر: العائد على الاستثمار منخفض. ركز على الفئات الأكثر احتياجاً لزيادة الأثر")
-    
-    # 2. تحليل عدد الأهداف
-    if metrics['sdg_count'] == 0:
-        weaknesses.append("⚠️ المشروع غير مرتبط بأهداف تنموية واضحة")
-        recommendations.append("تحديد الأهداف: المشروع بحاجة لربط بأهداف التنمية المستدامة")
-    elif metrics['sdg_count'] == 1:
-        weaknesses.append("⚠️ هدف تنموي واحد فقط")
-        recommendations.append("تنويع الأهداف: حاول ربط المشروع بهدف إضافي لتعزيز الأثر")
-    elif metrics['sdg_count'] >= 4:
+    # 1. نقاط القوة والضعف الأساسية
+    if metrics['sdg_count'] >= 4:
         strengths.append(f"✅ المشروع يغطي {metrics['sdg_count']} أهداف تنموية")
+    elif metrics['sdg_count'] <= 1:
+        weaknesses.append("⚠️ عدد الأهداف التنموية محدود")
     
-    # 3. تحليل التوازن
-    if metrics['balance_score'] < 30:
-        weaknesses.append("⚠️ اختلال كبير في التوازن بين الأبعاد")
-        recommendations.append("تحسين التوازن: ركز على الأبعاد المهملة في مشروعك")
-    elif metrics['balance_score'] < 50:
-        weaknesses.append("⚠️ توازن ضعيف بين الأبعاد")
-        recommendations.append("تحسين التوازن: وزع أهدافك بشكل أكثر توازناً")
-    elif metrics['balance_score'] > 70:
+    if metrics['balance_score'] > 70:
         strengths.append(f"✅ توازن ممتاز بين الأبعاد ({metrics['balance_score']:.1f}%)")
+    elif metrics['balance_score'] < 40:
+        weaknesses.append("⚠️ توازن ضعيف بين الأبعاد")
     
-    # 4. توصيات خاصة حسب القطاع (التوصيات الجميلة)
-    if p_cat == "تعليمي":
-        if metrics['sdg_count'] < 2:
-            recommendations.append("الاستفادة من التجارب: ادرس المشاريع التعليمية الناجحة واستفد من منهجياتها")
-        if metrics['balance_score'] < 40:
-            recommendations.append("التكامل التعليمي: المشاريع التعليمية الأكثر نجاحاً تدمج جوانب اجتماعية مع التعليم")
+    if cost_per_person < 5000:
+        strengths.append(f"✅ كفاءة تشغيلية ممتازة ({cost_per_person:,.0f} ريال لكل مستفيد)")
+    elif cost_per_person > 100000:
+        weaknesses.append(f"⚠️ تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
     
-    elif p_cat == "صحي":
-        if metrics['balance_score'] < 40:
-            recommendations.append("التكامل الصحي: المشاريع الصحية الأكثر نجاحاً تدمج جوانب اجتماعية مع الرعاية الصحية")
-        if metrics['dimensions']['social'] < 1:
-            recommendations.append("البعد الاجتماعي: أضف أهدافاً اجتماعية للمشروع الصحي لتعزيز الأثر")
+    if sroi > 10:
+        strengths.append(f"✅ عائد اجتماعي ممتاز ({sroi:.1f}x)")
+    elif sroi < 1:
+        weaknesses.append(f"⚠️ عائد اجتماعي منخفض ({sroi:.1f}x)")
     
-    elif p_cat == "بيئي":
-        if metrics['dimensions']['environmental'] < 2:
-            recommendations.append("التكامل البيئي: المشاريع البيئية الناجحة تدمج بين حماية البيئة والتنمية المستدامة")
-        if metrics['sdg_count'] < 3:
-            recommendations.append("تنويع الأهداف البيئية: أضف أهدافاً مثل العمل المناخي أو الحياة في البر")
-    
-    elif p_cat == "اقتصادي":
-        if metrics['dimensions']['economic'] < 2:
-            recommendations.append("التنويع الاقتصادي: المشاريع الاقتصادية الناجحة تدمج بين العمل اللائق والابتكار")
-        if sroi < 2:
-            recommendations.append("تعزيز العائد الاقتصادي: ركز على خلق فرص عمل مستدامة")
-    
-    elif p_cat == "اجتماعي":
-        if metrics['dimensions']['social'] < 3:
-            recommendations.append("التكامل الاجتماعي: أضف أهدافاً مثل الحد من عدم المساواة وتمكين الفئات المهمشة")
-    
-    # 5. توصية استثمارية (مهمة جداً)
-    if success_prob < 0.4:
-        recommendations.append("موقف استثماري: نسبة المخاطرة عالية. يوصى بإعادة دراسة المشروع أو البحث عن مصادر تمويل غير تقليدية")
-    elif success_prob < 0.6:
-        recommendations.append("موقف استثماري: مخاطرة متوسطة. يوصى بتمويل مرحلي مع متابعة دقيقة")
-    
-    # 6. توصيات إضافية حسب الميزانية
-    if p_budget > 1000000 and success_prob < 0.6:
-        recommendations.append("تقييم المخاطر: الميزانية الكبيرة تتطلب دراسة جدوى معمقة وتدقيق إضافي")
-    
-    if p_ben < 100 and p_budget > 500000:
-        recommendations.append("كفاءة الاستهداف: عدد المستفيدين قليل مقارنة بالميزانية. هل يمكن توسيع نطاق المشروع؟")
-    
-    # 7. مستوى الثقة للمستثمر
+    # 2. مستوى الثقة
     confidence_level = "منخفضة"
     if success_prob > 0.7 and metrics['balance_score'] > 60 and p_ben > 100:
         confidence_level = "عالية جداً"
@@ -718,11 +892,82 @@ def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budg
     elif success_prob > 0.5:
         confidence_level = "متوسطة"
     
-    return strengths, weaknesses, recommendations, confidence_level
-# --- 10. تحميل النماذج ---
+    # 3. توليد التوصيات من القاموس الموسع
+    
+    # توصيات حسب القطاع
+    sector_recs = RECOMMENDATIONS_DB['sector'].get(p_cat, [])
+    if sector_recs:
+        recommendations.append(random.choice(sector_recs))
+    
+    # توصيات حسب عدد الأهداف
+    if metrics['sdg_count'] <= 1:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sdg_count']['low']))
+    elif metrics['sdg_count'] <= 3:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sdg_count']['medium']))
+    else:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sdg_count']['high']))
+    
+    # توصيات حسب التكلفة لكل مستفيد
+    if cost_per_person > 100000:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['cost_per_person']['very_high']))
+    elif cost_per_person > 50000:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['cost_per_person']['high']))
+    elif cost_per_person < 5000:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['cost_per_person']['low']))
+    
+    # توصيات حسب العائد الاجتماعي
+    if sroi < 1:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sroi']['low']))
+    elif sroi < 5:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sroi']['medium']))
+    else:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sroi']['high']))
+    
+    # توصيات حسب درجة التوازن
+    if metrics['balance_score'] < 30:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['balance']['low']))
+    elif metrics['balance_score'] < 60:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['balance']['medium']))
+    else:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['balance']['high']))
+    
+    # توصيات استثمارية حسب نسبة النجاح
+    if success_prob < 0.4:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['investment']['high_risk']))
+    elif success_prob < 0.6:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['investment']['medium_risk']))
+    else:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['investment']['low_risk']))
+    
+    # توصيات استدامة (50% فرصة)
+    if random.random() > 0.5:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['sustainability']))
+    
+    # توصيات تكنولوجية (30% فرصة للمشاريع الكبيرة)
+    if p_budget > 500000 and random.random() > 0.7:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['technology']))
+    
+    # توصيات زمنية (40% فرصة)
+    if random.random() > 0.6:
+        recommendations.append(random.choice(RECOMMENDATIONS_DB['timing']))
+    
+    # توصيات مخاطر حسب الميزانية
+    if p_budget > 1000000 and success_prob < 0.6:
+        recommendations.append(random.choice([r for r in RECOMMENDATIONS_DB['risk'] if 'مخاطر' in r or 'كفاءة' in r]))
+    
+    if p_ben < 100 and p_budget > 500000:
+        recommendations.append(random.choice([r for r in RECOMMENDATIONS_DB['risk'] if 'استهداف' in r]))
+    
+    # إزالة التكرارات
+    recommendations = list(dict.fromkeys(recommendations))
+    
+    # تقليل العدد إلى 6 توصيات كحد أقصى
+    return strengths, weaknesses, recommendations[:6], confidence_level
+
+# --- 11. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 11. التصميم ---
+# --- 12. التصميم ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -1024,10 +1269,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 12. العنوان ---
+# --- 13. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 13. نموذج الإدخال ---
+# --- 14. نموذج الإدخال ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -1043,7 +1288,7 @@ with st.form("analysis_form"):
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 14. التحليل والنتائج مع التوصيات ---
+# --- 15. التحليل والنتائج مع التوصيات الموسعة ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
@@ -1091,9 +1336,9 @@ if submitted:
             threshold = 0.4
             success_pred = 1 if enhanced_prob >= threshold else 0
             
-            # --- توليد التوصيات الذكية ---
-            strengths, weaknesses, recommendations, confidence_level = generate_recommendations(
-                metrics, p_cat, p_budget, p_ben, enhanced_prob, budget_factor, cost_per_person, sroi
+            # --- توليد التوصيات الديناميكية ---
+            strengths, weaknesses, recommendations, confidence_level = generate_dynamic_recommendations(
+                metrics, p_cat, p_budget, p_ben, enhanced_prob, cost_per_person, sroi
             )
             
             # عرض نسبة النجاح
@@ -1289,5 +1534,5 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 15. التذييل (محدث إلى 2026) ---
+# --- 16. التذييل (محدث إلى 2026) ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2026</div>', unsafe_allow_html=True)
