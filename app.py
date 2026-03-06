@@ -15,11 +15,11 @@ try:
 except:
     TENSORFLOW_AVAILABLE = False
 
-# --- 1. إعدادات الصفحة ---
+# --- 1. إعدادات الصفحة (بدون شريط جانبي) ---
 st.set_page_config(
     page_title="المنصة الذكية لتحليل المشاريع التنموية", 
     layout="wide", 
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # مهم: الشريط الجانبي مغلق افتراضياً
 )
 
 # --- 2. دوال مساعدة للتحقق من الملفات ---
@@ -206,12 +206,24 @@ def get_project_trend(metrics):
 # --- 8. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 9. التصميم ---
+# --- 9. التصميم (بدون أي أثر للشريط الجانبي) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
-    * { font-family: 'Tajawal', sans-serif; box-sizing: border-box; }
-    .stApp { background-color: #F9FAFB; }
+    
+    * {
+        font-family: 'Tajawal', sans-serif;
+        box-sizing: border-box;
+    }
+    
+    /* إخفاء الشريط الجانبي تماماً */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    
+    .stApp {
+        background-color: #F9FAFB;
+    }
     
     /* الحقول */
     .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
@@ -219,6 +231,13 @@ st.markdown("""
         border: 1px solid #E5E7EB !important;
         padding: 12px 16px !important;
         background: white !important;
+        font-size: 1rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: #0F172A !important;
+        box-shadow: 0 0 0 2px rgba(15,23,42,0.1) !important;
     }
     
     /* زر التحليل */
@@ -228,18 +247,30 @@ st.markdown("""
         border-radius: 10px !important;
         height: 52px !important;
         font-weight: 600 !important;
+        font-size: 1.1rem !important;
+        border: none !important;
         width: 100% !important;
         transition: all 0.2s ease !important;
+        margin-top: 10px !important;
     }
+    
     .stButton > button:hover {
         background: #1E293B !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
     }
     
-    h1 { color: #0F172A; text-align: center; font-weight: 700; font-size: 2.2rem; margin: 20px 0 30px 0; }
+    /* العنوان الرئيسي */
+    h1 {
+        color: #0F172A;
+        text-align: center;
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin: 20px 0 30px 0;
+        letter-spacing: -0.5px;
+    }
     
-    /* بطاقة النجاح */
+    /* بطاقة نسبة النجاح */
     .success-card {
         background: white;
         border-radius: 16px;
@@ -250,9 +281,29 @@ st.markdown("""
         margin: 0 auto 30px auto;
         box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
-    .success-card .label { color: #6B7280; font-size: 1rem; margin-bottom: 10px; }
-    .success-card .value { font-size: 4rem; font-weight: 700; color: #0F172A; line-height: 1.2; }
-    .success-card .status { margin-top: 15px; font-weight: 600; padding: 6px 20px; border-radius: 30px; display: inline-block; }
+    
+    .success-card .label {
+        color: #6B7280;
+        font-size: 1rem;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    
+    .success-card .value {
+        font-size: 4rem;
+        font-weight: 700;
+        color: #0F172A;
+        line-height: 1.2;
+    }
+    
+    .success-card .status {
+        margin-top: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 6px 20px;
+        border-radius: 30px;
+        display: inline-block;
+    }
     
     /* شارات SDG */
     .sdg-grid {
@@ -261,16 +312,29 @@ st.markdown("""
         gap: 12px;
         margin: 20px 0;
     }
+    
     .sdg-badge {
         background: white;
+        color: #1F2937;
         padding: 14px 16px;
         border-radius: 10px;
         border: 1px solid #E5E7EB;
+        font-size: 0.95rem;
         text-align: center;
         transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
-    .sdg-badge.primary { background: #F8FAFC; border-right: 4px solid #0F172A; }
-    .sdg-badge:hover { border-color: #0F172A; transform: translateY(-2px); }
+    
+    .sdg-badge:hover {
+        border-color: #0F172A;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    .sdg-badge.primary {
+        background: #F8FAFC;
+        border-right: 4px solid #0F172A;
+    }
     
     /* عناوين الأقسام */
     .section-title {
@@ -282,16 +346,44 @@ st.markdown("""
         border-bottom: 2px solid #E5E7EB;
     }
     
+    .section-title .count {
+        background: #F3F4F6;
+        color: #4B5563;
+        font-size: 0.9rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-right: 12px;
+        font-weight: 500;
+    }
+    
     /* بطاقات المعلومات */
-    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin: 20px 0;
+    }
+    
     .info-card {
         background: white;
         border: 1px solid #E5E7EB;
         border-radius: 12px;
         padding: 18px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
     }
-    .info-card .label { color: #6B7280; font-size: 0.9rem; margin-bottom: 8px; }
-    .info-card .value { color: #0F172A; font-size: 1.5rem; font-weight: 600; }
+    
+    .info-card .label {
+        color: #6B7280;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .info-card .value {
+        color: #0F172A;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
     
     /* مربع الأبعاد */
     .dimensions-box {
@@ -301,13 +393,43 @@ st.markdown("""
         padding: 20px;
         margin: 20px 0;
     }
-    .dimensions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
-    .dimension-item .title { color: #6B7280; margin-bottom: 8px; }
-    .dimension-item .number { font-size: 2rem; font-weight: 700; color: #0F172A; }
+    
+    .dimensions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .dimension-item .title {
+        color: #6B7280;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .dimension-item .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
     
     /* شريط التقدم */
-    .progress-bar { width: 100%; height: 8px; background: #F3F4F6; border-radius: 20px; margin: 10px 0; overflow: hidden; }
-    .progress-fill { height: 100%; background: #0F172A; border-radius: 20px; }
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #F3F4F6;
+        border-radius: 20px;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: #0F172A;
+        border-radius: 20px;
+        transition: width 0.3s ease;
+    }
     
     /* مربع الخلاصة */
     .summary-box {
@@ -315,65 +437,51 @@ st.markdown("""
         border: 1px solid #E5E7EB;
         border-radius: 16px;
         padding: 30px;
-        margin: 40px 0;
+        margin: 40px 0 20px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
-    .summary-title { font-size: 1.2rem; font-weight: 600; color: #0F172A; margin-bottom: 15px; }
-    .summary-text { color: #4B5563; line-height: 1.8; }
-    .summary-divider { height: 1px; background: #E5E7EB; margin: 20px 0; }
+    
+    .summary-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #0F172A;
+        margin-bottom: 15px;
+    }
+    
+    .summary-text {
+        color: #4B5563;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+    
+    .summary-divider {
+        height: 1px;
+        background: #E5E7EB;
+        margin: 20px 0;
+    }
+    
+    .recommendation {
+        font-weight: 600;
+        color: #0F172A;
+        font-size: 1.05rem;
+    }
     
     /* التذييل */
-    .footer { text-align: center; color: #9CA3AF; padding: 30px 0 20px 0; border-top: 1px solid #E5E7EB; margin-top: 50px; }
+    .footer {
+        text-align: center;
+        color: #9CA3AF;
+        padding: 30px 0 20px 0;
+        font-size: 0.9rem;
+        border-top: 1px solid #E5E7EB;
+        margin-top: 50px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # --- 10. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 11. تشخيص النماذج في الشريط الجانبي ---
-with st.sidebar:
-    st.markdown("### 🔍 تشخيص النماذج")
-    
-    # عرض حالة الملفات
-    files_status = check_model_files()
-    for file, exists in files_status.items():
-        status = "✅" if exists else "❌"
-        st.markdown(f"{status} {file}")
-    
-    st.markdown("---")
-    
-    # عرض حالة النماذج المحملة
-    st.markdown("### 📊 حالة النماذج")
-    if models['scaler'] is not None:
-        st.success("✅ Scaler: محمل")
-    else:
-        st.error("❌ Scaler: غير محمل")
-        
-    if models['xgb'] is not None:
-        st.success("✅ XGBoost: محمل")
-    else:
-        st.error("❌ XGBoost: غير محمل")
-        
-    if models['ann'] is not None:
-        st.success("✅ ANN: محمل")
-    else:
-        st.error("❌ ANN: غير محمل")
-    
-    if models['config'] is not None:
-        st.success("✅ Config: محمل")
-        st.json({
-            'وزن ANN': f"{models['config'].get('weight_ann', 0.5):.2f}",
-            'وزن XGB': f"{models['config'].get('weight_xgb', 0.5):.2f}",
-            'العتبة': f"{models['config'].get('threshold', 0.4):.2f}"
-        })
-    
-    st.markdown("---")
-    st.markdown(f"**الحالة النهائية:** {models['status']}")
-    
-    if models['status'] == 'full_models':
-        st.balloons()
-        st.success("🎉 جميع النماذج جاهزة للعمل!")
-
-# --- 12. نموذج الإدخال ---
+# --- 11. نموذج الإدخال (بدون شريط جانبي) ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -384,12 +492,12 @@ with st.form("analysis_form"):
     
     with col2:
         p_cat = st.selectbox("المجال", ["", "تعليمي", "صحي", "بيئي", "اقتصادي", "اجتماعي"])
-        p_budget = st.number_input("الميزانية (SAR)", min_value=0, value=0)
-        p_ben = st.number_input("عدد المستفيدين", min_value=0, value=0)
+        p_budget = st.number_input("الميزانية (SAR)", min_value=0, value=0, step=1000)
+        p_ben = st.number_input("عدد المستفيدين", min_value=0, value=0, step=100)
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 13. التحليل والنتائج ---
+# --- 12. التحليل والنتائج ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
@@ -403,13 +511,10 @@ if submitted:
             # حساب المقاييس
             metrics = calculate_sdg_metrics(detected_sdgs)
             
-            # --- التنبؤ باستخدام النموذج الحقيقي (الأهم هنا) ---
-            model_used = "لم يتم استخدام نموذج"
-            model_details = {}
-            
+            # --- التنبؤ باستخدام النموذج الحقيقي ---
             if models['status'] == 'full_models' and all([models['scaler'], models['xgb'], models['ann']]):
                 try:
-                    # تجهيز الميزات بالترتيب الصحيح (مطابق للتدريب)
+                    # تجهيز الميزات
                     features = np.array([[
                         metrics['sdg_count'],
                         metrics['social_ratio'],
@@ -426,7 +531,7 @@ if submitted:
                     # تنبؤ XGBoost
                     xgb_prob = models['xgb'].predict_proba(features)[0][1]
                     
-                    # استخدام الأوزان من config
+                    # استخدام الأوزان
                     weight_ann = models['config'].get('weight_ann', 0.5)
                     weight_xgb = models['config'].get('weight_xgb', 0.5)
                     threshold = models['config'].get('threshold', 0.4)
@@ -435,36 +540,14 @@ if submitted:
                     success_prob = (weight_ann * ann_prob + weight_xgb * xgb_prob)
                     success_pred = 1 if success_prob >= threshold else 0
                     
-                    # تسجيل التفاصيل
-                    model_used = "✅ النموذج الهجين (ANN + XGBoost)"
-                    model_details = {
-                        'ANN': f"{ann_prob:.3f}",
-                        'XGB': f"{xgb_prob:.3f}",
-                        'الوزن ANN': f"{weight_ann:.2f}",
-                        'الوزن XGB': f"{weight_xgb:.2f}",
-                        'العتبة': f"{threshold:.2f}"
-                    }
-                    
                 except Exception as e:
                     # في حالة الخطأ، استخدم الاحتياطي
                     success_prob = predict_success_fallback(metrics)
                     success_pred = 1 if success_prob >= 0.6 else 0
-                    model_used = f"⚠️ النموذج الاحتياطي (خطأ: {str(e)[:100]})"
             else:
                 # استخدام النموذج الاحتياطي
                 success_prob = predict_success_fallback(metrics)
                 success_pred = 1 if success_prob >= 0.6 else 0
-                model_used = "🔄 النموذج الاحتياطي (لا توجد نماذج كاملة)"
-            
-            # عرض تفاصيل النموذج في الشريط الجانبي
-            with st.sidebar:
-                st.markdown("---")
-                st.markdown("### 🤖 نتيجة التحليل")
-                st.info(f"**النموذج المستخدم:** {model_used}")
-                if model_details:
-                    st.json(model_details)
-                st.markdown(f"**النتيجة النهائية:** {success_prob*100:.1f}%")
-                st.markdown(f"**التصنيف:** {'ناجح ✅' if success_pred == 1 else 'غير ناجح ⚠️'}")
             
             # عرض نسبة النجاح
             status_color = "#10B981" if success_pred == 1 else "#EF4444"
@@ -480,45 +563,67 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # أهداف التنمية المستدامة
+            # أهداف التنمية المستدامة المرتبطة بالمشروع
             if detected_sdgs:
                 st.markdown(f"""
                     <div class="section-title">
                         أهداف التنمية المستدامة المرتبطة بالمشروع
-                        <span style="background: #F3F4F6; color: #4B5563; font-size: 0.9rem; padding: 4px 12px; border-radius: 20px; margin-right: 12px;">
-                            {len(detected_sdgs)} أهداف
-                        </span>
+                        <span class="count">{len(detected_sdgs)} أهداف</span>
                     </div>
                 """, unsafe_allow_html=True)
                 
+                # عرض الأهداف في شبكة
                 st.markdown('<div class="sdg-grid">', unsafe_allow_html=True)
+                
                 for sdg in detected_sdgs:
                     primary_class = "primary" if sdg in primary_sdgs else ""
                     star = "⭐ " if sdg in primary_sdgs else ""
+                    
                     st.markdown(f"""
                         <div class="sdg-badge {primary_class}">
                             {star}الهدف {sdg}: {SDG_KEYWORDS[sdg]['name']}
                         </div>
                     """, unsafe_allow_html=True)
+                
                 st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.info("لم يتم العثور على أهداف مرتبطة بالمشروع")
             
             # معلومات إضافية
             st.markdown('<div class="info-grid">', unsafe_allow_html=True)
+            
             col1, col2, col3 = st.columns(3)
+            
             with col1:
-                st.markdown(f'<div class="info-card"><div class="label">توجه المشروع</div><div class="value">{get_project_trend(metrics)}</div></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="info-card">
+                        <div class="label">توجه المشروع</div>
+                        <div class="value">{get_project_trend(metrics)}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            
             with col2:
-                st.markdown(f'<div class="info-card"><div class="label">عدد الأهداف</div><div class="value">{metrics["sdg_count"]}</div></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="info-card">
+                        <div class="label">عدد الأهداف</div>
+                        <div class="value">{metrics['sdg_count']}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            
             with col3:
-                st.markdown(f'<div class="info-card"><div class="label">درجة التوازن</div><div class="value">{metrics["balance_score"]:.1f}%</div></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="info-card">
+                        <div class="label">درجة التوازن</div>
+                        <div class="value">{metrics['balance_score']:.1f}%</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # توزيع الأهداف
+            # توزيع الأهداف على الأبعاد
             st.markdown("""
                 <div class="dimensions-box">
-                    <div style="font-weight: 600; margin-bottom: 20px;">توزيع الأهداف على الأبعاد</div>
+                    <div style="font-weight: 600; color: #0F172A; margin-bottom: 20px;">توزيع الأهداف على الأبعاد</div>
                     <div class="dimensions-grid">
             """, unsafe_allow_html=True)
             
@@ -542,20 +647,57 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
+            # مؤشرات مالية
+            if p_budget > 0 and p_ben > 0:
+                cost_per_person = p_budget / p_ben
+                sroi = round((p_ben * success_prob) / (p_budget / 1000), 2)
+                
+                st.markdown("""
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0;">
+                """, unsafe_allow_html=True)
+                
+                col_m1, col_m2 = st.columns(2)
+                
+                with col_m1:
+                    st.markdown(f"""
+                        <div class="info-card">
+                            <div class="label">التكلفة لكل مستفيد</div>
+                            <div class="value">{cost_per_person:,.0f}</div>
+                            <span style="color: #9CA3AF; font-size: 0.85rem;">ريال</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_m2:
+                    st.markdown(f"""
+                        <div class="info-card">
+                            <div class="label">العائد الاجتماعي المتوقع</div>
+                            <div class="value">{sroi}</div>
+                            <span style="color: #9CA3AF; font-size: 0.85rem;">×</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+            
             # الخلاصة
             st.markdown(f"""
                 <div class="summary-box">
                     <div class="summary-title">📋 خلاصة التحليل</div>
                     <div class="summary-text">
-                        <p>مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، يستهدف <strong>{metrics['sdg_count']}</strong> من أهداف التنمية المستدامة.</p>
-                        <p>نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong> بناءً على {model_used}.</p>
+                        <p style="margin-bottom: 15px;">
+                            مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، 
+                            يستهدف <strong>{metrics['sdg_count']}</strong> من أهداف التنمية المستدامة.
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong> 
+                            بناءً على تحليل {metrics['sdg_count']} أهداف ودرجة توازن {metrics['balance_score']:.1f}%.
+                        </p>
                         <div class="summary-divider"></div>
-                        <p style="font-weight: 600; color: #0F172A;">
-                            {'✅ يوصى بالمضي قدماً في المشروع' if success_pred == 1 else '⚠️ يوصى بإعادة هيكلة المشروع'}
+                        <p class="recommendation">
+                            {'✅ يوصى بالمضي قدماً في المشروع' if success_pred == 1 else '⚠️ يوصى بإعادة هيكلة المشروع لتحسين فرص النجاح'}
                         </p>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 14. التذييل ---
+# --- 13. التذييل ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2024</div>', unsafe_allow_html=True)
