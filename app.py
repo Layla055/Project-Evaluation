@@ -403,7 +403,7 @@ CONTEXT_RULES = {
         'primary_keywords': ['صناعة', 'ابتكار', 'مصانع']
     },
     
-    # عدم المساواة (10) - هذا الهدف واسع ويغطي فئات كثيرة (يظهر مع الفئات المهمشة)
+    # عدم المساواة (10) - هذا الهدف واسع ويغطي فئات كثيرة
     10: {
         'required': ['فئات مهمشة', 'ذوي احتياجات', 'كبار السن', 'لاجئين', 'نازحين', 'مناطق نائية', 'قرى', 'أرياف', 'المناطق الحدودية', 'سكان البادية', 'البدو', 'الأقليات'],
         'forbidden': [],
@@ -467,7 +467,7 @@ SDG_DIMENSIONS = {
     'environmental': [6, 7, 13, 14, 15]
 }
 
-# --- 8. دالة استخراج الأهداف الذكية (محسنة لجميع المشاريع) ---
+# --- 8. دالة استخراج الأهداف الذكية ---
 def extract_sdgs_smart(text):
     """خوارزمية ذكية لاستخراج الأهداف بدقة عالية لجميع المشاريع"""
     
@@ -564,7 +564,7 @@ def extract_sdgs_smart(text):
     
     return list(detected_sdgs), list(primary_sdgs), matched_keywords
 
-# --- 9. دالة موحدة للاستخراج (للتوافق مع الكود القديم) ---
+# --- 9. دالة موحدة للاستخراج ---
 def extract_sdgs_from_text_advanced(text):
     """واجهة موحدة لاستخراج الأهداف"""
     return extract_sdgs_smart(text)
@@ -827,7 +827,7 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
 # --- 12. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 13. التصميم ---
+# --- 13. التصميم مع لمسات احترافية وتأثيرات حركية ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -845,28 +845,177 @@ st.markdown("""
         background-color: #F9FAFB;
     }
     
-    .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
-        border-radius: 10px !important;
-        border: 1px solid #E5E7EB !important;
-        padding: 12px 16px !important;
-        background: white !important;
+    /* ===== تأثيرات حركية احترافية ===== */
+    
+    /* تأثير نبض لبطاقة النجاح */
+    @keyframes gentlePulse {
+        0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        50% { transform: scale(1.02); box-shadow: 0 20px 30px rgba(15,23,42,0.15); }
+        100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     }
     
-    .stButton > button {
-        background: #0F172A !important;
-        color: white !important;
-        border-radius: 10px !important;
-        height: 52px !important;
-        font-weight: 600 !important;
-        width: 100% !important;
-        transition: all 0.2s ease !important;
-        margin-top: 10px !important;
+    .success-card {
+        animation: gentlePulse 3s infinite ease-in-out;
+        transition: all 0.3s ease;
+        background: white;
+        border-radius: 16px;
+        padding: 30px 20px;
+        border: 1px solid #E5E7EB;
+        text-align: center;
+        max-width: 350px;
+        margin: 0 auto 30px auto;
     }
     
-    .stButton > button:hover {
-        background: #1E293B !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    .success-card:hover {
+        animation: none;
+        transform: translateY(-5px);
+        box-shadow: 0 25px 35px rgba(15,23,42,0.2);
+    }
+    
+    /* تأثير حركة للسهم الاستثماري */
+    @keyframes arrowMove {
+        0% { transform: translateX(0); opacity: 0.7; }
+        50% { transform: translateX(8px); opacity: 1; }
+        100% { transform: translateX(0); opacity: 0.7; }
+    }
+    
+    .animated-arrow {
+        display: inline-block;
+        animation: arrowMove 2s infinite ease-in-out;
+        font-size: 1.2rem;
+        margin-left: 5px;
+    }
+    
+    /* تأثير توهج لمستوى الثقة العالي */
+    @keyframes glowPulse {
+        0% { box-shadow: 0 0 5px rgba(16,185,129,0.3); }
+        50% { box-shadow: 0 0 20px rgba(16,185,129,0.6); }
+        100% { box-shadow: 0 0 5px rgba(16,185,129,0.3); }
+    }
+    
+    .confidence-high {
+        background: #10B981;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        animation: glowPulse 2s infinite ease-in-out;
+    }
+    
+    /* تأثير توهج لمستوى الثقة المتوسط */
+    @keyframes glowPulseMedium {
+        0% { box-shadow: 0 0 5px rgba(245,158,11,0.3); }
+        50% { box-shadow: 0 0 20px rgba(245,158,11,0.6); }
+        100% { box-shadow: 0 0 5px rgba(245,158,11,0.3); }
+    }
+    
+    .confidence-medium {
+        background: #F59E0B;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        animation: glowPulseMedium 2s infinite ease-in-out;
+    }
+    
+    /* مستوى الثقة المنخفض (بدون توهج) */
+    .confidence-low {
+        background: #EF4444;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
+    /* تأثير ظهور متدرج للعناصر */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .sdg-badge, .info-card, .dimensions-box, .recommendations-box, .summary-box, .strengths-box, .weaknesses-box {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    /* تأخيرات متدرجة للعناصر */
+    .sdg-badge:nth-child(1) { animation-delay: 0.1s; }
+    .sdg-badge:nth-child(2) { animation-delay: 0.15s; }
+    .sdg-badge:nth-child(3) { animation-delay: 0.2s; }
+    .sdg-badge:nth-child(4) { animation-delay: 0.25s; }
+    .sdg-badge:nth-child(5) { animation-delay: 0.3s; }
+    .sdg-badge:nth-child(6) { animation-delay: 0.35s; }
+    
+    .info-card:nth-child(1) { animation-delay: 0.2s; }
+    .info-card:nth-child(2) { animation-delay: 0.3s; }
+    .info-card:nth-child(3) { animation-delay: 0.4s; }
+    
+    /* تأثير حركة خفيف لشريط التقدم */
+    @keyframes progressGlow {
+        0% { opacity: 0.8; }
+        50% { opacity: 1; box-shadow: 0 0 8px rgba(15,23,42,0.3); }
+        100% { opacity: 0.8; }
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: #0F172A;
+        border-radius: 20px;
+        transition: width 0.8s ease-in-out;
+        animation: progressGlow 3s infinite ease-in-out;
+    }
+    
+    /* تأثير hover لبطاقات SDG */
+    .sdg-badge {
+        background: white;
+        color: #1F2937;
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid #E5E7EB;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: default;
+    }
+    
+    .sdg-badge:hover {
+        border-color: #0F172A;
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+    }
+    
+    .sdg-badge.primary {
+        background: #F8FAFC;
+        border-right: 4px solid #0F172A;
+    }
+    
+    /* تأثير hover لبطاقات المعلومات */
+    .info-card {
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 18px;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        border-color: #0F172A;
+    }
+    
+    /* تأثير نبض خفيف للعنوان */
+    @keyframes titleGlow {
+        0% { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        50% { text-shadow: 0 4px 12px rgba(15,23,42,0.3); }
+        100% { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     }
     
     h1 {
@@ -875,67 +1024,79 @@ st.markdown("""
         font-weight: 700;
         font-size: 2.2rem;
         margin: 20px 0 30px 0;
+        animation: titleGlow 3s infinite ease-in-out;
     }
     
-    .success-card {
-        background: white;
-        border-radius: 16px;
-        padding: 30px 20px;
-        border: 1px solid #E5E7EB;
-        text-align: center;
-        max-width: 350px;
-        margin: 0 auto 30px auto;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    /* الحقول */
+    .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
+        border-radius: 10px !important;
+        border: 1px solid #E5E7EB !important;
+        padding: 12px 16px !important;
+        background: white !important;
+        transition: all 0.3s ease !important;
     }
     
-    .success-card .label {
-        color: #6B7280;
-        font-size: 1rem;
-        margin-bottom: 10px;
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: #0F172A !important;
+        box-shadow: 0 0 0 3px rgba(15,23,42,0.1), 0 4px 12px rgba(0,0,0,0.05) !important;
+        transform: translateY(-2px) !important;
     }
     
-    .success-card .value {
-        font-size: 4rem;
-        font-weight: 700;
-        color: #0F172A;
-        line-height: 1.2;
+    /* زر التحليل */
+    .stButton > button {
+        background: #0F172A !important;
+        color: white !important;
+        border-radius: 10px !important;
+        height: 52px !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        margin-top: 10px !important;
+        position: relative;
+        overflow: hidden;
     }
     
-    .success-card .status {
-        margin-top: 15px;
-        font-weight: 600;
-        padding: 6px 20px;
-        border-radius: 30px;
-        display: inline-block;
+    .stButton > button:hover {
+        background: #1E293B !important;
+        transform: translateY(-3px) scale(1.02) !important;
+        box-shadow: 0 15px 25px rgba(15,23,42,0.3) !important;
     }
     
-    .sdg-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 12px;
-        margin: 20px 0;
+    .stButton > button:active {
+        transform: translateY(0) scale(0.98) !important;
     }
     
-    .sdg-badge {
-        background: white;
-        color: #1F2937;
-        padding: 14px 16px;
-        border-radius: 10px;
-        border: 1px solid #E5E7EB;
-        text-align: center;
-        transition: all 0.2s ease;
+    /* تأثير تموج عند النقر */
+    .stButton > button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255,255,255,0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
     }
     
-    .sdg-badge:hover {
-        border-color: #0F172A;
-        transform: translateY(-2px);
+    @keyframes ripple {
+        0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(20, 20);
+            opacity: 0;
+        }
     }
     
-    .sdg-badge.primary {
-        background: #F8FAFC;
-        border-right: 4px solid #0F172A;
+    .stButton > button:focus:not(:active)::after {
+        animation: ripple 0.6s ease-out;
     }
     
+    /* باقي التنسيقات */
     .section-title {
         color: #0F172A;
         font-size: 1.3rem;
@@ -959,25 +1120,6 @@ st.markdown("""
         grid-template-columns: repeat(3, 1fr);
         gap: 16px;
         margin: 20px 0;
-    }
-    
-    .info-card {
-        background: white;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 18px;
-    }
-    
-    .info-card .label {
-        color: #6B7280;
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-    }
-    
-    .info-card .value {
-        color: #0F172A;
-        font-size: 1.5rem;
-        font-weight: 600;
     }
     
     .dimensions-box {
@@ -1013,39 +1155,6 @@ st.markdown("""
         border-radius: 20px;
         margin: 10px 0;
         overflow: hidden;
-    }
-    
-    .progress-fill {
-        height: 100%;
-        background: #0F172A;
-        border-radius: 20px;
-    }
-    
-    .confidence-high {
-        background: #10B981;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        display: inline-block;
-    }
-    
-    .confidence-medium {
-        background: #F59E0B;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        display: inline-block;
-    }
-    
-    .confidence-low {
-        background: #EF4444;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        display: inline-block;
     }
     
     .strengths-box {
@@ -1129,7 +1238,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 14. العنوان ---
+# --- 14. العنوان مع تأثير حركي ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
 # --- 15. نموذج الإدخال ---
@@ -1146,7 +1255,7 @@ with st.form("analysis_form"):
         p_budget = st.number_input("الميزانية (SAR)", min_value=0, value=0, step=1000)
         p_ben = st.number_input("عدد المستفيدين", min_value=0, value=0, step=100)
     
-    submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
+    submitted = st.form_submit_button("🔮 تحليل المشروع", use_container_width=True)
 
 # --- 16. التحليل والنتائج مع التوصيات المنطقية ---
 if submitted:
@@ -1201,7 +1310,7 @@ if submitted:
                 metrics, p_cat, p_budget, p_ben, enhanced_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs
             )
             
-            # عرض نسبة النجاح
+            # عرض نسبة النجاح مع تأثير نبض
             status_color = "#10B981" if success_pred == 1 else "#EF4444"
             status_text = "ناجح" if success_pred == 1 else "غير ناجح"
             
@@ -1215,7 +1324,7 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # عرض تأثير الميزانية
+            # عرض تأثير الميزانية مع سهم متحرك
             if budget_factor != 0:
                 impact_color = "#10B981" if budget_factor > 0 else "#EF4444"
                 impact_symbol = "▲" if budget_factor > 0 else "▼"
@@ -1225,7 +1334,7 @@ if submitted:
                         <div>
                             <span style="color: #6B7280;">تأثير كفاءة الميزانية:</span>
                             <span style="color: {impact_color}; font-weight: 600; margin-right: 10px;">
-                                {impact_symbol} {abs(budget_factor*100):.1f}%
+                                <span class="animated-arrow">{impact_symbol}</span> {abs(budget_factor*100):.1f}%
                             </span>
                         </div>
                         <div>
@@ -1243,7 +1352,7 @@ if submitted:
                     </div>
                 """, unsafe_allow_html=True)
             
-            # مستوى الثقة للمستثمر
+            # مستوى الثقة للمستثمر مع تأثير توهج
             confidence_class = "confidence-high" if confidence_level == "عالية جداً" else "confidence-medium" if confidence_level == "متوسطة" else "confidence-low"
             st.markdown(f"""
                 <div style="text-align: center; margin-bottom: 20px;">
