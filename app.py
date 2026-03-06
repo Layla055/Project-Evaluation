@@ -106,14 +106,13 @@ SDG_KEYWORDS = {
     3: {
         'name': 'الصحة الجيدة', 
         'keywords': [
-            'صحة', 'مستشفى', 'مستشفيات', 'مركز صحي', 'مراكز صحية', 'رعاية صحية', 'أمراض', 'لقاحات',
-            'أدوية', 'علاج', 'صحة عامة', 'صحة الأم والطفل', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف',
-            'العيادات', 'المستوصفات', 'المراكز الطبية', 'التأمين الطبي', 'التغطية الصحية',
-            'الخدمات العلاجية', 'الخدمات الوقائية', 'التوعية الصحية', 'الأمراض المزمنة', 'السرطان',
-            'السكري', 'الضغط', 'القلب', 'الأمراض المعدية', 'الأوبئة', 'جائحة', 'كورونا', 'كوفيد',
+            'مستشفى', 'مستشفيات', 'مركز صحي', 'مراكز صحية', 'رعاية صحية', 'أمراض', 'لقاحات',
+            'أدوية', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف', 'العيادات', 'المستوصفات',
+            'المراكز الطبية', 'التأمين الطبي', 'التغطية الصحية', 'الخدمات العلاجية', 'الخدمات الوقائية',
+            'الأمراض المزمنة', 'السرطان', 'السكري', 'الضغط', 'القلب', 'الأمراض المعدية', 'الأوبئة',
             'الصيدليات', 'المستلزمات الطبية', 'المعدات الطبية', 'المختبرات', 'الصحة النفسية',
-            'العلاج النفسي', 'طب', 'أطباء', 'تمريض', 'ممرضين', 'صحة المرأة', 'صحة الطفل', 'تطعيمات',
-            'health', 'healthcare', 'medical', 'hospital', 'clinic', 'doctor', 'treatment'
+            'العلاج النفسي', 'تمريض', 'ممرضين', 'صحة المرأة', 'صحة الطفل', 'تطعيمات', 'تحصين',
+            'hospital', 'clinic', 'medical', 'healthcare', 'vaccine', 'treatment'
         ]
     },
     4: {
@@ -343,9 +342,9 @@ SDG_DIMENSIONS = {
     'environmental': [6, 7, 13, 14, 15]
 }
 
-# --- 7. دوال التحليل ---
+# --- 7. دوال التحليل (محدثة لحل مشكلة الصحة) ---
 def extract_sdgs_from_text_advanced(text):
-    """استخراج الأهداف من النص بطريقة ذكية"""
+    """استخراج الأهداف من النص بطريقة ذكية (بدون ظهور هدف الصحة في كل المشاريع)"""
     if not text:
         return [], [], []
     
@@ -356,23 +355,58 @@ def extract_sdgs_from_text_advanced(text):
     matched_keywords = []
     primary_sdgs = []
     
-    # البحث عن القواعد الخاصة (الكلمات المركبة)
+    # ============================================
+    # 1. قائمة الكلمات الممنوعة (stop words)
+    # ============================================
+    stop_words = [
+        'صحة', 'علاج', 'مرض', 'دواء',  # كلمات الصحة
+        'تعليم', 'مدرسة', 'جامعة',      # كلمات التعليم
+        'بيئة', 'غابات', 'مناخ',        # كلمات البيئة
+        'عمل', 'وظائف', 'توظيف',        # كلمات العمل
+    ]
+    
+    # ============================================
+    # 2. البحث عن القواعد الخاصة (الكلمات المركبة)
+    # ============================================
     for rule in MULTI_SDG_RULES:
         for trigger in rule['triggers']:
             if trigger in text:
-                detected_sdgs.extend(rule['target_sdgs'])
-                matched_keywords.append(trigger)
-                if rule['primary'] not in primary_sdgs:
-                    primary_sdgs.append(rule['primary'])
+                # التحقق: هل الكلمة المركبة ضمن سياقها الصحيح؟
+                context_valid = True
+                
+                # مثال: إذا كان trigger هو "صحة الأم" والكلام عن تعليم، لا نضيفها
+                if 'صحة' in trigger and 'تعليم' in text and 'صحة' not in text.split()[:3]:
+                    context_valid = False
+                
+                if context_valid:
+                    detected_sdgs.extend(rule['target_sdgs'])
+                    matched_keywords.append(trigger)
+                    if rule['primary'] not in primary_sdgs:
+                        primary_sdgs.append(rule['primary'])
                 break
     
-    # البحث في الكلمات المفتاحية العادية
+    # ============================================
+    # 3. البحث في الكلمات المفتاحية العادية
+    # ============================================
     for sdg_num, sdg_info in SDG_KEYWORDS.items():
+        # تجاهل هدف الصحة إذا كان النص عاماً جداً
+        if sdg_num == 3:  # هدف الصحة
+            # كلمات تؤكد أن المشروع صحي حقاً
+            health_indicators = ['مستشفى', 'مركز صحي', 'رعاية صحية', 'أمراض', 'لقاحات', 'صحة عامة', 
+                                'عيادات', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف', 'المستوصفات',
+                                'المراكز الطبية', 'التأمين الطبي', 'التغطية الصحية']
+            has_health_indicator = any(ind in text for ind in health_indicators)
+            
+            if not has_health_indicator:
+                continue  # تخطي هدف الصحة إذا لم تكن هناك مؤشرات قوية
+        
         for keyword in sdg_info['keywords']:
             if keyword in text and sdg_num not in detected_sdgs:
-                detected_sdgs.append(sdg_num)
-                matched_keywords.append(keyword)
-                break
+                # التحقق من أن الكلمة ليست من الكلمات الممنوعة
+                if keyword not in stop_words or len(keyword) > 4:  # الكلمات الطويلة أكثر دقة
+                    detected_sdgs.append(sdg_num)
+                    matched_keywords.append(keyword)
+                    break
     
     return list(set(detected_sdgs)), list(set(primary_sdgs)), matched_keywords
 
@@ -472,7 +506,7 @@ def enhance_success_with_budget(original_prob, p_budget, p_ben):
     
     return enhanced_prob, budget_factor, cost_per_person, sroi
 
-# --- 9. نظام التوصيات المنطقية (بدون توصيات التوازن) ---
+# --- 9. نظام التوصيات المنطقية ---
 def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs):
     """توليد توصيات منطقية مرتبطة بخصائص المشروع"""
     
