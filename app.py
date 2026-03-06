@@ -310,12 +310,12 @@ SDG_KEYWORDS = {
     }
 }
 
-# --- 5. قواعد ذكية للكلمات المركبة (محسنة) ---
+# --- 5. قواعد ذكية للكلمات المركبة ---
 MULTI_SDG_RULES = [
-    {'triggers': ['كبار السن', 'المسنين', 'المسنات', 'المتقاعدين'], 'target_sdgs': [10], 'context': ['صحة', 'مرض', 'مستشفى', 'رعاية'], 'context_sdgs': [3], 'primary': 10},
+    {'triggers': ['كبار السن', 'المسنين', 'المسنات', 'المتقاعدين'], 'target_sdgs': [10], 'primary': 10},
     {'triggers': ['تعليم كبار السن', 'محو أمية كبار', 'تعليم المسنين'], 'target_sdgs': [4, 10], 'primary': 10},
     {'triggers': ['محو الأمية الرقمية', 'التمكين الرقمي', 'مهارات رقمية'], 'target_sdgs': [4, 10], 'primary': 4},
-    {'triggers': ['سكان القرى', 'المجتمعات الريفية', 'المناطق الريفية'], 'target_sdgs': [10], 'context': ['صحة', 'مستشفى'], 'context_sdgs': [3], 'primary': 10},
+    {'triggers': ['سكان القرى', 'المجتمعات الريفية', 'المناطق الريفية'], 'target_sdgs': [10], 'primary': 10},
     {'triggers': ['المناطق النائية', 'المناطق الحدودية', 'المناطق المهمشة'], 'target_sdgs': [10], 'primary': 10},
     {'triggers': ['أطفال الشوارع', 'أطفال بلا مأوى'], 'target_sdgs': [1, 4, 10], 'primary': 10},
     {'triggers': ['تمكين المرأة الريفية', 'تنمية المرأة الريفية'], 'target_sdgs': [5, 8, 10], 'primary': 5},
@@ -326,9 +326,9 @@ MULTI_SDG_RULES = [
     {'triggers': ['مياه نظيفة للمجتمعات الريفية', 'مياه ريفية'], 'target_sdgs': [6, 10], 'primary': 6},
     {'triggers': ['طاقة شمسية للمجتمعات النائية', 'كهرباء قرى'], 'target_sdgs': [7, 10], 'primary': 7},
     {'triggers': ['صحة المرأة', 'صحة الأم'], 'target_sdgs': [3, 5], 'primary': 3},
-    {'triggers': ['طفل', 'أطفال', 'الطفولة'], 'target_sdgs': [3, 4], 'context': ['تعليم', 'مدرسة'], 'context_sdgs': [4], 'primary': 4},
+    {'triggers': ['طفل', 'أطفال', 'الطفولة'], 'target_sdgs': [3, 4], 'primary': 4},
     {'triggers': ['شباب', 'تمكين الشباب'], 'target_sdgs': [4, 8], 'primary': 8},
-    {'triggers': ['ذوي إعاقة', 'ذوي الاحتياجات الخاصة'], 'target_sdgs': [3, 10], 'context': ['تعليم', 'مدرسة'], 'context_sdgs': [4], 'primary': 10},
+    {'triggers': ['ذوي إعاقة', 'ذوي الاحتياجات الخاصة'], 'target_sdgs': [3, 10], 'primary': 10},
     {'triggers': ['لاجئين', 'نازحين'], 'target_sdgs': [1, 10, 16], 'primary': 10},
     {'triggers': ['سياحة مستدامة', 'سياحة بيئية'], 'target_sdgs': [8, 12, 14], 'primary': 12},
     {'triggers': ['اقتصاد دائري', 'تدوير'], 'target_sdgs': [9, 12], 'primary': 12},
@@ -338,12 +338,127 @@ MULTI_SDG_RULES = [
     {'triggers': ['تنمية مجتمعية', 'تنمية محلية'], 'target_sdgs': [1, 11], 'primary': 11}
 ]
 
-# --- 6. قواعد النفي والاستثناءات ---
-EXCLUSION_RULES = [
-    {'sdg': 3, 'exclude_with': ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'رقمي']},
-    {'sdg': 3, 'exclude_with': ['قرية', 'ريف', 'تنمية', 'تمكين']},
-    {'sdg': 3, 'exclude_with': ['برنامج', 'مشروع', 'مبادرة'], 'require_context': False},
-]
+# --- 6. قاموس السياقات لكل هدف (النظام الذكي الجديد) ---
+CONTEXT_RULES = {
+    # الصحة (3) - يظهر فقط مع كلمات طبية واضحة
+    3: {
+        'required': ['مستشفى', 'مركز صحي', 'عيادة', 'طبي', 'صحي', 'علاج', 'مرض', 'دواء', 'لقاح', 'رعاية صحية', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف'],
+        'forbidden': ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'رقمي', 'برمجة', 'قرية', 'ريف', 'تمكين', 'مشروع', 'برنامج', 'مبادرة'],
+        'primary_keywords': ['مستشفى', 'مركز صحي', 'عيادات', 'رعاية صحية']
+    },
+    
+    # التعليم (4) - يظهر فقط مع كلمات تعليمية واضحة
+    4: {
+        'required': ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'طلاب', 'معلمين', 'مناهج', 'رياض أطفال', 'حضانة', 'فصل دراسي'],
+        'forbidden': ['مستشفى', 'علاج', 'مرض', 'دواء', 'صحة', 'مركز صحي'],
+        'primary_keywords': ['تعليم', 'مدرسة', 'جامعة']
+    },
+    
+    # الفقر (1)
+    1: {
+        'required': ['فقر', 'فقير', 'دخل محدود', 'مساعدات', 'تمكين اقتصادي', 'مشاريع صغيرة', 'التمويل الأصغر', 'الأسر المنتجة'],
+        'forbidden': [],
+        'primary_keywords': ['فقر', 'فقراء']
+    },
+    
+    # الجوع (2)
+    2: {
+        'required': ['جوع', 'أمن غذائي', 'زراعة', 'غذاء', 'محاصيل', 'مزارعين', 'أراضي زراعية', 'إنتاج غذائي'],
+        'forbidden': [],
+        'primary_keywords': ['جوع', 'أمن غذائي']
+    },
+    
+    # المساواة (5)
+    5: {
+        'required': ['نساء', 'فتيات', 'تمكين المرأة', 'مساواة', 'عنف ضد المرأة', 'حقوق المرأة', 'المساواة بين الجنسين'],
+        'forbidden': [],
+        'primary_keywords': ['نساء', 'فتيات', 'تمكين المرأة']
+    },
+    
+    # المياه (6)
+    6: {
+        'required': ['مياه', 'صرف صحي', 'شرب', 'ري', 'سدود', 'آبار', 'تحلية', 'معالجة مياه'],
+        'forbidden': [],
+        'primary_keywords': ['مياه', 'صرف صحي']
+    },
+    
+    # الطاقة (7)
+    7: {
+        'required': ['طاقة', 'كهرباء', 'طاقة شمسية', 'طاقة متجددة', 'طاقة الرياح', 'ألواح شمسية'],
+        'forbidden': [],
+        'primary_keywords': ['طاقة شمسية', 'كهرباء']
+    },
+    
+    # العمل (8)
+    8: {
+        'required': ['عمل', 'توظيف', 'وظائف', 'فرص عمل', 'بطالة', 'عمالة', 'سوق العمل', 'مهارات مهنية'],
+        'forbidden': [],
+        'primary_keywords': ['عمل', 'توظيف', 'وظائف']
+    },
+    
+    # الصناعة (9)
+    9: {
+        'required': ['صناعة', 'ابتكار', 'مصانع', 'بنية تحتية', 'طرق', 'جسور', 'تكنولوجيا', 'بحث وتطوير'],
+        'forbidden': [],
+        'primary_keywords': ['صناعة', 'ابتكار', 'مصانع']
+    },
+    
+    # عدم المساواة (10) - هذا الهدف واسع ويغطي فئات كثيرة (يظهر مع الفئات المهمشة)
+    10: {
+        'required': ['فئات مهمشة', 'ذوي احتياجات', 'كبار السن', 'لاجئين', 'نازحين', 'مناطق نائية', 'قرى', 'أرياف', 'المناطق الحدودية', 'سكان البادية', 'البدو', 'الأقليات'],
+        'forbidden': [],
+        'primary_keywords': ['فئات مهمشة', 'كبار السن', 'لاجئين', 'مناطق نائية']
+    },
+    
+    # مدن مستدامة (11)
+    11: {
+        'required': ['مدن', 'مدينة', 'تخطيط حضري', 'إسكان', 'مواصلات', 'نقل عام', 'تطوير حضري'],
+        'forbidden': [],
+        'primary_keywords': ['مدن', 'إسكان', 'مواصلات']
+    },
+    
+    # استهلاك مسؤول (12)
+    12: {
+        'required': ['استهلاك', 'إعادة تدوير', 'تدوير', 'استدامة', 'هدر', 'نفايات', 'مخلفات', 'اقتصاد دائري'],
+        'forbidden': [],
+        'primary_keywords': ['إعادة تدوير', 'تدوير', 'استدامة']
+    },
+    
+    # المناخ (13)
+    13: {
+        'required': ['مناخ', 'تغير مناخي', 'انبعاثات', 'احتباس حراري', 'كربون', 'غازات دفيئة', 'الاحترار العالمي'],
+        'forbidden': [],
+        'primary_keywords': ['مناخ', 'تغير مناخي']
+    },
+    
+    # الحياة تحت الماء (14)
+    14: {
+        'required': ['بحار', 'محيطات', 'أسماك', 'سواحل', 'بحر', 'سمك', 'ثروة بحرية', 'صيد بحري', 'شعاب مرجانية'],
+        'forbidden': [],
+        'primary_keywords': ['بحار', 'محيطات', 'أسماك']
+    },
+    
+    # الحياة في البر (15)
+    15: {
+        'required': ['غابات', 'بيئة', 'تنوع أحيائي', 'حيوانات', 'نباتات', 'محميات', 'حياة برية', 'تصحر', 'تشجير'],
+        'forbidden': [],
+        'primary_keywords': ['غابات', 'تنوع أحيائي', 'محميات']
+    },
+    
+    # السلام (16)
+    16: {
+        'required': ['سلام', 'عدالة', 'حوكمة', 'قضاء', 'سيادة القانون', 'مكافحة الفساد', 'الشفافية', 'المساءلة', 'حقوق الإنسان'],
+        'forbidden': [],
+        'primary_keywords': ['سلام', 'عدالة', 'حوكمة']
+    },
+    
+    # الشراكات (17)
+    17: {
+        'required': ['شراكات', 'تعاون دولي', 'تمويل', 'منح', 'قروض', 'مساعدات دولية', 'المانحين', 'الجهات المانحة'],
+        'forbidden': [],
+        'primary_keywords': ['شراكات', 'تعاون دولي']
+    }
+}
 
 # --- 7. تصنيف الأهداف ---
 SDG_DIMENSIONS = {
@@ -352,9 +467,10 @@ SDG_DIMENSIONS = {
     'environmental': [6, 7, 13, 14, 15]
 }
 
-# --- 8. دوال التحليل المحسنة للغاية ---
-def extract_sdgs_from_text_advanced(text):
-    """استخراج الأهداف من النص بدقة عالية جداً"""
+# --- 8. دالة استخراج الأهداف الذكية (محسنة لجميع المشاريع) ---
+def extract_sdgs_smart(text):
+    """خوارزمية ذكية لاستخراج الأهداف بدقة عالية لجميع المشاريع"""
+    
     if not text:
         return [], [], []
     
@@ -363,80 +479,95 @@ def extract_sdgs_from_text_advanced(text):
     words = text.split()
     
     detected_sdgs = set()
-    matched_keywords = []
     primary_sdgs = set()
+    matched_keywords = []
     
-    # 1. أولاً: البحث عن القواعد الخاصة (الكلمات المركبة) - الأهم
+    # 1. أولاً: البحث عن القواعد الخاصة (الكلمات المركبة من MULTI_SDG_RULES)
     for rule in MULTI_SDG_RULES:
         for trigger in rule['triggers']:
             if trigger in text:
-                # تحقق من السياق للكلمات المركبة
-                context_sdg_added = False
-                
-                # إذا كانت القاعدة تحتوي على سياق معين
-                if 'context' in rule and 'context_sdgs' in rule:
-                    # تحقق من وجود كلمات السياق
-                    has_context = any(ctx in text for ctx in rule['context'])
-                    if has_context:
-                        # أضف أهداف السياق
-                        for context_sdg in rule['context_sdgs']:
-                            detected_sdgs.add(context_sdg)
-                            context_sdg_added = True
-                
-                # أضف الأهداف الأساسية للقاعدة
+                # إضافة الأهداف المستهدفة
                 for target in rule['target_sdgs']:
                     detected_sdgs.add(target)
-                
-                # أضف الكلمة المفتاحية
                 matched_keywords.append(trigger)
-                
-                # سجل الهدف الأساسي
                 if 'primary' in rule:
                     primary_sdgs.add(rule['primary'])
                 break
     
-    # 2. ثانياً: البحث في الكلمات المفتاحية العادية
-    # قائمة الكلمات الممنوعة التي تسبب أخطاء
-    false_positive_protection = {
-        3: ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'رقمي', 'قرية', 'ريف'],  # كلمات تمنع هدف الصحة
-    }
-    
-    for sdg_num, sdg_info in SDG_KEYWORDS.items():
-        # تطبيق قواعد النفي
-        should_skip = False
-        for rule in EXCLUSION_RULES:
-            if rule['sdg'] == sdg_num:
-                for exclude_word in rule['exclude_with']:
-                    if exclude_word in text:
-                        should_skip = True
-                        break
-            if should_skip:
-                break
-        
-        if should_skip and sdg_num not in detected_sdgs:
+    # 2. ثانياً: تحليل كل هدف بناءً على قواعد السياق
+    for sdg_num, context in CONTEXT_RULES.items():
+        # إذا كان الهدف موجوداً بالفعل من القواعد المركبة، نتحقق من صحته
+        if sdg_num in detected_sdgs:
+            # تحقق من وجود كلمات ممنوعة
+            has_forbidden = any(word in text for word in context['forbidden'])
+            # تحقق من وجود كلمات مطلوبة (للتأكد)
+            has_required = any(word in text for word in context['required'])
+            
+            # إذا وجدت كلمات ممنوعة، نزيل الهدف (إلا إذا كان الهدف 10 واسع)
+            if has_forbidden and sdg_num != 10:
+                detected_sdgs.remove(sdg_num)
             continue
         
-        # البحث عن الكلمات المفتاحية
-        for keyword in sdg_info['keywords']:
+        # للأهداف غير الموجودة، نبحث عنها بذكاء
+        # نبحث عن الكلمات الرئيسية أولاً (أهمية أعلى)
+        found_primary = False
+        for keyword in context['primary_keywords']:
             if keyword in text:
-                # تحقق إضافي: إذا كان الهدف 3 (الصحة) وتوجد كلمات تعليمية، تجاهله
-                if sdg_num == 3:
-                    educational_terms = ['تعليم', 'مدرسة', 'جامعة', 'تدريب', 'محو أمية', 'رقمي']
-                    has_educational = any(term in text for term in educational_terms)
-                    if has_educational and 'صحة' not in text[:30]:  # إذا ظهرت التعليم قبل الصحة
-                        continue
-                
-                # تحقق من أن الكلمة ليست جزءاً من كلمة أكبر (تجنب المطابقات الجزئية)
-                keyword_pattern = r'\b' + re.escape(keyword) + r'\b'
-                if re.search(keyword_pattern, text):
+                # تحقق من عدم وجود كلمات ممنوعة
+                has_forbidden = any(word in text for word in context['forbidden'])
+                if not has_forbidden or sdg_num == 10:  # الهدف 10 مستثنى
                     detected_sdgs.add(sdg_num)
                     matched_keywords.append(keyword)
+                    found_primary = True
+                    # إذا كان هذا هو الهدف الرئيسي، سجله
+                    if sdg_num in [4, 3, 10, 1]:  # الأهداف الأكثر شيوعاً
+                        primary_sdgs.add(sdg_num)
                     break
+        
+        if found_primary:
+            continue
+        
+        # إذا لم نجد كلمات رئيسية، نبحث عن الكلمات المطلوبة
+        required_matches = []
+        for keyword in context['required']:
+            if keyword in text:
+                required_matches.append(keyword)
+        
+        # إذا وجدنا كلمتين مطلوبتين على الأقل
+        if len(required_matches) >= 2:
+            # تحقق من عدم وجود كلمات ممنوعة
+            has_forbidden = any(word in text for word in context['forbidden'])
+            if not has_forbidden or sdg_num == 10:
+                detected_sdgs.add(sdg_num)
+                matched_keywords.extend(required_matches[:2])
     
-    # 3. معالجة خاصة للهدف 10 (الحد من عدم المساواة) - يظهر مع كل الفئات المهمشة
-    # هذا الهدف صحيح ولا نمنعه
+    # 3. معالجة خاصة: إذا كان المشروع تعليمي بحت، نتأكد من عدم وجود الصحة
+    educational_words = ['تعليم', 'مدرسة', 'جامعة', 'محو أمية', 'طلاب', 'معلمين']
+    health_words = ['مستشفى', 'مركز صحي', 'عيادة', 'علاج', 'مرض']
+    
+    has_educational = any(word in text for word in educational_words)
+    has_health = any(word in text for word in health_words)
+    
+    if has_educational and not has_health:
+        # إذا كان تعليمي ولا توجد كلمات صحية، نزيل الصحة إذا وجدت خطأ
+        if 3 in detected_sdgs:
+            detected_sdgs.remove(3)
+    
+    # 4. معالجة خاصة: إذا كان المشروع صحي بحت، نتأكد من عدم وجود التعليم
+    if has_health and not has_educational:
+        # إذا كان صحي ولا توجد كلمات تعليمية، نزيل التعليم إذا وجد خطأ
+        if 4 in detected_sdgs:
+            # تحقق: هل التعليم جاء من كلمة "تدريب" مثلاً؟ التدريب قد يكون في المجال الصحي
+            training_context = any(word in text for word in ['تدريب', 'توعية'])
+            if not training_context:
+                detected_sdgs.remove(4)
     
     return list(detected_sdgs), list(primary_sdgs), matched_keywords
+
+# --- 9. دالة موحدة للاستخراج (للتوافق مع الكود القديم) ---
+def extract_sdgs_from_text_advanced(text):
+    """واجهة موحدة لاستخراج الأهداف"""
+    return extract_sdgs_smart(text)
 
 def calculate_sdg_metrics(detected_sdgs):
     """حساب المقاييس من الأهداف"""
@@ -486,7 +617,7 @@ def get_project_trend(metrics):
         return "متوازن"
     return max_dim
 
-# --- 9. تحسين نسبة النجاح بإضافة الميزانية والمستفيدين ---
+# --- 10. تحسين نسبة النجاح بإضافة الميزانية والمستفيدين ---
 def enhance_success_with_budget(original_prob, p_budget, p_ben):
     """تحسين نسبة النجاح بناءً على كفاءة الميزانية والعائد الاجتماعي"""
     
@@ -534,7 +665,7 @@ def enhance_success_with_budget(original_prob, p_budget, p_ben):
     
     return enhanced_prob, budget_factor, cost_per_person, sroi
 
-# --- 10. نظام التوصيات المنطقية ---
+# --- 11. نظام التوصيات المنطقية ---
 def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs):
     """توليد توصيات منطقية مرتبطة بخصائص المشروع"""
     
@@ -693,10 +824,10 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     
     return strengths, weaknesses, recommendations[:6], confidence_level
 
-# --- 11. تحميل النماذج ---
+# --- 12. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 12. التصميم ---
+# --- 13. التصميم ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -998,10 +1129,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 13. العنوان ---
+# --- 14. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 14. نموذج الإدخال ---
+# --- 15. نموذج الإدخال ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -1017,7 +1148,7 @@ with st.form("analysis_form"):
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 15. التحليل والنتائج مع التوصيات المنطقية ---
+# --- 16. التحليل والنتائج مع التوصيات المنطقية ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
@@ -1262,5 +1393,5 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 16. التذييل ---
+# --- 17. التذييل ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2026</div>', unsafe_allow_html=True)
