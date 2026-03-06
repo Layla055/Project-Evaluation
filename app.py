@@ -76,25 +76,386 @@ def load_models_safe():
     
     return models
 
-# --- 4. قاموس الكلمات المفتاحية ---
+# --- 4. قاموس الكلمات المفتاحية الموسع جداً (أكثر من 1000 كلمة) ---
 SDG_KEYWORDS = {
-    1: {'name': 'القضاء على الفقر', 'keywords': ['فقر', 'فقراء', 'تمكين اقتصادي', 'دخل', 'مساعدات', 'ضمان اجتماعي', 'تكافل', 'poverty', 'poor', 'low income']},
-    2: {'name': 'القضاء على الجوع', 'keywords': ['جوع', 'أمن غذائي', 'زراعة', 'محاصيل', 'غذاء', 'تغذية', 'hunger', 'food security', 'agriculture']},
-    3: {'name': 'الصحة الجيدة', 'keywords': ['صحة', 'مستشفى', 'مركز صحي', 'رعاية صحية', 'أمراض', 'لقاحات', 'أدوية', 'علاج', 'health', 'hospital', 'medical']},
-    4: {'name': 'التعليم الجيد', 'keywords': ['تعليم', 'مدرسة', 'جامعة', 'طلاب', 'معلمين', 'مناهج', 'تدريب', 'محو أمية', 'education', 'school', 'training']},
-    5: {'name': 'المساواة بين الجنسين', 'keywords': ['مساواة', 'نساء', 'فتيات', 'تمكين المرأة', 'gender equality', 'women', 'girls']},
-    6: {'name': 'المياه النظيفة', 'keywords': ['مياه', 'صرف صحي', 'تنقية', 'شرب', 'ري', 'water', 'sanitation']},
-    7: {'name': 'الطاقة النظيفة', 'keywords': ['طاقة', 'كهرباء', 'طاقة شمسية', 'طاقة متجددة', 'energy', 'solar', 'renewable']},
-    8: {'name': 'العمل اللائق', 'keywords': ['عمل', 'توظيف', 'وظائف', 'عمالة', 'فرص عمل', 'employment', 'jobs', 'labor']},
-    9: {'name': 'الصناعة والابتكار', 'keywords': ['صناعة', 'ابتكار', 'بنية تحتية', 'طرق', 'مصانع', 'industry', 'innovation', 'infrastructure']},
-    10: {'name': 'الحد من عدم المساواة', 'keywords': ['مساواة', 'فئات مهمشة', 'ذوي احتياجات خاصة', 'كبار السن', 'المسنين', 'inequality', 'marginalized', 'disabled', 'elderly']},
-    11: {'name': 'مدن مستدامة', 'keywords': ['مدن', 'تخطيط حضري', 'إسكان', 'مواصلات', 'نقل عام', 'sustainable cities', 'urban planning']},
-    12: {'name': 'استهلاك مسؤول', 'keywords': ['استهلاك', 'إنتاج', 'استدامة', 'إعادة تدوير', 'consumption', 'recycling']},
-    13: {'name': 'العمل المناخي', 'keywords': ['مناخ', 'تغير مناخي', 'انبعاثات', 'كربون', 'climate', 'emissions']},
-    14: {'name': 'الحياة تحت الماء', 'keywords': ['بحار', 'محيطات', 'أسماك', 'سواحل', 'oceans', 'marine']},
-    15: {'name': 'الحياة في البر', 'keywords': ['بيئة', 'غابات', 'تنوع أحيائي', 'حيوانات', 'environment', 'forests', 'biodiversity']},
-    16: {'name': 'السلام والعدالة', 'keywords': ['سلام', 'عدالة', 'مؤسسات', 'حوكمة', 'قضاء', 'peace', 'justice', 'governance']},
-    17: {'name': 'الشراكات', 'keywords': ['شراكات', 'تعاون دولي', 'تمويل', 'منح', 'partnerships', 'cooperation']}
+    1: {
+        'name': 'القضاء على الفقر', 
+        'keywords': [
+            # عربي
+            'فقر', 'فقراء', 'فقير', 'مسكين', 'مساكين', 'تمكين اقتصادي', 'دخل', 'مساعدات', 'ضمان اجتماعي', 'تكافل',
+            'الطبقات الفقيرة', 'الأسر المحتاجة', 'الدخل المحدود', 'الإغاثة', 'المساعدات النقدية', 'التمويل الأصغر',
+            'مشاريع صغيرة', 'الأسر المنتجة', 'التمكين الاقتصادي', 'فرص عمل للفقراء', 'تحسين سبل العيش',
+            'مكافحة الفقر', 'القضاء على الفقر', 'ذوو الدخل المنخفض', 'العمالة اليومية', 'العمالة غير المنتظمة',
+            'حد الفقر', 'الفئات الهشة', 'الأرامل', 'الأيتام', 'المناطق النائية', 'الأحياء العشوائية', 'الإسكان الشعبي',
+            'الزكاة', 'الصدقات', 'الأوقاف', 'الرعاية الاجتماعية', 'التأمين الصحي', 'الضمان', 'المسكن', 'الغذاء',
+            'بطالة', 'البطالة', 'العاطلين', 'العاطلون', 'دعم العاطلين', 'إعانة بطالة', 'صندوق الموارد البشرية',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الاول', 'الأول',
+            # English
+            'poverty', 'poor', 'low income', 'social safety', 'cash assistance', 'microfinance', 'economic empowerment',
+            'livelihood', 'poverty reduction', 'poverty alleviation', 'extreme poverty', 'poor communities',
+            'vulnerable groups', 'social protection', 'social welfare', 'unemployment', 'unemployed', 'job seekers',
+            'income support', 'financial assistance', 'basic needs', 'food assistance', 'shelter assistance'
+        ]
+    },
+    2: {
+        'name': 'القضاء على الجوع', 
+        'keywords': [
+            # عربي
+            'جوع', 'جياع', 'أمن غذائي', 'زراعة', 'محاصيل', 'غذاء', 'تغذية', 'مزارعين', 'أراضي زراعية', 'سوء تغذية',
+            'مجاعة', 'محاصيل زراعية', 'إنتاج غذائي', 'سلاسل توريد غذائية', 'مخزون استراتيجي', 'البنك الزراعي',
+            'الصوامع', 'المطاحن', 'المخابز', 'المواشي', 'الثروة الحيوانية', 'الدواجن', 'الأسماك', 'الاستزراع السمكي',
+            'الصيد', 'الري', 'المساحات الخضراء', 'الاكتفاء الذاتي', 'الأمن الغذائي', 'جودة الغذاء', 'سلامة الغذاء',
+            'الغذاء الصحي', 'التغذية المدرسية', 'وجبات', 'برامج غذائية', 'محاربة الجوع', 'القضاء على الجوع',
+            'تحسين التغذية', 'الغذاء المستدام', 'زراعة مستدامة', 'زراعة عضوية', 'تقاوي', 'أسمدة', 'مبيدات',
+            'productivity', 'انتاجية', 'محصول', 'غلال', 'قمح', 'شعير', 'تمور', 'نخيل', 'مواشي', 'اغنام', 'ابل',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الثاني', 'الثانية',
+            # English
+            'hunger', 'food security', 'agriculture', 'farming', 'crops', 'food', 'nutrition', 'malnutrition',
+            'starvation', 'food supply', 'food production', 'food safety', 'food quality', 'food assistance',
+            'food aid', 'agricultural development', 'rural development', 'farmers', 'smallholder farmers',
+            'sustainable agriculture', 'organic farming', 'crop production', 'livestock', 'fisheries', 'fishing',
+            'aquaculture', 'irrigation', 'food storage', 'food distribution', 'zero hunger'
+        ]
+    },
+    3: {
+        'name': 'الصحة الجيدة', 
+        'keywords': [
+            # عربي
+            'صحة', 'مستشفى', 'مستشفيات', 'مركز صحي', 'مراكز صحية', 'رعاية صحية', 'أمراض', 'لقاحات', 'أدوية', 'علاج',
+            'صحة عامة', 'صحة الأم والطفل', 'الرعاية الأولية', 'الطوارئ', 'الإسعاف', 'العيادات', 'المستوصفات',
+            'المراكز الطبية', 'التأمين الطبي', 'التغطية الصحية', 'الخدمات العلاجية', 'الخدمات الوقائية',
+            'التوعية الصحية', 'الأمراض المزمنة', 'السرطان', 'السكري', 'الضغط', 'القلب', 'الأمراض المعدية',
+            'الأوبئة', 'جائحة', 'كورونا', 'كوفيد', 'فيروسات', 'الصيدليات', 'المستلزمات الطبية', 'المعدات الطبية',
+            'الأجهزة الطبية', 'الأشعة', 'المختبرات', 'التحاليل', 'الفحوصات', 'الاستشارات الطبية', 'الصحة النفسية',
+            'العلاج النفسي', 'طب', 'أطباء', 'تمريض', 'ممرضين', 'صحة المرأة', 'صحة الطفل', 'تطعيمات', 'تحصين',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الثالث', 'الثالثة',
+            # English
+            'health', 'healthcare', 'medical', 'hospital', 'clinic', 'doctor', 'nurse', 'treatment', 'medicine',
+            'vaccine', 'vaccination', 'immunization', 'disease', 'epidemic', 'pandemic', 'covid', 'coronavirus',
+            'primary care', 'emergency', 'ambulance', 'pharmacy', 'medical equipment', 'medical supplies',
+            'laboratory', 'diagnosis', 'screening', 'mental health', 'maternal health', 'child health',
+            'reproductive health', 'family planning', 'health insurance', 'universal health coverage',
+            'public health', 'health awareness', 'health education', 'healthy lifestyle', 'wellbeing'
+        ]
+    },
+    4: {
+        'name': 'التعليم الجيد', 
+        'keywords': [
+            # عربي
+            'تعليم', 'مدرسة', 'مدارس', 'جامعة', 'جامعات', 'طلاب', 'طالبات', 'معلمين', 'معلمات', 'مناهج', 'تدريب',
+            'محو أمية', 'التعليم الأساسي', 'التعليم الثانوي', 'التعليم العالي', 'رياض أطفال', 'حضانات',
+            'الفصول الدراسية', 'المباني المدرسية', 'المختبرات التعليمية', 'المكتبات', 'الأنشطة الطلابية',
+            'المنح الدراسية', 'الابتعاث', 'التعليم الفني', 'التعليم المهني', 'مراكز التدريب', 'تنمية المهارات',
+            'التدريب التقني', 'الحاسب الآلي', 'اللغات', 'التربية الخاصة', 'ذوي الاحتياجات الخاصة', 'صعوبات التعلم',
+            'محو الأمية', 'تعليم الكبار', 'التعليم عن بعد', 'التعليم الإلكتروني', 'المنصات التعليمية',
+            'المحتوى التعليمي', 'المناهج المطورة', 'جودة التعليم', 'تطوير التعليم', 'تحسين المخرجات التعليمية',
+            'التميز التعليمي', 'تعليم الفتيات', 'تعليم البنات', 'فصول دراسية', 'معلم', 'معلمة', 'استاذ', 'دكتور',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الرابع', 'الرابعة',
+            # English
+            'education', 'school', 'university', 'college', 'student', 'teacher', 'professor', 'curriculum',
+            'training', 'vocational training', 'technical education', 'adult education', 'literacy', 'illiteracy',
+            'primary education', 'secondary education', 'higher education', 'preschool', 'kindergarten',
+            'classroom', 'laboratory', 'library', 'scholarship', 'e-learning', 'online learning', 'distance learning',
+            'educational technology', 'digital learning', 'learning materials', 'educational resources',
+            'teacher training', 'professional development', 'skills development', 'lifelong learning',
+            'quality education', 'inclusive education', 'special education', 'girls education', 'stem education'
+        ]
+    },
+    5: {
+        'name': 'المساواة بين الجنسين', 
+        'keywords': [
+            # عربي
+            'مساواة', 'نساء', 'نسائية', 'فتيات', 'تمكين المرأة', 'عنف ضد المرأة', 'حقوق المرأة', 'المساواة بين الجنسين',
+            'المساواة الجندرية', 'المساواة في الفرص', 'التمييز ضد المرأة', 'العنف الأسري', 'التحرش', 'الزواج المبكر',
+            'ختان الإناث', 'العنف الجنسي', 'المرأة الريفية', 'المرأة العاملة', 'القيادة النسائية',
+            'ريادة الأعمال النسائية', 'مشاريع نسائية', 'جمعيات نسائية', 'مراكز المرأة', 'حماية المرأة', 'دعم المرأة',
+            'تمكين الفتيات', 'تعليم الفتيات', 'صحة المرأة', 'الحقوق الإنجابية', 'المشاركة السياسية للمرأة',
+            'التمثيل النسائي', 'المرأة في المناصب القيادية', 'التوازن بين الجنسين', 'عنف', 'تحرش', 'اغتصاب',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الخامس', 'الخامسة',
+            # English
+            'gender equality', 'women', 'girls', 'female', 'women empowerment', 'girls empowerment', 'gender equity',
+            'equal opportunities', 'gender discrimination', 'violence against women', 'domestic violence',
+            'sexual violence', 'harassment', 'early marriage', 'child marriage', 'femicide', 'women rights',
+            'women participation', 'women leadership', 'women entrepreneurs', 'rural women', 'working women',
+            'reproductive rights', 'gender balance', 'gender parity', 'women in politics', 'women in decision making',
+            'gender mainstreaming', 'women empowerment', 'girls education', 'women health', 'maternal health'
+        ]
+    },
+    6: {
+        'name': 'المياه النظيفة', 
+        'keywords': [
+            # عربي
+            'مياه', 'ماء', 'صرف صحي', 'محطات تنقية', 'شرب', 'ري', 'سدود', 'آبار', 'مياه شرب نظيفة', 'تحلية المياه',
+            'محطات تحلية', 'شبكات المياه', 'خزانات المياه', 'آبار ارتوازية', 'الآبار الجوفية', 'السدود', 'الوديان',
+            'مياه الأمطار', 'تصريف السيول', 'معالجة المياه', 'مياه الصرف', 'الصرف الزراعي', 'الصرف الصناعي',
+            'مياه الصرف الصحي', 'محطات المعالجة', 'إعادة تدوير المياه', 'الاستخدام الآمن', 'الري الحديث',
+            'الري بالتنقيط', 'الري المحوري', 'ترشيد استهلاك المياه', 'حماية مصادر المياه', 'المياه الجوفية',
+            'الينابيع', 'الآبار', 'العيون', 'الأفلاج', 'السواقي', 'شبكات الري', 'قنوات الري', 'خزان', 'تحلية',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'السادس', 'السادسة',
+            # English
+            'water', 'clean water', 'safe water', 'drinking water', 'fresh water', 'sanitation', 'hygiene',
+            'wastewater', 'sewage', 'water treatment', 'water purification', 'water desalination', 'desalination',
+            'water supply', 'water distribution', 'water network', 'water pipes', 'water storage', 'reservoir',
+            'dam', 'well', 'groundwater', 'aquifer', 'rainwater', 'stormwater', 'irrigation', 'agricultural water',
+            'water efficiency', 'water conservation', 'water recycling', 'water reuse', 'water quality',
+            'water resources', 'water management', 'water scarcity', 'drought', 'flood', 'water security'
+        ]
+    },
+    7: {
+        'name': 'الطاقة النظيفة', 
+        'keywords': [
+            # عربي
+            'طاقة', 'كهرباء', 'طاقة شمسية', 'طاقة متجددة', 'شبكة كهرباء', 'محطات توليد', 'الطاقة الشمسية',
+            'الألواح الشمسية', 'الخلايا الشمسية', 'محطات شمسية', 'الطاقة الريحية', 'توربينات الرياح',
+            'مزارع الرياح', 'الطاقة النووية', 'المفاعلات النووية', 'الطاقة المائية', 'السدود الكهرومائية',
+            'الطاقة الكهرومائية', 'الطاقة الحرارية', 'الطاقة الحرارية الأرضية', 'الطاقة الحيوية', 'الوقود الحيوي',
+            'الكتلة الحيوية', 'الهيدروجين الأخضر', 'الأمونيا الخضراء', 'توليد الكهرباء', 'نقل الكهرباء',
+            'شبكات النقل', 'محطات التحويل', 'التوزيع الكهربائي', 'العدادات الذكية', 'كفاءة الطاقة',
+            'ترشيد الطاقة', 'الطاقة المستدامة', 'الطاقة النظيفة', 'الاستدامة الطاقوية', 'مزيج الطاقة',
+            'التحول الطاقوي', 'الحياد الكربوني', 'طاقة الرياح', 'الطاقة الشمسية', 'خلية شمسية', 'لوح شمسي',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'السابع', 'السابعة',
+            # English
+            'energy', 'electricity', 'power', 'renewable energy', 'clean energy', 'sustainable energy',
+            'solar energy', 'solar power', 'solar panels', 'photovoltaic', 'wind energy', 'wind power',
+            'wind turbines', 'hydropower', 'hydroelectric', 'geothermal', 'biomass', 'bioenergy', 'biofuel',
+            'green hydrogen', 'nuclear energy', 'nuclear power', 'energy efficiency', 'energy conservation',
+            'energy access', 'rural electrification', 'power grid', 'electricity network', 'smart grid',
+            'energy storage', 'battery', 'renewable resources', 'alternative energy', 'low carbon energy',
+            'energy transition', 'net zero', 'carbon neutral', 'decarbonization'
+        ]
+    },
+    8: {
+        'name': 'العمل اللائق', 
+        'keywords': [
+            # عربي
+            'عمل', 'توظيف', 'وظائف', 'عمالة', 'فرص عمل', 'بطالة', 'مهارات مهنية', 'العمل اللائق', 'الوظائف اللائقة',
+            'ظروف العمل', 'بيئة العمل', 'حقوق العمال', 'النقابات العمالية', 'العمال', 'الموظفين', 'العمالة الوافدة',
+            'العمالة المنزلية', 'العمالة الموسمية', 'العمل الحر', 'العمل عن بعد', 'المرونة الوظيفية', 'الأجور',
+            'الرواتب', 'الحد الأدنى للأجور', 'التأمينات الاجتماعية', 'التقاعد', 'الضمان الاجتماعي', 'السلامة المهنية',
+            'الصحة المهنية', 'الإصابات العمل', 'حوادث العمل', 'التدريب المهني', 'التأهيل الوظيفي', 'التطوير المهني',
+            'المهارات الوظيفية', 'الكفاءات', 'الاقتصاد غير الرسمي', 'العمالة غير المنتظمة', 'العمالة الناقصة',
+            'البطالة المقنعة', 'الباحثين عن عمل', 'خريجين', 'توظيف الخريجين', 'مشاريع صغيرة', 'ريادة أعمال',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الثامن', 'الثامنة',
+            # English
+            'employment', 'jobs', 'work', 'labor', 'workforce', 'decent work', 'fair work', 'job creation',
+            'job opportunities', 'employment opportunities', 'unemployment', 'job seekers', 'workers', 'employees',
+            'labor rights', 'workers rights', 'trade unions', 'labor unions', 'working conditions', 'workplace safety',
+            'occupational health', 'workplace health', 'minimum wage', 'fair wage', 'social security', 'pension',
+            'retirement', 'job training', 'vocational training', 'skills development', 'professional development',
+            'career development', 'job skills', 'employability', 'informal economy', 'informal workers',
+            'migrant workers', 'domestic workers', 'seasonal workers', 'self employment', 'entrepreneurship',
+            'small business', 'smes', 'economic growth', 'productivity', 'labor market'
+        ]
+    },
+    9: {
+        'name': 'الصناعة والابتكار', 
+        'keywords': [
+            # عربي
+            'صناعة', 'صناعي', 'ابتكار', 'بنية تحتية', 'طرق', 'جسور', 'مصانع', 'تكنولوجيا', 'القطاع الصناعي',
+            'المدن الصناعية', 'المناطق الصناعية', 'المصانع', 'المنشآت الصناعية', 'التصنيع', 'الإنتاج الصناعي',
+            'المواد الخام', 'المواد الأولية', 'السلع المصنعة', 'الابتكار التقني', 'الابتكار التكنولوجي',
+            'البحث والتطوير', 'الاختراعات', 'براءات الاختراع', 'الملكية الفكرية', 'التقنيات الحديثة',
+            'التقنيات الناشئة', 'التحول الرقمي', 'الذكاء الاصطناعي', 'إنترنت الأشياء', 'الروبوتات', 'الأتمتة',
+            'الصناعة 4.0', 'الثورة الصناعية الرابعة', 'الطرق السريعة', 'الجسور', 'الأنفاق', 'الموانئ', 'المطارات',
+            'السكك الحديدية', 'المترو', 'القطارات', 'شبكات النقل', 'اللوجستيات', 'سلاسل الإمداد', 'الخدمات اللوجستية',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'التاسع', 'التاسعة',
+            # English
+            'industry', 'industrial', 'innovation', 'infrastructure', 'roads', 'bridges', 'tunnels', 'ports',
+            'airports', 'railways', 'railroads', 'metro', 'transportation', 'logistics', 'supply chain',
+            'manufacturing', 'factories', 'industrial zones', 'industrial parks', 'production', 'processing',
+            'raw materials', 'technology', 'advanced technology', 'emerging technology', 'digital transformation',
+            'artificial intelligence', 'ai', 'iot', 'internet of things', 'robotics', 'automation', 'industry 4.0',
+            'fourth industrial revolution', 'r&d', 'research and development', 'innovation ecosystem',
+            'patents', 'intellectual property', 'technological innovation', 'sustainable industry',
+            'sustainable infrastructure', 'resilient infrastructure', 'industrialization'
+        ]
+    },
+    10: {
+        'name': 'الحد من عدم المساواة', 
+        'keywords': [
+            # عربي
+            'مساواة', 'شمولية', 'فئات مهمشة', 'ذوي احتياجات خاصة', 'تمكين', 'عدم المساواة', 'الفجوة الاجتماعية',
+            'الفجوة الاقتصادية', 'الفجوة الرقمية', 'المناطق المهمشة', 'الأرياف', 'النائية', 'المناطق الحدودية',
+            'سكان البادية', 'البدو', 'الرحل', 'اللاجئين', 'النازحين', 'المهاجرين', 'الأقليات', 'ذوو الإعاقة',
+            'المعاقين', 'المكفوفين', 'الصم', 'ذوي الهمم', 'الاحتياجات الخاصة', 'كبار السن', 'المسنين', 'المسنات',
+            'المتقاعدين', 'الأحداث', 'الأطفال', 'الشمول المالي', 'الشمول الاجتماعي', 'الاندماج الاجتماعي',
+            'التكامل المجتمعي', 'التماسك الاجتماعي', 'العدالة الاجتماعية', 'تكافؤ الفرص', 'المساواة في الحقوق',
+            'التمييز', 'العنصرية', 'الطبقية', 'الفقراء', 'المحتاجين', 'محدودي الدخل', 'الأيتام', 'الأرامل',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'العاشر', 'العاشرة',
+            # English
+            'inequality', 'inequalities', 'reduced inequalities', 'social inclusion', 'inclusion', 'inclusive',
+            'marginalized', 'vulnerable groups', 'disadvantaged groups', 'poor', 'low income', 'poverty',
+            'social justice', 'social equity', 'equal opportunities', 'equal rights', 'discrimination',
+            'racial discrimination', 'ethnic discrimination', 'gender discrimination', 'age discrimination',
+            'disability discrimination', 'people with disabilities', 'disabled', 'blind', 'deaf', 'special needs',
+            'elderly', 'older people', 'seniors', 'refugees', 'migrants', 'displaced', 'minorities', 'indigenous',
+            'rural areas', 'remote areas', 'urban rural gap', 'digital divide', 'social protection',
+            'social safety nets', 'affirmative action', 'empowerment', 'inclusive growth', 'inclusive development'
+        ]
+    },
+    11: {
+        'name': 'مدن مستدامة', 
+        'keywords': [
+            # عربي
+            'مدن', 'مدينة', 'تخطيط حضري', 'إسكان', 'مواصلات', 'نقل عام', 'بنية تحتية حضرية', 'المدن المستدامة',
+            'المجتمعات المستدامة', 'المدن الذكية', 'التخطيط العمراني', 'التطوير الحضري', 'التجديد الحضري',
+            'تطوير المدن', 'المناطق الحضرية', 'المراكز الحضرية', 'المدن الكبرى', 'المدن الجديدة',
+            'المجتمعات العمرانية', 'الإسكان الميسر', 'الإسكان الاجتماعي', 'الإسكان التنموي', 'الإسكان الشعبي',
+            'الأحياء السكنية', 'المرافق العامة', 'الخدمات البلدية', 'النظافة', 'الإنارة العامة', 'الطرق الداخلية',
+            'الأرصفة', 'الحدائق العامة', 'المتنزهات', 'المساحات الخضراء', 'المواصلات العامة', 'الحافلات',
+            'التاكسي', 'مترو الأنفاق', 'الترام', 'القطار الكهربائي', 'إدارة المخلفات', 'تدوير النفايات',
+            'النفايات الصلبة', 'المخلفات', 'السكن', 'شقق', 'فلل', 'أبراج', 'عمارات', 'حي', 'أحياء', 'بلدية',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الحادي عشر', 'الحادية عشرة',
+            # English
+            'cities', 'city', 'urban', 'urban planning', 'urban development', 'urbanization', 'sustainable cities',
+            'sustainable communities', 'smart cities', 'resilient cities', 'inclusive cities', 'safe cities',
+            'housing', 'affordable housing', 'social housing', 'public housing', 'urban housing', 'rural housing',
+            'transport', 'transportation', 'public transport', 'mass transit', 'bus', 'metro', 'subway', 'train',
+            'light rail', 'tram', 'roads', 'streets', 'sidewalks', 'public spaces', 'green spaces', 'parks',
+            'public facilities', 'waste management', 'solid waste', 'recycling', 'waste collection',
+            'sanitation', 'street lighting', 'urban resilience', 'disaster resilience', 'climate resilience',
+            'urban poverty', 'slums', 'informal settlements', 'urban planning', 'land use', 'zoning'
+        ]
+    },
+    12: {
+        'name': 'استهلاك مسؤول', 
+        'keywords': [
+            # عربي
+            'استهلاك', 'إنتاج', 'استدامة', 'كفاءة موارد', 'إعادة تدوير', 'الاستهلاك المستدام', 'الإنتاج المستدام',
+            'أنماط الاستهلاك', 'ترشيد الاستهلاك', 'الاستهلاك المسؤول', 'الاستهلاك الواعي', 'الاستهلاك الأخضر',
+            'المنتجات المستدامة', 'المواد المستدامة', 'المواد المعاد تدويرها', 'إعادة التدوير', 'تدوير المخلفات',
+            'إعادة الاستخدام', 'تقليل الاستهلاك', 'تقليل الهدر', 'هدر الطعام', 'الفاقد الغذائي', 'الاقتصاد الدائري',
+            'التصميم المستدام', 'التعبئة المستدامة', 'المنتجات الصديقة للبيئة', 'البصمة البيئية', 'البصمة الكربونية',
+            'استدامة الموارد', 'كفاءة الموارد', 'كفاءة الطاقة', 'كفاءة المياه', 'ترشيد الطاقة', 'ترشيد المياه',
+            'تدوير', 'فرز', 'مخلفات', 'نفايات', 'بلاستيك', 'ورق', 'كرتون', 'زجاج', 'معادن', 'عضوي', 'سماد',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الثاني عشر', 'الثانية عشرة',
+            # English
+            'consumption', 'production', 'sustainable consumption', 'sustainable production', 'responsible consumption',
+            'responsible production', 'conscious consumption', 'green consumption', 'circular economy',
+            'resource efficiency', 'resource conservation', 'energy efficiency', 'water efficiency',
+            'material efficiency', 'waste reduction', 'waste minimization', 'recycling', 'reuse', 'repair',
+            'upcycling', 'downcycling', 'waste management', 'solid waste', 'food waste', 'food loss',
+            'sustainable products', 'eco-friendly products', 'green products', 'sustainable materials',
+            'recycled materials', 'sustainable packaging', 'environmental footprint', 'carbon footprint',
+            'water footprint', 'life cycle assessment', 'sustainable lifestyle', 'green economy'
+        ]
+    },
+    13: {
+        'name': 'العمل المناخي', 
+        'keywords': [
+            # عربي
+            'مناخ', 'تغير مناخي', 'انبعاثات', 'احتباس حراري', 'كربون', 'التغير المناخي', 'تغيرات المناخ',
+            'الاحتباس الحراري', 'الاحترار العالمي', 'غازات الاحتباس الحراري', 'غازات الدفيئة', 'انبعاثات الكربون',
+            'الكربون', 'ثاني أكسيد الكربون', 'الميثان', 'الغازات', 'الانبعاثات الكربونية', 'الحياد الكربوني',
+            'صفر كربون', 'خفض الانبعاثات', 'تخفيض الانبعاثات', 'التخفيف من التغير المناخي', 'التكيف مع التغير المناخي',
+            'مقاومة المناخ', 'الطقس المتطرف', 'الظواهر الجوية', 'الكوارث الطبيعية', 'الفيضانات', 'الجفاف',
+            'العواصف', 'الأعاصير', 'حرائق الغابات', 'ارتفاع منسوب البحر', 'ذوبان الجليد', 'الطاقة النظيفة',
+            'الطاقة المتجددة', 'الحلول المناخية', 'الاستدامة البيئية', 'كربون', 'انبعاثات', 'تلوث', 'غلاف جوي',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الثالث عشر', 'الثالثة عشرة',
+            # English
+            'climate', 'climate change', 'global warming', 'climate action', 'climate crisis', 'climate emergency',
+            'greenhouse gases', 'ghg', 'carbon emissions', 'co2 emissions', 'carbon dioxide', 'methane',
+            'carbon footprint', 'net zero', 'carbon neutral', 'zero carbon', 'low carbon', 'decarbonization',
+            'emissions reduction', 'mitigation', 'adaptation', 'climate resilience', 'climate risk',
+            'extreme weather', 'natural disasters', 'floods', 'droughts', 'storms', 'hurricanes', 'cyclones',
+            'wildfires', 'sea level rise', 'melting glaciers', 'climate justice', 'climate finance',
+            'green transition', 'just transition', 'paris agreement', 'climate action', 'climate solutions'
+        ]
+    },
+    14: {
+        'name': 'الحياة تحت الماء', 
+        'keywords': [
+            # عربي
+            'بحار', 'بحر', 'محيطات', 'محيط', 'أسماك', 'سمك', 'سواحل', 'ساحلي', 'ثروة بحرية', 'صيد', 'الحياة البحرية',
+            'الكائنات البحرية', 'النظم البيئية البحرية', 'الشعاب المرجانية', 'المرجان', 'السلاحف البحرية',
+            'الثدييات البحرية', 'الحيتان', 'الدلافين', 'الأسماك', 'المخزون السمكي', 'الثروة السمكية',
+            'مصائد الأسماك', 'الصيد الجائر', 'الاستزراع السمكي', 'المزارع السمكية', 'الأحياء المائية',
+            'الربيان', 'الجمبري', 'تلوث البحار', 'التلوث البحري', 'المخلفات البحرية', 'اللدائن البحرية',
+            'البلاستيك في المحيطات', 'المحميات البحرية', 'المناطق البحرية المحمية', 'حماية السواحل',
+            'إدارة السواحل', 'الاقتصاد الأزرق', 'الموارد البحرية', 'الموارد الساحلية', 'السياحة البحرية',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الرابع عشر', 'الرابعة عشرة',
+            # English
+            'oceans', 'ocean', 'seas', 'sea', 'marine', 'coastal', 'marine life', 'marine ecosystems',
+            'marine biodiversity', 'marine resources', 'ocean resources', 'fisheries', 'fishing', 'fish',
+            'overfishing', 'sustainable fishing', 'aquaculture', 'mariculture', 'coral reefs', 'coral',
+            'mangroves', 'seagrass', 'marine protected areas', 'marine conservation', 'ocean conservation',
+            'marine pollution', 'ocean pollution', 'plastic pollution', 'marine debris', 'microplastics',
+            'blue economy', 'ocean acidification', 'sea level rise', 'marine species', 'endangered marine species',
+            'marine mammals', 'whales', 'dolphins', 'sea turtles', 'sustainable fisheries', 'coastal management'
+        ]
+    },
+    15: {
+        'name': 'الحياة في البر', 
+        'keywords': [
+            # عربي
+            'بيئة', 'غابات', 'غابة', 'تنوع أحيائي', 'تنوع بيولوجي', 'محيات طبيعية', 'حيوانات', 'نباتات',
+            'النظم البيئية الأرضية', 'النظم البيئية البرية', 'الغابات', 'الأحراش', 'البراري', 'المحميات الطبيعية',
+            'المحميات البرية', 'المناطق المحمية', 'الحدائق الوطنية', 'الحياة البرية', 'الحيوانات البرية',
+            'الطيور', 'الكائنات الفطرية', 'الكائنات المهددة بالانقراض', 'الأنواع المهددة', 'الأنواع النادرة',
+            'التنوع الحيوي', 'التنوع البيولوجي', 'الموارد الوراثية', 'النباتات', 'الأشجار', 'النباتات الطبيعية',
+            'الغطاء النباتي', 'التصحر', 'مكافحة التصحر', 'الزحف العمراني', 'تدهور الأراضي', 'تآكل التربة',
+            'إعادة التشجير', 'زراعة الغابات', 'التشجير', 'الاستدامة البيئية', 'حيوان', 'نبات', 'شجر', 'غاب',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'الخامس عشر', 'الخامسة عشرة',
+            # English
+            'forests', 'forest', 'biodiversity', 'ecosystems', 'terrestrial ecosystems', 'land ecosystems',
+            'wildlife', 'wild animals', 'plants', 'flora', 'fauna', 'species', 'endangered species',
+            'threatened species', 'extinction', 'habitat loss', 'habitat destruction', 'deforestation',
+            'reforestation', 'afforestation', 'desertification', 'land degradation', 'soil erosion',
+            'land conservation', 'protected areas', 'national parks', 'nature reserves', 'wildlife conservation',
+            'biodiversity conservation', 'ecosystem restoration', 'sustainable forestry', 'forest management',
+            'forest conservation', 'wildlife protection', 'species protection', 'natural heritage',
+            'green spaces', 'wilderness', 'natural resources', 'land use', 'sustainable land management'
+        ]
+    },
+    16: {
+        'name': 'السلام والعدالة', 
+        'keywords': [
+            # عربي
+            'سلام', 'عدالة', 'مؤسسات', 'حوكمة', 'قضاء', 'سيادة القانون', 'الأمن والسلام', 'الاستقرار',
+            'الأمن المجتمعي', 'الأمن الوطني', 'مكافحة الإرهاب', 'التطرف', 'مكافحة الجريمة', 'الجرائم',
+            'النزاعات', 'حل النزاعات', 'الوساطة', 'المصالحة', 'المصالحة الوطنية', 'بناء السلام', 'حفظ السلام',
+            'بعثات السلام', 'العدالة الجنائية', 'العدالة الناجزة', 'العدالة الانتقالية', 'القضاء', 'المحاكم',
+            'النيابة العامة', 'التحكيم', 'القضاء الإداري', 'المجلس القضائي', 'الحوكمة الرشيدة',
+            'الإدارة الرشيدة', 'مكافحة الفساد', 'الشفافية', 'المساءلة', 'سيادة القانون', 'حكم القانون',
+            'المؤسسات الحكومية', 'الإصلاح المؤسسي', 'حقوق الإنسان', 'الحريات العامة', 'الحقوق المدنية',
+            'الحقوق السياسية', 'حرية التعبير', 'حرية الصحافة', 'حرية التجمع', 'حقوق المتهمين', 'حقوق الضحايا',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'السادس عشر', 'السادسة عشرة',
+            # English
+            'peace', 'justice', 'institutions', 'governance', 'rule of law', 'peaceful societies',
+            'peacebuilding', 'peacekeeping', 'conflict resolution', 'conflict prevention', 'mediation',
+            'reconciliation', 'post conflict', 'security', 'human security', 'national security',
+            'counter terrorism', 'crime prevention', 'violence prevention', 'corruption', 'anti corruption',
+            'transparency', 'accountability', 'good governance', 'democratic governance', 'public institutions',
+            'judiciary', 'courts', 'legal system', 'access to justice', 'legal aid', 'human rights',
+            'fundamental rights', 'civil rights', 'political rights', 'freedom of speech', 'freedom of press',
+            'freedom of assembly', 'right to information', 'equal access to justice', 'justice for all',
+            'inclusive institutions', 'strong institutions'
+        ]
+    },
+    17: {
+        'name': 'الشراكات', 
+        'keywords': [
+            # عربي
+            'شراكات', 'شراكة', 'تعاون دولي', 'تمويل', 'منح', 'قروض', 'مساعدات دولية', 'الشراكات الدولية',
+            'الشراكات الإقليمية', 'الشراكات المحلية', 'التعاون المشترك', 'التعاون الثنائي',
+            'التعاون متعدد الأطراف', 'المنظمات الدولية', 'الأمم المتحدة', 'البنك الدولي', 'صندوق النقد الدولي',
+            'المانحين', 'الجهات المانحة', 'الدول المانحة', 'المساعدات الإنمائية', 'المساعدات الإنسانية',
+            'المساعدات الفنية', 'الدعم الفني', 'التمويل المشترك', 'التمويل الدولي', 'الاستثمار الأجنبي',
+            'الاستثمار المباشر', 'القطاع الخاص', 'الاستثمار الخاص', 'المنظمات غير الحكومية', 'المجتمع المدني',
+            'المؤسسات الخيرية', 'الأوقاف', 'الصناديق التنموية', 'الصناديق السيادية', 'تعاون', 'دعم',
+            'هدف', 'اهداف', 'التنمية', 'المستدامة', 'السابع عشر', 'السابعة عشرة',
+            # English
+            'partnerships', 'partnership', 'cooperation', 'international cooperation', 'development cooperation',
+            'south south cooperation', 'triangular cooperation', 'multilateral cooperation', 'bilateral cooperation',
+            'global partnership', 'public private partnership', 'ppp', 'multi stakeholder', 'stakeholder engagement',
+            'funding', 'financing', 'grants', 'loans', 'aid', 'development aid', 'humanitarian aid',
+            'technical assistance', 'capacity building', 'knowledge sharing', 'technology transfer',
+            'resource mobilization', 'co financing', 'investment', 'foreign investment', 'private investment',
+            'private sector', 'civil society', 'ngo', 'non governmental organizations', 'philanthropy',
+            'foundations', 'development finance', 'climate finance', 'global goals', 'sdg implementation',
+            'means of implementation', 'global partnership for development'
+        ]
+    }
 }
 
 # --- 5. قواعد ذكية للكلمات المركبة ---
@@ -106,7 +467,20 @@ MULTI_SDG_RULES = [
     {'triggers': ['زراعة عضوية', 'زراعة مستدامة'], 'target_sdgs': [2, 12, 15], 'primary': 2},
     {'triggers': ['طاقة شمسية للمنازل', 'طاقة متجددة للمجتمعات'], 'target_sdgs': [7, 11], 'primary': 7},
     {'triggers': ['صحة الأم والطفل', 'رعاية الحوامل'], 'target_sdgs': [3, 5], 'primary': 3},
-    {'triggers': ['تعليم الفتيات', 'تمكين الفتيات'], 'target_sdgs': [4, 5], 'primary': 4}
+    {'triggers': ['تعليم الفتيات', 'تمكين الفتيات'], 'target_sdgs': [4, 5], 'primary': 4},
+    {'triggers': ['مياه نظيفة للمجتمعات الريفية', 'مياه ريفية'], 'target_sdgs': [6, 10], 'primary': 6},
+    {'triggers': ['طاقة شمسية للمجتمعات النائية', 'كهرباء قرى'], 'target_sdgs': [7, 10], 'primary': 7},
+    {'triggers': ['صحة المرأة', 'صحة الأم'], 'target_sdgs': [3, 5], 'primary': 3},
+    {'triggers': ['طفل', 'أطفال', 'الطفولة'], 'target_sdgs': [3, 4], 'primary': 4},
+    {'triggers': ['شباب', 'تمكين الشباب'], 'target_sdgs': [4, 8], 'primary': 8},
+    {'triggers': ['ذوي إعاقة', 'ذوي الاحتياجات الخاصة'], 'target_sdgs': [3, 10], 'primary': 10},
+    {'triggers': ['لاجئين', 'نازحين'], 'target_sdgs': [1, 10, 16], 'primary': 10},
+    {'triggers': ['سياحة مستدامة', 'سياحة بيئية'], 'target_sdgs': [8, 12, 14], 'primary': 12},
+    {'triggers': ['اقتصاد دائري', 'تدوير'], 'target_sdgs': [9, 12], 'primary': 12},
+    {'triggers': ['مدن ذكية', 'مدن مستدامة'], 'target_sdgs': [9, 11], 'primary': 11},
+    {'triggers': ['حماية البيئة', 'استدامة بيئية'], 'target_sdgs': [13, 14, 15], 'primary': 13},
+    {'triggers': ['مشاريع صغيرة', 'ريادة أعمال'], 'target_sdgs': [8, 9], 'primary': 8},
+    {'triggers': ['تنمية مجتمعية', 'تنمية محلية'], 'target_sdgs': [1, 11], 'primary': 11}
 ]
 
 # --- 6. تصنيف الأهداف ---
@@ -129,6 +503,7 @@ def extract_sdgs_from_text_advanced(text):
     matched_keywords = []
     primary_sdgs = []
     
+    # البحث عن القواعد الخاصة (الكلمات المركبة)
     for rule in MULTI_SDG_RULES:
         for trigger in rule['triggers']:
             if trigger in text:
@@ -138,6 +513,7 @@ def extract_sdgs_from_text_advanced(text):
                     primary_sdgs.append(rule['primary'])
                 break
     
+    # البحث في الكلمات المفتاحية العادية
     for sdg_num, sdg_info in SDG_KEYWORDS.items():
         for keyword in sdg_info['keywords']:
             if keyword in text and sdg_num not in detected_sdgs:
@@ -195,51 +571,104 @@ def get_project_trend(metrics):
         return "متوازن"
     return max_dim
 
-# --- 8. نظام التوصيات الذكي (محدث - يركز على الميزانية والثقة) ---
-def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob):
+# --- 8. تحسين نسبة النجاح بإضافة الميزانية والمستفيدين ---
+def enhance_success_with_budget(original_prob, p_budget, p_ben):
+    """تحسين نسبة النجاح بناءً على كفاءة الميزانية والعائد الاجتماعي"""
+    
+    if p_budget <= 0 or p_ben <= 0:
+        return original_prob, 0, 0, 0
+    
+    # حساب التكلفة لكل مستفيد
+    cost_per_person = p_budget / p_ben
+    
+    # حساب العائد الاجتماعي
+    sroi = (p_ben * original_prob) / (p_budget / 1000)
+    
+    # معامل تحسين الميزانية
+    budget_factor = 0
+    
+    # مكافأة الكفاءة (التكلفة المنخفضة لكل مستفيد)
+    if cost_per_person < 5000:
+        budget_factor += 0.10  # +10% كفاءة ممتازة
+    elif cost_per_person < 15000:
+        budget_factor += 0.05   # +5% كفاءة جيدة
+    elif cost_per_person > 100000:
+        budget_factor -= 0.10   # -10% تكلفة عالية جداً
+    elif cost_per_person > 50000:
+        budget_factor -= 0.05   # -5% تكلفة مرتفعة
+    
+    # مكافأة العائد الاجتماعي
+    if sroi > 15:
+        budget_factor += 0.08   # +8% عائد استثنائي
+    elif sroi > 8:
+        budget_factor += 0.03   # +3% عائد جيد
+    elif sroi < 0.5:
+        budget_factor -= 0.08   # -8% عائد ضعيف
+    elif sroi < 1:
+        budget_factor -= 0.03   # -3% عائد منخفض
+    
+    # مكافأة المشاريع الكبيرة (أكثر من 10,000 مستفيد)
+    if p_ben > 10000:
+        budget_factor += 0.05   # +5% تأثير مجتمعي واسع
+    
+    # تطبيق التحسين
+    enhanced_prob = original_prob + budget_factor
+    
+    # التأكد من أن النسبة بين 0 و 1
+    enhanced_prob = max(0, min(enhanced_prob, 1.0))
+    
+    return enhanced_prob, budget_factor, cost_per_person, sroi
+
+# --- 9. نظام التوصيات الذكي ---
+def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob, budget_factor, cost_per_person, sroi):
     """توليد توصيات ذكية تركز على الميزانية وجدوى الاستثمار"""
     
     recommendations = []
     weaknesses = []
     strengths = []
     
-    # 1. تحليل الميزانية وكفاءة الإنفاق (الأهم)
+    # 1. تحليل الميزانية وكفاءة الإنفاق
     if p_budget > 0 and p_ben > 0:
-        cost_per_person = p_budget / p_ben
-        sroi = round((p_ben * success_prob) / (p_budget / 1000), 2)
-        
-        # تحليل الميزانية - هل هي مناسبة؟
-        if p_budget < 50000:
-            if p_ben < 100:
-                strengths.append("✅ ميزانية مناسبة لمشروع صغير")
-            else:
-                strengths.append("✅ كفاءة عالية - ميزانية منخفضة ومستفيدين كثر")
-        elif p_budget > 1000000:  # أكثر من مليون
-            if success_prob > 0.7:
-                strengths.append("✅ مشروع استراتيجي كبير يستحق الاستثمار")
-            else:
-                weaknesses.append("⚠️ مخاطرة عالية - ميزانية كبيرة وفرص نجاح متوسطة")
-                recommendations.append("💰 **تقييم المخاطر**: الميزانية كبيرة (أكثر من مليون). يُنصح بعمل دراسة جدوى معمقة وتدقيق إضافي قبل الاعتماد")
         
         # تحليل التكلفة لكل مستفيد
         if cost_per_person > 100000:
-            weaknesses.append("⚠️ تكلفة مرتفعة جداً لكل مستفيد")
+            weaknesses.append(f"⚠️ تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
             recommendations.append("💰 **إعادة هيكلة التكاليف**: التكلفة الحالية مرتفعة جداً. هل يمكن تنفيذ المشروع بكفاءة أعلى؟")
         elif cost_per_person > 50000:
-            weaknesses.append("⚠️ تكلفة مرتفعة لكل مستفيد")
+            weaknesses.append(f"⚠️ تكلفة مرتفعة لكل مستفيد ({cost_per_person:,.0f} ريال)")
             recommendations.append("💰 **ترشيد الإنفاق**: خفض التكاليف بنسبة 20% مع الحفاظ على الجودة")
-        elif cost_per_person < 10000:
-            strengths.append("✅ كفاءة تشغيلية ممتازة")
+        elif cost_per_person < 5000:
+            strengths.append(f"✅ كفاءة تشغيلية ممتازة ({cost_per_person:,.0f} ريال لكل مستفيد)")
         
-        # تحليل العائد الاجتماعي - مؤشر ثقة للمستثمر
+        # تحليل العائد الاجتماعي
         if sroi > 10:
-            strengths.append(f"✅ عائد اجتماعي ممتاز ({sroi}x)")
+            strengths.append(f"✅ عائد اجتماعي ممتاز ({sroi:.1f}x)")
             recommendations.append("📊 **فرصة استثمارية واعدة**: العائد الاجتماعي مرتفع جداً، يُنصح بتوسيع نطاق المشروع")
         elif sroi < 1:
-            weaknesses.append(f"⚠️ عائد اجتماعي منخفض ({sroi}x)")
+            weaknesses.append(f"⚠️ عائد اجتماعي منخفض ({sroi:.1f}x)")
             recommendations.append("📉 **تحسين الأثر**: العائد على الاستثمار منخفض. ركز على الفئات الأكثر احتياجاً لزيادة الأثر")
     
-    # 2. تحليل الثقة للمستثمر (صاحب القرار)
+    # 2. تحليل عدد الأهداف
+    if metrics['sdg_count'] == 0:
+        weaknesses.append("⚠️ المشروع غير مرتبط بأهداف تنموية واضحة")
+        recommendations.append("🎯 **تحديد الأهداف**: المشروع بحاجة لربط بأهداف التنمية المستدامة")
+    elif metrics['sdg_count'] == 1:
+        weaknesses.append("⚠️ هدف تنموي واحد فقط")
+        recommendations.append("🎯 **تنويع الأهداف**: حاول ربط المشروع بهدف إضافي لتعزيز الأثر")
+    elif metrics['sdg_count'] >= 4:
+        strengths.append(f"✅ المشروع يغطي {metrics['sdg_count']} أهداف تنموية")
+    
+    # 3. تحليل التوازن
+    if metrics['balance_score'] < 30:
+        weaknesses.append("⚠️ اختلال كبير في التوازن بين الأبعاد")
+        recommendations.append("⚖️ **حسن التوازن**: ركز على الأبعاد المهملة في مشروعك")
+    elif metrics['balance_score'] < 50:
+        weaknesses.append("⚠️ توازن ضعيف بين الأبعاد")
+        recommendations.append("⚖️ **حسن التوازن**: وزع أهدافك بشكل أكثر توازناً")
+    elif metrics['balance_score'] > 70:
+        strengths.append(f"✅ توازن ممتاز بين الأبعاد ({metrics['balance_score']:.1f}%)")
+    
+    # 4. مستوى الثقة للمستثمر
     confidence_level = "منخفضة"
     if success_prob > 0.7 and metrics['balance_score'] > 60 and p_ben > 100:
         confidence_level = "عالية جداً"
@@ -247,40 +676,12 @@ def generate_recommendations(metrics, p_cat, p_budget, p_ben, success_prob):
     elif success_prob > 0.5:
         confidence_level = "متوسطة"
     
-    # 3. تحليل عدد الأهداف (بدون إجبار على الزيادة)
-    if metrics['sdg_count'] == 0:
-        weaknesses.append("⚠️ المشروع غير مرتبط بأهداف تنموية واضحة")
-        recommendations.append("🎯 **تحديد الأهداف**: المشروع بحاجة لربط بأهداف التنمية المستدامة ليحظى بثقة المستثمرين")
-    elif metrics['sdg_count'] > 4:
-        strengths.append("✅ المشروع يغطي عدة أهداف")
-    
-    # 4. توصيات خاصة بثقة المستثمر
-    if confidence_level == "منخفضة" and success_prob < 0.5:
-        recommendations.append("⚠️ **موقف استثماري**: نسبة المخاطرة عالية. يوصى بإعادة دراسة المشروع أو البحث عن مصادر تمويل غير تقليدية")
-    
-    # 5. تحليل القطاع
-    sector_success_rates = {
-        'تعليمي': 0.76,
-        'صحي': 0.72,
-        'اجتماعي': 0.74,
-        'اقتصادي': 0.68,
-        'بيئي': 0.65
-    }
-    
-    if p_cat in sector_success_rates:
-        sector_rate = sector_success_rates[p_cat]
-        if success_prob > sector_rate + 0.1:
-            strengths.append(f"✅ أداء متوقع أفضل من متوسط المشاريع {p_cat}ة")
-        elif success_prob < sector_rate - 0.1:
-            weaknesses.append(f"⚠️ أداء متوقع أقل من متوسط المشاريع {p_cat}ة")
-            recommendations.append(f"📚 **الاستفادة من التجارب**: ادرس المشاريع {p_cat}ة الناجحة واستفد من منهجياتها")
-    
     return strengths, weaknesses, recommendations, confidence_level
 
-# --- 9. تحميل النماذج ---
+# --- 10. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 10. التصميم ---
+# --- 11. التصميم ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -556,6 +957,18 @@ st.markdown("""
         margin: 40px 0 20px 0;
     }
     
+    .budget-impact-box {
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 10px 0 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
     .footer {
         text-align: center;
         color: #9CA3AF;
@@ -566,10 +979,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 11. العنوان ---
+# --- 12. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 12. نموذج الإدخال ---
+# --- 13. نموذج الإدخال ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -585,7 +998,7 @@ with st.form("analysis_form"):
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 13. التحليل والنتائج مع التوصيات ---
+# --- 14. التحليل والنتائج مع التوصيات ---
 if submitted:
     if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
         st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
@@ -617,19 +1030,25 @@ if submitted:
                     weight_xgb = models['config'].get('weight_xgb', 0.5)
                     threshold = models['config'].get('threshold', 0.4)
                     
-                    success_prob = (weight_ann * ann_prob + weight_xgb * xgb_prob)
-                    success_pred = 1 if success_prob >= threshold else 0
+                    original_prob = (weight_ann * ann_prob + weight_xgb * xgb_prob)
                     
                 except Exception as e:
-                    success_prob = predict_success_fallback(metrics)
-                    success_pred = 1 if success_prob >= 0.6 else 0
+                    original_prob = predict_success_fallback(metrics)
             else:
-                success_prob = predict_success_fallback(metrics)
-                success_pred = 1 if success_prob >= 0.6 else 0
+                original_prob = predict_success_fallback(metrics)
             
-            # --- توليد التوصيات الذكية (المحدثة) ---
+            # تحسين نسبة النجاح بإضافة الميزانية والمستفيدين
+            enhanced_prob, budget_factor, cost_per_person, sroi = enhance_success_with_budget(
+                original_prob, p_budget, p_ben
+            )
+            
+            # التصنيف النهائي
+            threshold = 0.4
+            success_pred = 1 if enhanced_prob >= threshold else 0
+            
+            # --- توليد التوصيات الذكية ---
             strengths, weaknesses, recommendations, confidence_level = generate_recommendations(
-                metrics, p_cat, p_budget, p_ben, success_prob
+                metrics, p_cat, p_budget, p_ben, enhanced_prob, budget_factor, cost_per_person, sroi
             )
             
             # عرض نسبة النجاح
@@ -639,12 +1058,40 @@ if submitted:
             st.markdown(f"""
                 <div class="success-card">
                     <div class="label">نسبة نجاح المشروع</div>
-                    <div class="value">{success_prob*100:.1f}%</div>
+                    <div class="value">{enhanced_prob*100:.1f}%</div>
                     <div class="status" style="background: {status_color}15; color: {status_color};">
                         {status_text}
                     </div>
                 </div>
             """, unsafe_allow_html=True)
+            
+            # عرض تأثير الميزانية
+            if budget_factor != 0:
+                impact_color = "#10B981" if budget_factor > 0 else "#EF4444"
+                impact_symbol = "▲" if budget_factor > 0 else "▼"
+                
+                st.markdown(f"""
+                    <div class="budget-impact-box">
+                        <div>
+                            <span style="color: #6B7280;">تأثير كفاءة الميزانية:</span>
+                            <span style="color: {impact_color}; font-weight: 600; margin-right: 10px;">
+                                {impact_symbol} {abs(budget_factor*100):.1f}%
+                            </span>
+                        </div>
+                        <div>
+                            <span style="color: #6B7280;">التكلفة لكل مستفيد:</span>
+                            <span style="color: #0F172A; font-weight: 600; margin-right: 5px;">
+                                {cost_per_person:,.0f} ريال
+                            </span>
+                        </div>
+                        <div>
+                            <span style="color: #6B7280;">العائد الاجتماعي:</span>
+                            <span style="color: #0F172A; font-weight: 600; margin-right: 5px;">
+                                {sroi:.1f}x
+                            </span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
             
             # مستوى الثقة للمستثمر
             confidence_class = "confidence-high" if confidence_level == "عالية جداً" else "confidence-medium" if confidence_level == "متوسطة" else "confidence-low"
@@ -654,7 +1101,7 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- عرض نقاط القوة ---
+            # عرض نقاط القوة
             if strengths:
                 st.markdown("""
                     <div class="strengths-box">
@@ -666,7 +1113,7 @@ if submitted:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # --- عرض نقاط الضعف ---
+            # عرض نقاط الضعف
             if weaknesses:
                 st.markdown("""
                     <div class="weaknesses-box">
@@ -678,7 +1125,7 @@ if submitted:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # --- عرض التوصيات ---
+            # عرض التوصيات
             if recommendations:
                 st.markdown("""
                     <div class="recommendations-box">
@@ -712,6 +1159,8 @@ if submitted:
                     """, unsafe_allow_html=True)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                st.info("لم يتم العثور على أهداف مرتبطة بالمشروع")
             
             # معلومات إضافية
             st.markdown('<div class="info-grid">', unsafe_allow_html=True)
@@ -771,42 +1220,11 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            # مؤشرات مالية
-            if p_budget > 0 and p_ben > 0:
-                cost_per_person = p_budget / p_ben
-                sroi = round((p_ben * success_prob) / (p_budget / 1000), 2)
-                
-                st.markdown("""
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0;">
-                """, unsafe_allow_html=True)
-                
-                col_m1, col_m2 = st.columns(2)
-                
-                with col_m1:
-                    st.markdown(f"""
-                        <div class="info-card">
-                            <div class="label">التكلفة لكل مستفيد</div>
-                            <div class="value">{cost_per_person:,.0f}</div>
-                            <span style="color: #9CA3AF;">ريال</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-                
-                with col_m2:
-                    st.markdown(f"""
-                        <div class="info-card">
-                            <div class="label">العائد الاجتماعي</div>
-                            <div class="value">{sroi}</div>
-                            <span style="color: #9CA3AF;">×</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-            
             # الخلاصة مع توصية للمستثمر
             investment_advice = ""
-            if confidence_level == "عالية جداً" and success_prob > 0.7:
+            if confidence_level == "عالية جداً" and enhanced_prob > 0.7:
                 investment_advice = "✅ فرصة استثمارية واعدة - يوصى بالتمويل"
-            elif confidence_level == "متوسطة" and success_prob > 0.5:
+            elif confidence_level == "متوسطة" and enhanced_prob > 0.5:
                 investment_advice = "⚠️ استثمار متوسط المخاطرة - يوصى بتمويل مشروط بمتابعة"
             else:
                 investment_advice = "❌ مخاطرة عالية - يوصى بإعادة الدراسة قبل التمويل"
@@ -817,7 +1235,7 @@ if submitted:
                     <div class="summary-text">
                         <p>مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، 
                         بميزانية <strong>{p_budget:,.0f} ريال</strong> لـ <strong>{p_ben:,} مستفيد</strong>.</p>
-                        <p>نسبة النجاح المتوقعة <strong>{success_prob*100:.1f}%</strong>، 
+                        <p>نسبة النجاح المتوقعة <strong>{enhanced_prob*100:.1f}%</strong>، 
                         ومستوى الثقة للمستثمر <strong>{confidence_level}</strong>.</p>
                         <div style="margin-top: 15px; padding: 15px; background: #F3F4F6; border-radius: 8px;">
                             <strong>توصية استثمارية:</strong> {investment_advice}
@@ -826,5 +1244,5 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 14. التذييل ---
+# --- 15. التذييل ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2024</div>', unsafe_allow_html=True)
