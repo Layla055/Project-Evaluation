@@ -539,10 +539,19 @@ def get_project_trend(metrics):
         return "متوازن"
     return max_dim
 
+# --- 9. تحسين نسبة النجاح (معدل للتعامل مع الميزانية = 0) ---
 def enhance_success_with_budget(original_prob, p_budget, p_ben):
-    if p_budget <= 0 or p_ben <= 0:
+    """تحسين نسبة النجاح - معدلة للتعامل مع المشاريع التطوعية (ميزانية = 0)"""
+    
+    # حالة المشروع التطوعي (ميزانية = 0)
+    if p_budget == 0:
         return original_prob, 0, 0, 0
     
+    # حالة خطأ (عدد المستفيدين = 0)
+    if p_ben <= 0:
+        return original_prob, 0, 0, 0
+    
+    # المشاريع العادية
     cost_per_person = p_budget / p_ben
     sroi = (p_ben * original_prob) / (p_budget / 1000)
     budget_factor = 0
@@ -584,7 +593,9 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     elif metrics['sdg_count'] >= 3:
         strengths.append(f"المشروع يغطي {metrics['sdg_count']} أهداف تنموية")
     
-    if cost_per_person < 5000:
+    if p_budget == 0:
+        strengths.append("مشروع تطوعي (بدون ميزانية) - يعتمد على المتطوعين والشراكات")
+    elif cost_per_person < 5000:
         strengths.append(f"كفاءة تشغيلية ممتازة ({cost_per_person:,.0f} ريال لكل مستفيد)")
     elif cost_per_person < 15000:
         strengths.append(f"كفاءة تشغيلية جيدة ({cost_per_person:,.0f} ريال لكل مستفيد)")
@@ -606,10 +617,11 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     elif metrics['sdg_count'] == 2:
         weaknesses.append("عدد الأهداف التنموية محدود (هدفان)")
     
-    if cost_per_person > 100000:
-        weaknesses.append(f"تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
-    elif cost_per_person > 50000:
-        weaknesses.append(f"تكلفة مرتفعة لكل مستفيد ({cost_per_person:,.0f} ريال)")
+    if p_budget > 0:
+        if cost_per_person > 100000:
+            weaknesses.append(f"تكلفة مرتفعة جداً لكل مستفيد ({cost_per_person:,.0f} ريال)")
+        elif cost_per_person > 50000:
+            weaknesses.append(f"تكلفة مرتفعة لكل مستفيد ({cost_per_person:,.0f} ريال)")
     
     if sroi < 0.5:
         weaknesses.append(f"عائد اجتماعي منخفض جداً ({sroi:.1f}x)")
@@ -632,7 +644,10 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
         elif current_sdg in SDG_DIMENSIONS['environmental']:
             recommendations.append(f"💡 تنويع الأهداف: المشروع يركز على '{current_name}'. أضف هدفاً اجتماعياً لتعزيز الأثر المجتمعي")
     
-    if cost_per_person > 100000:
+    if p_budget == 0:
+        recommendations.append("💡 مشروع تطوعي: يوصى بالبحث عن شراكات مع مؤسسات المجتمع المدني والجهات الداعمة")
+        recommendations.append("💡 تعزيز الاستدامة: وضع خطة لتوفير موارد مستدامة للمشروع على المدى الطويل")
+    elif cost_per_person > 100000:
         recommendations.append("💡 إعادة هيكلة الميزانية: التكلفة لكل مستفيد مرتفعة جداً. ابحث عن طرق لخفض التكاليف أو زيادة عدد المستفيدين")
     elif cost_per_person > 50000:
         recommendations.append("💡 ترشيد الإنفاق: خفض التكاليف بنسبة 15-20% مع الحفاظ على جودة المشروع")
@@ -661,17 +676,19 @@ def generate_logical_recommendations(metrics, p_cat, p_budget, p_ben, success_pr
     recommendations = list(dict.fromkeys(recommendations))
     
     confidence_level = "منخفضة"
-    if success_prob > 0.7 and p_ben > 100:
+    if p_budget == 0:
+        confidence_level = "تطوعي"
+    elif success_prob > 0.7 and p_ben > 100:
         confidence_level = "عالية جداً"
     elif success_prob > 0.5:
         confidence_level = "متوسطة"
     
     return strengths, weaknesses, recommendations[:6], confidence_level
 
-# --- 9. تحميل النماذج ---
+# --- 10. تحميل النماذج ---
 models = load_models_safe()
 
-# --- 10. التصميم مع لمسات احترافية ---
+# --- 11. التصميم مع لمسات احترافية وتوسيط كل الخطوط ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -679,6 +696,12 @@ st.markdown("""
     * {
         font-family: 'Tajawal', sans-serif;
         box-sizing: border-box;
+        text-align: center;  /* جميع الخطوط في المنتصف */
+    }
+    
+    /* استثناء لبعض العناصر التي قد تحتاج محاذاة مختلفة */
+    .stTextInput input, .stTextArea textarea, .stSelectbox select, .stNumberInput input {
+        text-align: right !important;  /* حقول الإدخال تبقى في اليمين */
     }
     
     [data-testid="collapsedControl"] {
@@ -714,7 +737,6 @@ st.markdown("""
         box-shadow: 0 25px 35px rgba(15,23,42,0.2);
     }
     
-    /* الرقم متوسط الحجم */
     .success-card .value {
         font-size: 3.5rem;
         font-weight: 700;
@@ -843,6 +865,7 @@ st.markdown("""
         border-radius: 12px;
         padding: 18px;
         transition: all 0.3s ease;
+        text-align: center;
     }
     
     .info-card:hover {
@@ -865,6 +888,7 @@ st.markdown("""
         padding: 12px 16px !important;
         background: white !important;
         transition: all 0.3s ease !important;
+        text-align: right !important;  /* محاذاة لليمين للإدخال */
     }
     
     .stTextInput input:focus, .stTextArea textarea:focus {
@@ -889,7 +913,7 @@ st.markdown("""
         box-shadow: 0 15px 25px rgba(15,23,42,0.3) !important;
     }
     
-    /* عنوان الأهداف في المنتصف */
+    /* عناوين الأقسام في المنتصف */
     .section-title-center {
         color: #0F172A;
         font-size: 1.3rem;
@@ -913,6 +937,7 @@ st.markdown("""
         border-radius: 12px;
         padding: 20px;
         margin: 20px 0;
+        text-align: center;
     }
     
     .dimensions-grid {
@@ -944,6 +969,7 @@ st.markdown("""
         border-radius: 12px;
         padding: 20px;
         margin: 20px 0;
+        text-align: center;
     }
     
     .weaknesses-box {
@@ -952,6 +978,7 @@ st.markdown("""
         border-radius: 12px;
         padding: 20px;
         margin: 20px 0;
+        text-align: center;
     }
     
     .recommendations-box {
@@ -960,24 +987,28 @@ st.markdown("""
         border-radius: 12px;
         padding: 25px;
         margin: 20px 0;
+        text-align: center;
     }
     
     .strength-item {
         color: #065F46;
         padding: 8px 0;
         border-bottom: 1px solid #A7F3D0;
+        text-align: center;
     }
     
     .weakness-item {
         color: #991B1B;
         padding: 8px 0;
         border-bottom: 1px solid #FECACA;
+        text-align: center;
     }
     
     .recommendation-item {
         color: #1E3A8A;
         padding: 12px 0;
         border-bottom: 1px solid #BFDBFE;
+        text-align: center;
     }
     
     .summary-box {
@@ -986,6 +1017,7 @@ st.markdown("""
         border-radius: 16px;
         padding: 30px;
         margin: 40px 0 20px 0;
+        text-align: center;
     }
     
     .budget-impact-box {
@@ -998,6 +1030,7 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
+        text-align: center;
     }
     
     .footer {
@@ -1011,10 +1044,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 11. العنوان ---
+# --- 12. العنوان ---
 st.markdown("<h1>المنصة الذكية لتحليل المشاريع التنموية</h1>", unsafe_allow_html=True)
 
-# --- 12. نموذج الإدخال (بدون أيقونة) ---
+# --- 13. نموذج الإدخال (معدل لقبول الميزانية = 0) ---
 with st.form("analysis_form"):
     col1, col2 = st.columns([2, 1])
     
@@ -1026,14 +1059,15 @@ with st.form("analysis_form"):
     with col2:
         p_cat = st.selectbox("المجال", ["", "تعليمي", "صحي", "بيئي", "اقتصادي", "اجتماعي"])
         p_budget = st.number_input("الميزانية (SAR)", min_value=0, value=0, step=1000)
-        p_ben = st.number_input("عدد المستفيدين", min_value=0, value=0, step=100)
+        p_ben = st.number_input("عدد المستفيدين", min_value=1, value=100, step=100)  # min_value=1 إلزامي
     
     submitted = st.form_submit_button("تحليل المشروع", use_container_width=True)
 
-# --- 13. التحليل والنتائج ---
+# --- 14. التحليل والنتائج ---
 if submitted:
-    if not p_name or not p_desc or not p_cat or p_budget == 0 or p_ben == 0:
-        st.error("⚠️ يرجى إدخال جميع البيانات المطلوبة")
+    # التحقق من المدخلات (معدل ليقبل ميزانية = 0)
+    if not p_name or not p_desc or not p_cat or p_ben <= 0:
+        st.error("⚠️ يرجى إدخال اسم المشروع، وصف المشروع، المجال، وعدد المستفيدين")
     else:
         with st.spinner("🔍 جاري التحليل الذكي..."):
             
@@ -1041,6 +1075,7 @@ if submitted:
             detected_sdgs, primary_sdgs, matched_keywords = extract_sdgs_from_text_advanced(full_text)
             metrics = calculate_sdg_metrics(detected_sdgs)
             
+            # التنبؤ باستخدام النموذج الأصلي
             if models['status'] == 'full_models' and all([models['scaler'], models['xgb'], models['ann']]):
                 try:
                     features = np.array([[
@@ -1060,6 +1095,7 @@ if submitted:
             else:
                 original_prob = predict_success_fallback(metrics)
             
+            # تحسين النتيجة مع مراعاة الميزانية (معدل للتعامل مع 0)
             enhanced_prob, budget_factor, cost_per_person, sroi = enhance_success_with_budget(
                 original_prob, p_budget, p_ben
             )
@@ -1073,7 +1109,7 @@ if submitted:
                 metrics, p_cat, p_budget, p_ben, enhanced_prob, cost_per_person, sroi, detected_sdgs, primary_sdgs
             )
             
-            # عرض نسبة النجاح بحجم 3.5rem
+            # عرض نسبة النجاح
             st.markdown(f"""
                 <div class="success-card">
                     <div class="label">نسبة نجاح المشروع</div>
@@ -1084,7 +1120,12 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
             
-            if budget_factor != 0:
+            # تنبيه للمشاريع التطوعية
+            if p_budget == 0:
+                st.info("ℹ️ مشروع تطوعي (بدون ميزانية) - تم التحليل بناءً على الأهداف التنموية فقط")
+            
+            # عرض تأثير الميزانية (للمشاريع غير التطوعية فقط)
+            if p_budget > 0 and budget_factor != 0:
                 impact_color = "#10B981" if budget_factor > 0 else "#EF4444"
                 impact_symbol = "▲" if budget_factor > 0 else "▼"
                 st.markdown(f"""
@@ -1110,6 +1151,7 @@ if submitted:
                     </div>
                 """, unsafe_allow_html=True)
             
+            # مستوى الثقة للمستثمر
             confidence_class = "confidence-high" if confidence_level == "عالية جداً" else "confidence-medium" if confidence_level == "متوسطة" else "confidence-low"
             st.markdown(f"""
                 <div style="text-align: center; margin-bottom: 20px;">
@@ -1162,7 +1204,9 @@ if submitted:
             st.markdown('</div></div>', unsafe_allow_html=True)
             
             investment_advice = ""
-            if confidence_level == "عالية جداً" and enhanced_prob > 0.7:
+            if p_budget == 0:
+                investment_advice = "مشروع تطوعي - يوصى بالدعم العيني والشراكات مع المؤسسات"
+            elif confidence_level == "عالية جداً" and enhanced_prob > 0.7:
                 investment_advice = "فرصة استثمارية واعدة - يوصى بالتمويل"
             elif confidence_level == "متوسطة" and enhanced_prob > 0.5:
                 investment_advice = "استثمار متوسط المخاطرة - يوصى بتمويل مشروط بمتابعة"
@@ -1174,7 +1218,8 @@ if submitted:
                     <div class="summary-title">📋 خلاصة التحليل وقرار المستثمر</div>
                     <div class="summary-text">
                         <p>مشروع <strong>"{p_name}"</strong> في مجال <strong>{p_cat}</strong>، 
-                        بميزانية <strong>{p_budget:,.0f} ريال</strong> لـ <strong>{p_ben:,} مستفيد</strong>.</p>
+                        {'بدون ميزانية' if p_budget == 0 else f'بميزانية {p_budget:,.0f} ريال'} 
+                        لـ <strong>{p_ben:,} مستفيد</strong>.</p>
                         <p>نسبة النجاح المتوقعة <strong>{enhanced_prob*100:.1f}%</strong>، 
                         ومستوى الثقة للمستثمر <strong>{confidence_level}</strong>.</p>
                         <div style="margin-top: 15px; padding: 15px; background: #F3F4F6; border-radius: 8px;">
@@ -1184,5 +1229,5 @@ if submitted:
                 </div>
             """, unsafe_allow_html=True)
 
-# --- 14. التذييل ---
+# --- 15. التذييل ---
 st.markdown('<div class="footer">المنصة الذكية لتحليل المشاريع التنموية 2026</div>', unsafe_allow_html=True)
